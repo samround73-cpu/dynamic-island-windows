@@ -1,6 +1,6 @@
 # User guide
 
-Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.33.)
+Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.34.)
 
 An iPhone-style "Dynamic Island" that replaces the Windows taskbar.
 
@@ -37,6 +37,7 @@ While it runs, it creates:
 | Settings, starred apps, pinned clips and shelf items | `%AppData%\DynamicIsland\settings.json` |
 | Error log (only if something goes wrong) | `%AppData%\DynamicIsland\errors.log` |
 | Your own taskbar setting, while the island is running | `%AppData%\DynamicIsland\taskbar-state.txt` |
+| When it last restarted itself (it never does so more than 3 times in 30 minutes) | `%AppData%\DynamicIsland\restarts.txt` |
 | Start menu shortcut | `%AppData%\Microsoft\Windows\Start Menu\Programs\Dynamic Island.lnk` |
 | Start with Windows (only if you turn it on) | A scheduled task called **DynamicIsland** |
 | Files .NET unpacks to run the single-file exe | `%Temp%\.net\DynamicIsland` |
@@ -57,7 +58,8 @@ To remove it all, use **Settings › About › Remove from this PC…**, then de
   If nothing maximised is under it (desktop showing, or windows that aren't maximised), it simply stays put.
 - **Full-screen games and videos** hide it completely.
 - **After you reconnect to the PC** (e.g. reopening a Shadow or Remote Desktop session) or the screen scaling changes,
-  the island quietly restarts itself a few seconds later, because Windows can otherwise leave it drawn as a black box.
+  the island quietly restarts itself a few seconds later, because Windows can otherwise leave it drawn as a black box
+  (at most 3 times in half an hour).
 
 ## The tabs (click the island to open)
 

@@ -12,7 +12,7 @@
     <AssemblyName>DynamicIsland</AssemblyName>
     <RootNamespace>DynamicIsland</RootNamespace>
     <Product>Dynamic Island</Product>
-    <Version>0.33.0</Version>
+    <Version>0.34.0</Version>
     <ApplicationIcon>Assets\island.ico</ApplicationIcon>
     <Company>samround73-cpu</Company>
     <Copyright>Copyright (c) 2026 samround73-cpu. MIT licence.</Copyright>

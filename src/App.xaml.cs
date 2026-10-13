@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 
@@ -148,8 +149,37 @@ public partial class App : Application
         if (Current is not App app || app._shuttingDown) return;
         string? exe = Environment.ProcessPath;
         if (exe is null) return;
+        // Safety limit: never more than 3 automatic restarts in half an hour, whatever triggers them.
+        if (!RecordRestart())
+        {
+            LogNote($"not restarting ({reason}): already restarted 3 times in the last 30 minutes");
+            return;
+        }
         LogNote($"restarting the island: {reason}");
         StartReplacement(exe, RestartArgument);
+    }
+
+    private static string RestartLogPath => Path.Combine(Path.GetDirectoryName(CrashLogPath)!, "restarts.txt");
+
+    /// <summary>Notes an automatic restart; returns false if there have already been 3 in the last 30 minutes.</summary>
+    private static bool RecordRestart()
+    {
+        try
+        {
+            var now = DateTime.Now;
+            var recent = new List<DateTime>();
+            if (File.Exists(RestartLogPath))
+                foreach (var line in File.ReadAllLines(RestartLogPath))
+                    if (DateTime.TryParse(line, System.Globalization.CultureInfo.InvariantCulture,
+                            System.Globalization.DateTimeStyles.RoundtripKind, out var when) && now - when < TimeSpan.FromMinutes(30))
+                        recent.Add(when);
+            if (recent.Count >= 3) return false;
+            recent.Add(now);
+            Directory.CreateDirectory(Path.GetDirectoryName(RestartLogPath)!);
+            File.WriteAllLines(RestartLogPath, recent.Select(d => d.ToString("o")));
+            return true;
+        }
+        catch { return true; }
     }
 
     /// <summary>

@@ -192,8 +192,13 @@ public partial class MainWindow : Window
         SystemEvents.DisplaySettingsChanged += OnDisplayChanged;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
         SystemEvents.SessionSwitch += OnSessionSwitch;
-        DpiChanged += (_, args) => ScheduleFreshStart(
-            $"screen scaling changed ({args.OldDpi.PixelsPerInchX:0} to {args.NewDpi.PixelsPerInchX:0} dpi)");
+        DpiChanged += (_, args) =>
+        {
+            // Windows also sends this when nothing has really changed (e.g. while taking a screenshot); only a real
+            // change of scaling needs a fresh start.
+            if (Math.Abs(args.OldDpi.PixelsPerInchX - args.NewDpi.PixelsPerInchX) < 0.5) return;
+            ScheduleFreshStart($"screen scaling changed ({args.OldDpi.PixelsPerInchX:0} to {args.NewDpi.PixelsPerInchX:0} dpi)");
+        };
 
         // Selecting the first tab here (rather than in XAML) means everything above is ready when it fires.
         TodayTabButton.IsChecked = true;
