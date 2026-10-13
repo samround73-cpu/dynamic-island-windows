@@ -363,7 +363,7 @@ public partial class MainWindow
             PeekActiveImage.Visibility = Visibility.Collapsed;
             PeekActiveGlyph.Text = "\uE8A9"; // a simple "windows" symbol from Segoe icons
             PeekActiveGlyph.FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets");
-            PeekActiveGlyph.Foreground = new SolidColorBrush(Color.FromArgb(0x99, 0xFF, 0xFF, 0xFF));
+            PeekActiveGlyph.Foreground = Theme.Ink(0x99);
             PeekActiveGlyph.FontSize = 15;
             PeekActiveGlyph.Visibility = Visibility.Visible;
             PeekActiveName.Text = _openApps.Count switch { 0 => "No apps open", 1 => "1 app open", _ => $"{_openApps.Count} apps open" };

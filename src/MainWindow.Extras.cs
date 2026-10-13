@@ -473,7 +473,7 @@ public partial class MainWindow
         WeatherPlace.ToolTip = $"{report.Place}  ·  feels like {report.FeelsLike:0}°";
 
         WeatherHours.Children.Clear();
-        var subtle = new SolidColorBrush(Color.FromArgb(0x99, 0xFF, 0xFF, 0xFF));
+        var subtle = Theme.Ink(0x99);
         foreach (var hour in report.Hours)
         {
             var column = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
@@ -597,7 +597,7 @@ public partial class MainWindow
                 CornerRadius = new CornerRadius(12),
                 Margin = new Thickness(4, 0, 0, 0),
                 Background = new SolidColorBrush(color),
-                BorderBrush = Brushes.White,
+                BorderBrush = Theme.Ink(),
                 BorderThickness = new Thickness(selected ? 2.5 : 0),
                 Cursor = Cursors.Hand,
                 ToolTip = name,
@@ -613,12 +613,33 @@ public partial class MainWindow
         }
     }
 
+    /// <summary>
+    /// Text and fine-line colours for the light or dark island (see Theme). The XAML refers to these as
+    /// Ink, Ink80 (half-strength) and so on, plus a few solid surfaces.
+    /// </summary>
+    private void ApplyThemeResources()
+    {
+        Resources["Ink"] = Theme.Ink();
+        foreach (byte alpha in new byte[] { 0x12, 0x14, 0x16, 0x1A, 0x1F, 0x22, 0x26, 0x2A, 0x2E, 0x33, 0x38, 0x4D, 0x55,
+                                            0x66, 0x73, 0x80, 0x8C, 0x99, 0xA0, 0xB3, 0xC0, 0xCC, 0xDD })
+            Resources[$"Ink{alpha:X2}"] = Theme.Ink(alpha);
+        Resources["SubtleText"] = Theme.Ink(0x99);
+
+        bool light = Theme.Light;
+        Resources["TrackOffBrush"] = Frozen(light ? Color.FromRgb(0xD1, 0xD1, 0xD6) : Color.FromRgb(0x33, 0x33, 0x33));
+        Resources["TileOffBrush"] = Frozen(light ? Color.FromArgb(0x14, 0x00, 0x00, 0x00) : Color.FromRgb(0x26, 0x26, 0x26));
+        Resources["BadgeBrush"] = Frozen(light ? Color.FromRgb(0xD8, 0xD8, 0xDD) : Color.FromRgb(0x3A, 0x3A, 0x3C));
+        Resources["BadgeRing"] = Frozen(light ? Color.FromRgb(0xF4, 0xF4, 0xF6) : Color.FromRgb(0x15, 0x15, 0x15));
+    }
+
     /// <summary>Recolours everything gold-coloured to the chosen accent.</summary>
     private void ApplyAccent()
     {
         Color accent;
         try { accent = (Color)ColorConverter.ConvertFromString(_settings.AccentColor); }
         catch { accent = Color.FromRgb(0xD6, 0xB4, 0x6A); }
+        // On the light island the accent is deepened a little so it stays readable on white.
+        if (Theme.Light) accent = Color.FromRgb((byte)(accent.R * 0.78), (byte)(accent.G * 0.78), (byte)(accent.B * 0.78));
 
         static Color Blend(Color a, Color b, double amountOfA) => Color.FromRgb(
             (byte)(a.R * amountOfA + b.R * (1 - amountOfA)),
@@ -651,7 +672,7 @@ public partial class MainWindow
         ApplyPowerSliderAccent();
     }
 
-    /// <summary>Black, Glass (see-through smoked glass), Glow (soft accent halo) or Outline (thin accent edge).</summary>
+    /// <summary>Black, Light (frosted), Glow (soft accent halo), Outline (thin accent edge), or Automatic (Black or Light, following Windows).</summary>
     private void ApplyIslandStyle()
     {
         IslandShape.Effect = null;
@@ -665,35 +686,25 @@ public partial class MainWindow
         Color tile = Color.FromRgb(0x1C, 0x1C, 0x1E), tileHover = Color.FromRgb(0x2A, 0x2A, 0x2D);
 
         Color accent = (Resources["Accent"] as SolidColorBrush)?.Color ?? Color.FromRgb(0xD6, 0xB4, 0x6A);
-        switch (_settings.IslandStyle)
+        switch (Theme.Light ? "Light" : _settings.IslandStyle)
         {
-            case "Glass" when _glass.Supported:
-                // Real frosted glass: Windows blurs whatever is behind (see AcrylicBackdrop); the island adds
-                // a light sheen on top, a fine bright edge, and see-through cards so the frost shows everywhere.
-                var sheen = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
-                sheen.GradientStops.Add(new GradientStop(Color.FromArgb(0x2C, 0xFF, 0xFF, 0xFF), 0));
-                sheen.GradientStops.Add(new GradientStop(Color.FromArgb(0x0C, 0xFF, 0xFF, 0xFF), 1));
-                sheen.Freeze();
-                IslandShape.Fill = sheen;
-                IslandShape.Stroke = new SolidColorBrush(Color.FromArgb(0x40, 0xFF, 0xFF, 0xFF));
+            case "Light":
+                // Light frosted: Windows blurs whatever is behind (see AcrylicBackdrop, set to its light frost);
+                // the island adds a soft white wash on top so it reads as light over any wallpaper, a fine edge,
+                // and white see-through cards. Without the blur it's simply a near-solid soft white.
+                var wash = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
+                wash.GradientStops.Add(new GradientStop(_glass.Supported ? Color.FromArgb(0xB8, 0xF8, 0xF8, 0xFA) : Color.FromArgb(0xF4, 0xF6, 0xF6, 0xF8), 0));
+                wash.GradientStops.Add(new GradientStop(_glass.Supported ? Color.FromArgb(0xA8, 0xF2, 0xF2, 0xF4) : Color.FromArgb(0xF4, 0xF1, 0xF1, 0xF3), 1));
+                wash.Freeze();
+                IslandShape.Fill = wash;
+                IslandShape.Stroke = new SolidColorBrush(Color.FromArgb(0x24, 0x00, 0x00, 0x00));
                 IslandShape.StrokeThickness = 1;
-                card = Color.FromArgb(0x1E, 0xFF, 0xFF, 0xFF);
-                field = Color.FromArgb(0x24, 0xFF, 0xFF, 0xFF);
-                tileOff = Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF);
-                cardBorder = Color.FromArgb(0x16, 0xFF, 0xFF, 0xFF);
-                tile = Color.FromArgb(0x22, 0xFF, 0xFF, 0xFF);
-                tileHover = Color.FromArgb(0x38, 0xFF, 0xFF, 0xFF);
-                break;
-
-            case "Glass":
-                // Older Windows without acrylic: tinted see-through instead.
-                var tint = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
-                tint.GradientStops.Add(new GradientStop(Color.FromArgb(0xD4, 0x22, 0x22, 0x25), 0));
-                tint.GradientStops.Add(new GradientStop(Color.FromArgb(0xC2, 0x0E, 0x0E, 0x11), 1));
-                tint.Freeze();
-                IslandShape.Fill = tint;
-                IslandShape.Stroke = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
-                IslandShape.StrokeThickness = 1;
+                card = Color.FromArgb(0x9C, 0xFF, 0xFF, 0xFF);
+                field = Color.FromArgb(0x0F, 0x00, 0x00, 0x00);
+                tileOff = Color.FromArgb(0x14, 0x00, 0x00, 0x00);
+                cardBorder = Color.FromArgb(0x10, 0x00, 0x00, 0x00);
+                tile = Color.FromArgb(0x0F, 0x00, 0x00, 0x00);
+                tileHover = Color.FromArgb(0x1F, 0x00, 0x00, 0x00);
                 break;
 
             case "Glow":
@@ -718,10 +729,11 @@ public partial class MainWindow
         Resources["FieldBrush"] = Frozen(field);
         Resources["CardBorder"] = Frozen(cardBorder);
         Resources["TileBrush"] = Frozen(tile);
+        _glass.SetLight(Theme.Light);
         Resources["ListFadeTop"] = IsGlass ? Brushes.Transparent : FadeBrush(toBottom: false);
         // In Glow, the island is tinted near the bottom, so the bottom fade blends into that tint instead of black.
         Resources["ListFadeBottom"] = IsGlass ? Brushes.Transparent
-            : FadeBrush(toBottom: true, _settings.IslandStyle == "Glow" ? Blend(accent, Colors.Black, 0.12) : Colors.Black);
+            : FadeBrush(toBottom: true, _settings.IslandStyle == "Glow" && !Theme.Light ? Blend(accent, Colors.Black, 0.12) : IslandEdge);
         Resources["TileHoverBrush"] = Frozen(tileHover);
         ToggleTile.SetOffBackground(tileOff);
         UpdateIslandShape();
@@ -734,7 +746,10 @@ public partial class MainWindow
         (byte)(a.G * amountOfA + b.G * (1 - amountOfA)),
         (byte)(a.B * amountOfA + b.B * (1 - amountOfA)));
 
-    private static Brush FadeBrush(bool toBottom) => FadeBrush(toBottom, Colors.Black);
+    /// <summary>The island's own colour, which list edges fade into.</summary>
+    private static Color IslandEdge => Theme.Light ? Color.FromRgb(0xF4, 0xF4, 0xF6) : Colors.Black;
+
+    private static Brush FadeBrush(bool toBottom) => FadeBrush(toBottom, IslandEdge);
 
     private static Brush FadeBrush(bool toBottom, Color edge)
     {
@@ -823,8 +838,9 @@ public partial class MainWindow
         LineIconsStatusText.Text = LineIcons.Available
             ? "Tidy, matching icons for your apps instead of their own icons"
             : "Icon set not downloaded: run Build.cmd while online to add it";
-        StyleBlack.IsChecked = _settings.IslandStyle is not ("Glass" or "Glow" or "Outline");
-        StyleGlass.IsChecked = _settings.IslandStyle == "Glass";
+        StyleBlack.IsChecked = _settings.IslandStyle is not ("Light" or "Glow" or "Outline" or "Auto");
+        StyleLight.IsChecked = _settings.IslandStyle == "Light";
+        StyleAuto.IsChecked = _settings.IslandStyle == "Auto";
         StyleGlow.IsChecked = _settings.IslandStyle == "Glow";
         StyleOutline.IsChecked = _settings.IslandStyle == "Outline";
         PeekSwitch.IsChecked = _settings.PeekOnHover;
@@ -863,7 +879,8 @@ public partial class MainWindow
         bool iconsChanged = LineIcons.Available && _settings.UseLineIcons != (LineIconsSwitch.IsChecked == true);
         if (LineIcons.Available) _settings.UseLineIcons = LineIconsSwitch.IsChecked == true;
         _settings.ShowBatteryInPill = BatterySwitch.IsChecked == true;
-        _settings.IslandStyle = StyleGlass.IsChecked == true ? "Glass"
+        _settings.IslandStyle = StyleLight.IsChecked == true ? "Light"
+            : StyleAuto.IsChecked == true ? "Auto"
             : StyleGlow.IsChecked == true ? "Glow"
             : StyleOutline.IsChecked == true ? "Outline"
             : "Black";
@@ -883,6 +900,13 @@ public partial class MainWindow
         _settings.Save();
 
         if (sender == StartWithWindowsSwitch) SetStartup(StartWithWindowsSwitch.IsChecked == true);
+
+        // Light and dark are set up when the island starts, so switching between them restarts it.
+        if (Theme.Decide(_settings.IslandStyle) != Theme.Light)
+        {
+            App.RestartIsland("light/dark style changed", counted: false);
+            return;
+        }
 
         if (autoUpdateTurnedOn && _availableUpdate is not null) InstallUpdate(_availableUpdate, automatic: true);
         ApplyBehaviourSettings();
@@ -905,7 +929,7 @@ public partial class MainWindow
         SearchHotkeyStatusText.Text = taken
             ? "Another app is already using Ctrl+Space, so this can't be used right now"
             : "From anywhere: type an app's name and press Enter. Press it again to close";
-        SearchHotkeyStatusText.Foreground = taken ? new SolidColorBrush(Color.FromRgb(0xFF, 0x9A, 0x94)) : (Brush)FindResource("SubtleText");
+        SearchHotkeyStatusText.Foreground = taken ? new SolidColorBrush(Theme.Light ? Color.FromRgb(0xC0, 0x39, 0x2B) : Color.FromRgb(0xFF, 0x9A, 0x94)) : (Brush)FindResource("SubtleText");
     }
 
     // ---- Screenshots and downloads ----
@@ -1080,7 +1104,7 @@ public partial class MainWindow
         if (!_activityShowing) return; // the island is open or hidden for a full-screen app
 
         // The line-style arrow, in the accent colour when on and grey when off.
-        var line = LineIcons.Named("arrow-big-up-line", on ? _settings.AccentColor : "#8CFFFFFF");
+        var line = LineIcons.Named("arrow-big-up-line", on ? ((SolidColorBrush)FindResource("Accent")).Color.ToString() : Theme.InkColor(0x8C).ToString());
         if (line is not null)
         {
             ActivityGlyph.FontFamily = LineIcons.FontOrDefault;
@@ -1090,7 +1114,7 @@ public partial class MainWindow
         }
         else
         {
-            ActivityGlyph.Foreground = on ? (Brush)FindResource("Accent") : new SolidColorBrush(Color.FromArgb(0x8C, 0xFF, 0xFF, 0xFF));
+            ActivityGlyph.Foreground = on ? (Brush)FindResource("Accent") : Theme.Ink(0x8C);
         }
     }
 
@@ -1491,7 +1515,7 @@ public partial class MainWindow
             StartupManager.Method.RunEntry => "Opens when you sign in (Windows didn't allow reopening on reconnect)",
             _ => "Opens when you sign in, and again when you reconnect or unlock if it isn't running",
         };
-        StartupStatusText.Foreground = blocked ? new SolidColorBrush(Color.FromRgb(0xFF, 0x9A, 0x94)) : (Brush)FindResource("SubtleText");
+        StartupStatusText.Foreground = blocked ? new SolidColorBrush(Theme.Light ? Color.FromRgb(0xC0, 0x39, 0x2B) : Color.FromRgb(0xFF, 0x9A, 0x94)) : (Brush)FindResource("SubtleText");
         StartupFixButton.Visibility = blocked ? Visibility.Visible : Visibility.Collapsed;
     }
 

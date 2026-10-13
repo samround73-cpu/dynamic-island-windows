@@ -28,7 +28,7 @@ public sealed class IslandSettings
     // ---- Appearance and behaviour ----
     public string AccentColor { get; set; } = "#D6B46A";
     public bool ShowMusicBars { get; set; } = true;
-    /// <summary>"Black", "Glass", "Glow" or "Outline".</summary>
+    /// <summary>"Black", "Light" (frosted), "Glow", "Outline" or "Auto" (Black or Light, following Windows).</summary>
     public string IslandStyle { get; set; } = "Black";
     public bool ShowBatteryInPill { get; set; } = true;
     /// <summary>Line-style app icons (Tabler) instead of each app's own icon.</summary>
@@ -84,7 +84,11 @@ public sealed class IslandSettings
         try
         {
             if (File.Exists(FilePath))
-                return JsonSerializer.Deserialize<IslandSettings>(File.ReadAllText(FilePath)) ?? new IslandSettings();
+            {
+                var settings = JsonSerializer.Deserialize<IslandSettings>(File.ReadAllText(FilePath)) ?? new IslandSettings();
+                if (settings.IslandStyle == "Glass") settings.IslandStyle = "Light"; // Glass was replaced by Light (frosted)
+                return settings;
+            }
         }
         catch { /* a damaged file just means starting fresh */ }
         return new IslandSettings();

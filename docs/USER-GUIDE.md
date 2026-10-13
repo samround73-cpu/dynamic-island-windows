@@ -98,7 +98,7 @@ Other things you can do:
 | Quit | Right-click the pill → **Exit Dynamic Island** (your normal taskbar comes back) |
 
 **Settings** — the gear at the top-left of the open island. Pick a section on the left:
-- **Appearance:** accent colour, island style (Black; Glass — real frosted blur of what's behind, as a panel hanging from the top edge; Glow — an accent halo; or Outline), line icons, battery on the island, music bars.
+- **Appearance:** accent colour, island style (Black; Light — light frosted glass with dark text, as a panel hanging from the top edge; Glow — an accent halo; Outline; or Auto — Black or Light, following Windows' light/dark mode. Switching between light and dark restarts the island for a second), line icons, battery on the island, music bars.
 - **Behaviour:** the hover tray and its delay, tucking away over maximised apps, the Ctrl+Space shortcut, and Start with Windows (it tells you if Windows has switched it off, with a button to fix it).
 - **Pop-ups:** screenshots, finished downloads, whether those go onto the Shelf, the download-progress glow,
   Caps Lock, and device pop-ups.

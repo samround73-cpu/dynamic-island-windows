@@ -6,7 +6,7 @@
         Width="740" Height="580"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize" ShowActivated="False"
-        FontFamily="Segoe UI Variable Text, Segoe UI" Foreground="White"
+        FontFamily="Segoe UI Variable Text, Segoe UI" Foreground="{DynamicResource Ink}"
         UseLayoutRounding="True">
 
     <!--
@@ -47,7 +47,7 @@
 
         <!-- A flat, rounded button that lights up on hover -->
         <Style x:Key="IslandButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Focusable" Value="False" />
@@ -59,10 +59,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#22FFFFFF" />
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ink22}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#38FFFFFF" />
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ink38}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -72,7 +72,7 @@
 
         <!-- A card-coloured button with a hover glow that works on any background (used for power & chips) -->
         <Style x:Key="CardButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
             <Setter Property="Background" Value="{DynamicResource FieldBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Focusable" Value="False" />
@@ -88,10 +88,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Glow" Property="Background" Value="#16FFFFFF" />
+                                <Setter TargetName="Glow" Property="Background" Value="{DynamicResource Ink16}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Glow" Property="Background" Value="#2AFFFFFF" />
+                                <Setter TargetName="Glow" Property="Background" Value="{DynamicResource Ink2A}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -101,7 +101,7 @@
 
 <!-- A round card-coloured button (Power tab: lock, sleep, sign out) -->
         <Style x:Key="RoundCardButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
             <Setter Property="Background" Value="{DynamicResource FieldBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Focusable" Value="False" />
@@ -110,7 +110,7 @@
                     <ControlTemplate TargetType="Button">
                         <Grid>
                             <Ellipse Fill="{TemplateBinding Background}" />
-                            <Ellipse x:Name="Glow" Fill="White" Opacity="0" />
+                            <Ellipse x:Name="Glow" Fill="{DynamicResource Ink}" Opacity="0" />
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Grid>
                         <ControlTemplate.Triggers>
@@ -138,7 +138,7 @@
                     <ControlTemplate TargetType="Button">
                         <Grid x:Name="Root">
                             <Ellipse Fill="{TemplateBinding Background}" />
-                            <Ellipse x:Name="Shine" Fill="White" Opacity="0" />
+                            <Ellipse x:Name="Shine" Fill="{DynamicResource Ink}" Opacity="0" />
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Grid>
                         <ControlTemplate.Triggers>
@@ -180,7 +180,7 @@
 
         <!-- Tabs along the top -->
         <Style x:Key="TabButton" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#99FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink99}" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Cursor" Value="Hand" />
@@ -195,8 +195,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#14FFFFFF" />
-                                <Setter Property="Foreground" Value="#DDFFFFFF" />
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ink14}" />
+                                <Setter Property="Foreground" Value="{DynamicResource InkDD}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentSoft}" />
@@ -211,7 +211,7 @@
         <!-- Small pill choices (clipboard filters, hover delay, °C/°F) -->
 <!-- A section in the Settings sidebar: subtle until chosen, then accent-tinted -->
         <Style x:Key="NavRadio" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#B3FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource InkB3}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Focusable" Value="False" />
             <Setter Property="Template">
@@ -222,8 +222,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#14FFFFFF" />
-                                <Setter Property="Foreground" Value="White" />
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ink14}" />
+                                <Setter Property="Foreground" Value="{DynamicResource Ink}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentFaint}" />
@@ -236,7 +236,7 @@
         </Style>
 
                 <Style x:Key="ChipRadio" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#B3FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource InkB3}" />
             <Setter Property="FontSize" Value="11.5" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Cursor" Value="Hand" />
@@ -250,7 +250,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#14FFFFFF" />
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ink14}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Accent}" />
@@ -270,7 +270,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
                         <Grid Width="40" Height="22" Background="Transparent">
-                            <Border x:Name="Track" CornerRadius="11" Background="#FF333333" />
+                            <Border x:Name="Track" CornerRadius="11" Background="{DynamicResource TrackOffBrush}" />
                             <Ellipse x:Name="Knob" Width="16" Height="16" Fill="White" HorizontalAlignment="Left" Margin="3,0" />
                         </Grid>
                         <ControlTemplate.Triggers>
@@ -287,7 +287,7 @@
 
         <!-- A clickable keyboard hint at the bottom of the Clipboard tab ("Ctrl C  Copy") -->
         <Style x:Key="KeyHint" TargetType="Button">
-            <Setter Property="Foreground" Value="#B3FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource InkB3}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Focusable" Value="False" />
             <Setter Property="Margin" Value="0,0,10,0" />
@@ -296,15 +296,15 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg" Background="Transparent" CornerRadius="7" Padding="3,2,6,2">
                             <StackPanel Orientation="Horizontal">
-                                <Border Background="#FF262626" CornerRadius="5" Padding="6,1" VerticalAlignment="Center">
-                                    <TextBlock Text="{TemplateBinding Tag}" FontSize="10" FontWeight="SemiBold" Foreground="#CCFFFFFF" />
+                                <Border Background="{DynamicResource TileOffBrush}" CornerRadius="5" Padding="6,1" VerticalAlignment="Center">
+                                    <TextBlock Text="{TemplateBinding Tag}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource InkCC}" />
                                 </Border>
                                 <ContentPresenter Margin="6,0,0,0" VerticalAlignment="Center" TextElement.FontSize="11" />
                             </StackPanel>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#14FFFFFF" />
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ink14}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -316,7 +316,7 @@
         <Style x:Key="PillDot" TargetType="Ellipse">
             <Setter Property="Width" Value="3" />
             <Setter Property="Height" Value="3" />
-            <Setter Property="Fill" Value="#4DFFFFFF" />
+            <Setter Property="Fill" Value="{DynamicResource Ink4D}" />
             <Setter Property="Margin" Value="9,1,9,0" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
@@ -331,7 +331,7 @@
         <Style x:Key="SectionLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10.5" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#80FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink80}" />
             <Setter Property="Margin" Value="6,14,0,6" />
         </Style>
 
@@ -358,7 +358,7 @@
             </Setter>
         </Style>
         <Style x:Key="SlimSlider" TargetType="Slider">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
             <Setter Property="Focusable" Value="False" />
             <Setter Property="IsMoveToPointEnabled" Value="True" />
             <Setter Property="Template">
@@ -370,7 +370,7 @@
                                     <RepeatButton Style="{StaticResource SliderPart}" Background="{TemplateBinding Foreground}" Command="Slider.DecreaseLarge" />
                                 </Track.DecreaseRepeatButton>
                                 <Track.IncreaseRepeatButton>
-                                    <RepeatButton Style="{StaticResource SliderPart}" Background="#33FFFFFF" Command="Slider.IncreaseLarge" />
+                                    <RepeatButton Style="{StaticResource SliderPart}" Background="{DynamicResource Ink33}" Command="Slider.IncreaseLarge" />
                                 </Track.IncreaseRepeatButton>
                                 <Track.Thumb>
                                     <Thumb Width="12" Height="12">
@@ -419,7 +419,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
                         <Grid Height="32">
-                            <Border Background="#FF262626" CornerRadius="16" />
+                            <Border Background="{DynamicResource TileOffBrush}" CornerRadius="16" />
                             <Track x:Name="PART_Track">
                                 <Track.DecreaseRepeatButton>
                                     <RepeatButton Style="{StaticResource BigSliderFill}" Command="Slider.DecreaseLarge" />
@@ -445,7 +445,7 @@
 
         <!-- A button with no chrome except a soft hover glow (hover-tray icons) -->
         <Style x:Key="PeekButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Focusable" Value="False" />
             <Setter Property="Template">
@@ -475,7 +475,7 @@
                         </Grid>
                         <TextBlock Text="{Binding ShortName}" FontSize="12" Margin="7,0,0,0" VerticalAlignment="Center"
                                    MaxWidth="130" TextTrimming="CharacterEllipsis" />
-                        <TextBlock Text="{Binding Count}" FontSize="11" Foreground="#80FFFFFF" Margin="6,0,0,0" VerticalAlignment="Center"
+                        <TextBlock Text="{Binding Count}" FontSize="11" Foreground="{DynamicResource Ink80}" Margin="6,0,0,0" VerticalAlignment="Center"
                                    Visibility="{Binding HasMany, Converter={StaticResource BoolToVis}}" />
                     </StackPanel>
                 </Border>
@@ -512,7 +512,7 @@
                     <TextBlock x:Name="LineGlyph" Text="{Binding Line.Glyph}" Foreground="{Binding Line.Brush}" FontSize="19"
                                FontFamily="{x:Static local:LineIcons.FontOrDefault}" Visibility="Collapsed"
                                HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    <Border MinWidth="13" Height="13" CornerRadius="6.5" Background="#FF3A3A3C" BorderBrush="#FF151515" BorderThickness="1.5" Padding="2,0"
+                    <Border MinWidth="13" Height="13" CornerRadius="6.5" Background="{DynamicResource BadgeBrush}" BorderBrush="{DynamicResource BadgeRing}" BorderThickness="1.5" Padding="2,0"
                             HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,-2,0"
                             Visibility="{Binding HasMany, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="{Binding Count}" FontSize="8" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -529,7 +529,7 @@
                     <Setter TargetName="LineGlyph" Property="Opacity" Value="0.45" />
                 </DataTrigger>
                 <Trigger SourceName="IconButton" Property="IsMouseOver" Value="True">
-                    <Setter TargetName="HoverBg" Property="Background" Value="#1AFFFFFF" />
+                    <Setter TargetName="HoverBg" Property="Background" Value="{DynamicResource Ink1A}" />
                 </Trigger>
             </DataTemplate.Triggers>
         </DataTemplate>
@@ -538,7 +538,7 @@
              Pinned apps that aren't running are faded outlines; clicking one starts it. -->
         <DataTemplate x:Key="DockIconTemplate" DataType="{x:Type local:AppTile}">
             <Grid Margin="0,0,6,6">
-                <Border x:Name="Divider" Width="1" Height="22" Margin="1,0,7,0" Background="#2EFFFFFF" VerticalAlignment="Center" Visibility="Collapsed" />
+                <Border x:Name="Divider" Width="1" Height="22" Margin="1,0,7,0" Background="{DynamicResource Ink2E}" VerticalAlignment="Center" Visibility="Collapsed" />
                 <Button x:Name="DockButton" Style="{StaticResource PeekButton}" Width="34" Height="34"
                         Click="DockTile_Click" MouseEnter="Tile_MouseEnter" MouseLeave="Tile_MouseLeave" MouseRightButtonUp="Tile_RightClick"
                         ToolTip="{Binding DockTip}">
@@ -550,7 +550,7 @@
                                        FontFamily="{x:Static local:LineIcons.FontOrDefault}" Visibility="Collapsed"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Grid>
-                        <Border MinWidth="14" Height="14" CornerRadius="7" Background="#FF3A3A3C" BorderBrush="#FF151515" BorderThickness="1.5" Padding="2,0"
+                        <Border MinWidth="14" Height="14" CornerRadius="7" Background="{DynamicResource BadgeBrush}" BorderBrush="{DynamicResource BadgeRing}" BorderThickness="1.5" Padding="2,0"
                                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-4,-4,0"
                                 Visibility="{Binding HasMany, Converter={StaticResource BoolToVis}}">
                             <TextBlock Text="{Binding Count}" FontSize="8" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -568,7 +568,7 @@
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsClosedPin}" Value="True">
                     <Setter TargetName="TileBg" Property="Background" Value="Transparent" />
-                    <Setter TargetName="TileBg" Property="BorderBrush" Value="#26FFFFFF" />
+                    <Setter TargetName="TileBg" Property="BorderBrush" Value="{DynamicResource Ink26}" />
                     <Setter TargetName="IconHolder" Property="Opacity" Value="0.38" />
                 </DataTrigger>
                 <Trigger SourceName="DockButton" Property="IsMouseOver" Value="True">
@@ -588,7 +588,7 @@
 
         <!-- Apps list: section headings -->
         <DataTemplate DataType="{x:Type local:AppSectionHeader}">
-            <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold" Foreground="#B3FFFFFF" Margin="10,14,0,6" />
+            <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource InkB3}" Margin="10,14,0,6" />
         </DataTemplate>
 
         <!-- Apps list: one app. Gold dot + "Open" when it's running; star to favourite it. -->
@@ -608,7 +608,7 @@
                             HorizontalAlignment="Left" Margin="-6,0,0,0" Opacity="0" />
                     <Border Width="28" Height="28" CornerRadius="8" Background="{DynamicResource FieldBrush}" VerticalAlignment="Center">
                         <Grid>
-                            <TextBlock x:Name="RowInitial" Text="{Binding Initial}" FontSize="12" FontWeight="SemiBold" Foreground="#99FFFFFF"
+                            <TextBlock x:Name="RowInitial" Text="{Binding Initial}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Ink99}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                             <Image x:Name="RowImage" Source="{Binding Icon}" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" />
                             <TextBlock x:Name="RowGlyph" Text="{Binding Line.Glyph}" Foreground="{Binding Line.Brush}" FontSize="17"
@@ -621,11 +621,11 @@
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0"
                                 Visibility="{Binding IsOpen, Converter={StaticResource BoolToVis}}">
                         <Ellipse Width="7" Height="7" Fill="{DynamicResource Accent}" VerticalAlignment="Center" />
-                        <TextBlock Text="Open" FontSize="11" Foreground="{StaticResource SubtleText}" Margin="6,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Open" FontSize="11" Foreground="{DynamicResource SubtleText}" Margin="6,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                     <Button x:Name="Star" Grid.Column="3" Style="{StaticResource IslandButton}" Width="28" Height="28" Opacity="0"
                             Click="Star_Click" ToolTip="Star">
-                        <TextBlock x:Name="StarGlyph" Style="{StaticResource Glyph}" FontSize="12" Text="&#xE734;" Foreground="#99FFFFFF" />
+                        <TextBlock x:Name="StarGlyph" Style="{StaticResource Glyph}" FontSize="12" Text="&#xE734;" Foreground="{DynamicResource Ink99}" />
                     </Button>
                 </Grid>
             </Border>
@@ -670,16 +670,16 @@
                 </Grid>
                 <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12.5" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                 <Grid Grid.Column="2" Height="6" Margin="8,0,4,0" VerticalAlignment="Center">
-                    <Border Background="#1FFFFFFF" CornerRadius="3" />
+                    <Border Background="{DynamicResource Ink1F}" CornerRadius="3" />
                     <Border Background="{DynamicResource Accent}" CornerRadius="3" RenderTransformOrigin="0,0.5">
                         <Border.RenderTransform>
                             <ScaleTransform ScaleX="{Binding Fraction}" />
                         </Border.RenderTransform>
                     </Border>
                 </Grid>
-                <TextBlock Grid.Column="3" Text="{Binding CpuText}" FontSize="12" Foreground="{StaticResource SubtleText}"
+                <TextBlock Grid.Column="3" Text="{Binding CpuText}" FontSize="12" Foreground="{DynamicResource SubtleText}"
                            TextAlignment="Right" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="4" Text="{Binding MemoryText}" FontSize="12" Foreground="{StaticResource SubtleText}"
+                <TextBlock Grid.Column="4" Text="{Binding MemoryText}" FontSize="12" Foreground="{DynamicResource SubtleText}"
                            TextAlignment="Right" VerticalAlignment="Center" />
             </Grid>
             <DataTemplate.Triggers>
@@ -692,7 +692,7 @@
 
         <!-- A full-width card row button (clipboard items) -->
         <Style x:Key="RowButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
             <Setter Property="Background" Value="{DynamicResource CardBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Focusable" Value="False" />
@@ -707,10 +707,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Glow" Property="Background" Value="#14FFFFFF" />
+                                <Setter TargetName="Glow" Property="Background" Value="{DynamicResource Ink14}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Glow" Property="Background" Value="#26FFFFFF" />
+                                <Setter TargetName="Glow" Property="Background" Value="{DynamicResource Ink26}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -728,17 +728,17 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Border x:Name="IconBox" Width="24" Height="24" CornerRadius="7" Background="#FF262626" VerticalAlignment="Center">
-                        <TextBlock x:Name="IconGlyph" Style="{StaticResource Glyph}" FontSize="11" Text="{Binding Glyph}" Foreground="#CCFFFFFF" />
+                    <Border x:Name="IconBox" Width="24" Height="24" CornerRadius="7" Background="{DynamicResource TileOffBrush}" VerticalAlignment="Center">
+                        <TextBlock x:Name="IconGlyph" Style="{StaticResource Glyph}" FontSize="11" Text="{Binding Glyph}" Foreground="{DynamicResource InkCC}" />
                     </Border>
                     <TextBlock Grid.Column="1" Text="{Binding Preview}" FontSize="12.5" FontWeight="SemiBold" Margin="10,0"
                                VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Grid.Column="2" Text="{Binding Ago}" FontSize="10.5" Foreground="{StaticResource SubtleText}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2" Text="{Binding Ago}" FontSize="10.5" Foreground="{DynamicResource SubtleText}" VerticalAlignment="Center" />
                 </Grid>
             </Border>
             <DataTemplate.Triggers>
                 <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
-                    <Setter TargetName="Row" Property="Background" Value="#12FFFFFF" />
+                    <Setter TargetName="Row" Property="Background" Value="{DynamicResource Ink12}" />
                 </Trigger>
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                     <Setter TargetName="Row" Property="Background" Value="{DynamicResource AccentSoft}" />
@@ -750,7 +750,7 @@
 
         <!-- A file on the shelf: thumbnail, name, details; drag it out to use it -->
         <DataTemplate x:Key="ShelfTileTemplate" DataType="{x:Type local:ShelfItem}">
-            <Border x:Name="Tile" Width="112" Height="112" Margin="3" CornerRadius="14" Background="#FF171717" Cursor="Hand"
+            <Border x:Name="Tile" Width="112" Height="112" Margin="3" CornerRadius="14" Background="{DynamicResource CardBrush}" Cursor="Hand"
                     ToolTip="{Binding Path}" MouseLeftButtonDown="ShelfTile_MouseDown" MouseMove="ShelfTile_MouseMove">
                 <Border.ContextMenu>
                     <ContextMenu Opened="Menu_Opened" Closed="Menu_Closed">
@@ -765,13 +765,13 @@
                     <Image Source="{Binding Thumbnail}" Width="48" Height="48" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
                     <TextBlock Text="{Binding Name}" FontSize="11.5" FontWeight="SemiBold" Margin="0,8,0,0" HorizontalAlignment="Center"
                                TextTrimming="CharacterEllipsis" />
-                    <TextBlock Text="{Binding Details}" FontSize="10" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center"
+                    <TextBlock Text="{Binding Details}" FontSize="10" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center"
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
             </Border>
             <DataTemplate.Triggers>
                 <Trigger SourceName="Tile" Property="IsMouseOver" Value="True">
-                    <Setter TargetName="Tile" Property="Background" Value="#FF222222" />
+                    <Setter TargetName="Tile" Property="Background" Value="{DynamicResource TileHoverBrush}" />
                 </Trigger>
             </DataTemplate.Triggers>
         </DataTemplate>
@@ -819,17 +819,17 @@
                     <Grid x:Name="CompactContent" Margin="16,0,14,1">
                         <StackPanel x:Name="CompactRow" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock x:Name="CompactClock" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
-                            <TextBlock x:Name="CompactDate" FontSize="11.5" Foreground="{StaticResource SubtleText}" Margin="9,1,0,0" VerticalAlignment="Center" />
+                            <TextBlock x:Name="CompactDate" FontSize="11.5" Foreground="{DynamicResource SubtleText}" Margin="9,1,0,0" VerticalAlignment="Center" />
                             <Ellipse x:Name="BatteryDot" Style="{StaticResource PillDot}" Visibility="{Binding Visibility, ElementName=CompactBattery}" />
                             <StackPanel x:Name="CompactBattery" Orientation="Horizontal" Margin="0,1,0,0" VerticalAlignment="Center" Visibility="Collapsed">
                                 <Grid Width="21" Height="10" VerticalAlignment="Center">
-                                    <Border BorderBrush="#B3FFFFFF" BorderThickness="1" CornerRadius="2.5" Margin="0,0,2,0" />
-                                    <Border Width="1.5" Height="4" HorizontalAlignment="Right" Background="#B3FFFFFF" CornerRadius="0.75" />
-                                    <Border x:Name="CompactBatteryFill" Background="White" CornerRadius="1.2" Margin="2,2,0,2" HorizontalAlignment="Left" Width="0" />
+                                    <Border BorderBrush="{DynamicResource InkB3}" BorderThickness="1" CornerRadius="2.5" Margin="0,0,2,0" />
+                                    <Border Width="1.5" Height="4" HorizontalAlignment="Right" Background="{DynamicResource InkB3}" CornerRadius="0.75" />
+                                    <Border x:Name="CompactBatteryFill" Background="{DynamicResource Ink}" CornerRadius="1.2" Margin="2,2,0,2" HorizontalAlignment="Left" Width="0" />
                                 </Grid>
                                 <TextBlock x:Name="CompactBatteryBolt" Style="{StaticResource Glyph}" FontSize="9" Text="&#xE945;" Margin="3,0,0,0"
                                            Foreground="{DynamicResource Accent}" Visibility="Collapsed" />
-                                <TextBlock x:Name="CompactBatteryText" FontSize="11" Foreground="{StaticResource SubtleText}" Margin="4,0,0,0" VerticalAlignment="Center" />
+                                <TextBlock x:Name="CompactBatteryText" FontSize="11" Foreground="{DynamicResource SubtleText}" Margin="4,0,0,0" VerticalAlignment="Center" />
                             </StackPanel>
                             <Ellipse x:Name="MusicDot" Style="{StaticResource PillDot}" Visibility="{Binding Visibility, ElementName=EqBars}" />
                             <StackPanel x:Name="EqBars" Orientation="Horizontal" Width="18"
@@ -855,7 +855,7 @@
 
                         <Grid x:Name="CompactDownloadGlow" Height="2.5" VerticalAlignment="Bottom" Margin="8,0,8,2" ClipToBounds="True"
                               Visibility="Collapsed" IsHitTestVisible="False">
-                            <Border Background="#1AFFFFFF" CornerRadius="1.25" />
+                            <Border Background="{DynamicResource Ink1A}" CornerRadius="1.25" />
                             <Border Width="80" HorizontalAlignment="Left" CornerRadius="1.25" Background="{DynamicResource Accent}">
                                 <Border.OpacityMask>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -875,16 +875,16 @@
                         <Grid Height="22" Margin="2,0,2,6">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock x:Name="PeekTime" FontSize="13.5" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                <TextBlock x:Name="PeekDate" FontSize="11" Foreground="{StaticResource SubtleText}" Margin="8,1,0,0" VerticalAlignment="Center" />
+                                <TextBlock x:Name="PeekDate" FontSize="11" Foreground="{DynamicResource SubtleText}" Margin="8,1,0,0" VerticalAlignment="Center" />
                             <StackPanel x:Name="PeekBattery" Orientation="Horizontal" Margin="10,1,0,0" VerticalAlignment="Center" Visibility="Collapsed">
                                 <Grid Width="21" Height="10" VerticalAlignment="Center">
-                                    <Border BorderBrush="#B3FFFFFF" BorderThickness="1" CornerRadius="2.5" Margin="0,0,2,0" />
-                                    <Border Width="1.5" Height="4" HorizontalAlignment="Right" Background="#B3FFFFFF" CornerRadius="0.75" />
-                                    <Border x:Name="PeekBatteryFill" Background="White" CornerRadius="1.2" Margin="2,2,0,2" HorizontalAlignment="Left" Width="0" />
+                                    <Border BorderBrush="{DynamicResource InkB3}" BorderThickness="1" CornerRadius="2.5" Margin="0,0,2,0" />
+                                    <Border Width="1.5" Height="4" HorizontalAlignment="Right" Background="{DynamicResource InkB3}" CornerRadius="0.75" />
+                                    <Border x:Name="PeekBatteryFill" Background="{DynamicResource Ink}" CornerRadius="1.2" Margin="2,2,0,2" HorizontalAlignment="Left" Width="0" />
                                 </Grid>
                                 <TextBlock x:Name="PeekBatteryBolt" Style="{StaticResource Glyph}" FontSize="9" Text="&#xE945;" Margin="3,0,0,0"
                                            Foreground="{DynamicResource Accent}" Visibility="Collapsed" />
-                                <TextBlock x:Name="PeekBatteryText" FontSize="11" Foreground="{StaticResource SubtleText}" Margin="4,0,0,0" VerticalAlignment="Center" />
+                                <TextBlock x:Name="PeekBatteryText" FontSize="11" Foreground="{DynamicResource SubtleText}" Margin="4,0,0,0" VerticalAlignment="Center" />
                             </StackPanel>
                             </StackPanel>
                             <StackPanel x:Name="PeekEqBars" Orientation="Horizontal" Width="18" HorizontalAlignment="Right"
@@ -912,31 +912,31 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <Border x:Name="PeekMediaArt" Width="18" Height="18" CornerRadius="4" Background="#22FFFFFF" VerticalAlignment="Center" />
+                                        <Border x:Name="PeekMediaArt" Width="18" Height="18" CornerRadius="4" Background="{DynamicResource Ink22}" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="1" Margin="8,0,6,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" FontSize="11.5">
                                             <Run x:Name="PeekMediaTitle" FontWeight="SemiBold" />
-                                            <Run x:Name="PeekMediaArtist" Foreground="#8CFFFFFF" />
+                                            <Run x:Name="PeekMediaArtist" Foreground="{DynamicResource Ink8C}" />
                                         </TextBlock>
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Button Style="{StaticResource IslandButton}" Width="22" Height="22" Click="Previous_Click" ToolTip="Previous">
-                                                <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE892;" Foreground="#B3FFFFFF" />
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE892;" Foreground="{DynamicResource InkB3}" />
                                             </Button>
                                             <Button Style="{StaticResource IslandButton}" Width="24" Height="22" Margin="1,0" Click="PlayPause_Click" ToolTip="Play / pause">
                                                 <TextBlock x:Name="PeekPlayGlyph" Style="{StaticResource Glyph}" FontSize="11" Text="&#xE768;" Foreground="{DynamicResource Accent}" />
                                             </Button>
                                             <Button Style="{StaticResource IslandButton}" Width="22" Height="22" Click="Next_Click" ToolTip="Next">
-                                                <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE893;" Foreground="#B3FFFFFF" />
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE893;" Foreground="{DynamicResource InkB3}" />
                                             </Button>
                                         </StackPanel>
                                     </Grid>
                                     <Grid x:Name="PeekProgress" Height="2" Margin="0,4,0,0" Visibility="Collapsed">
-                                        <Border Background="#1FFFFFFF" CornerRadius="1" />
+                                        <Border Background="{DynamicResource Ink1F}" CornerRadius="1" />
                                         <Border Background="{DynamicResource Accent}" CornerRadius="1" RenderTransformOrigin="0,0.5">
                                             <Border.RenderTransform><ScaleTransform x:Name="PeekProgressScale" ScaleX="0" /></Border.RenderTransform>
                                         </Border>
                                     </Grid>
                                 </StackPanel>
-                                <Border x:Name="PeekLiveDivider" Height="1" Background="#14FFFFFF" Margin="-4,9,-2,9" Visibility="Collapsed" />
+                                <Border x:Name="PeekLiveDivider" Height="1" Background="{DynamicResource Ink14}" Margin="-4,9,-2,9" Visibility="Collapsed" />
                                 <!-- Downloading: one line (what, how much so far, speed) with a moving glow underneath -->
                                 <StackPanel x:Name="PeekDownloadRow" Visibility="Collapsed" MinWidth="270" MaxWidth="420">
                                     <Grid>
@@ -950,17 +950,17 @@
                                         <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE896;" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
                                         <TextBlock x:Name="PeekDownloadName" Grid.Column="1" Margin="9,0,0,0" FontSize="12" FontWeight="SemiBold" MaxWidth="190"
                                                    TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                                        <TextBlock x:Name="PeekDownloadSub" Grid.Column="2" Margin="8,1,8,0" FontSize="11" Foreground="{StaticResource SubtleText}"
+                                        <TextBlock x:Name="PeekDownloadSub" Grid.Column="2" Margin="8,1,8,0" FontSize="11" Foreground="{DynamicResource SubtleText}"
                                                    TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                                         <TextBlock x:Name="PeekDownloadSpeed" Grid.Column="3" FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource Accent}"
                                                    VerticalAlignment="Center" />
                                         <Button Grid.Column="4" Style="{StaticResource IslandButton}" Width="26" Height="24" Margin="4,0,0,0"
                                                 Click="OpenDownloads_Click" ToolTip="Open your Downloads folder">
-                                            <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE838;" Foreground="#B3FFFFFF" />
+                                            <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE838;" Foreground="{DynamicResource InkB3}" />
                                         </Button>
                                     </Grid>
                                     <Grid Height="2.5" Margin="0,6,0,0" ClipToBounds="True">
-                                        <Border Background="#1FFFFFFF" CornerRadius="1.25" />
+                                        <Border Background="{DynamicResource Ink1F}" CornerRadius="1.25" />
                                         <Border Width="110" HorizontalAlignment="Left" CornerRadius="1.25" Background="{DynamicResource Accent}">
                                             <Border.OpacityMask>
                                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -992,7 +992,7 @@
                                                 <Setter Property="Background" Value="Transparent" />
                                                 <Style.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#12FFFFFF" />
+                                                        <Setter Property="Background" Value="{DynamicResource Ink12}" />
                                                     </Trigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -1008,7 +1008,7 @@
                                                            HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
                                             </Grid>
                                             <TextBlock Grid.Column="1" Margin="9,0,4,0" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis">
-                                                <Run x:Name="PeekActiveName" FontWeight="SemiBold" /><Run Text="  " /><Run x:Name="PeekActiveTitle" Foreground="#80FFFFFF" />
+                                                <Run x:Name="PeekActiveName" FontWeight="SemiBold" /><Run Text="  " /><Run x:Name="PeekActiveTitle" Foreground="{DynamicResource Ink80}" />
                                             </TextBlock>
                                         </Grid>
                                     </Border>
@@ -1047,9 +1047,9 @@
 
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock x:Name="ActivityTitle" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock x:Name="ActivitySub" FontSize="11" Foreground="#A0FFFFFF" TextTrimming="CharacterEllipsis" />
+                            <TextBlock x:Name="ActivitySub" FontSize="11" Foreground="{DynamicResource InkA0}" TextTrimming="CharacterEllipsis" />
                             <Grid x:Name="ActivityBar" Height="4" Margin="0,6,0,0" Visibility="Collapsed">
-                                <Border Background="#33FFFFFF" CornerRadius="2" />
+                                <Border Background="{DynamicResource Ink33}" CornerRadius="2" />
                                 <Border Background="{DynamicResource Accent}" CornerRadius="2" RenderTransformOrigin="0,0.5">
                                     <Border.RenderTransform><ScaleTransform x:Name="ActivityBarScale" ScaleX="0" /></Border.RenderTransform>
                                 </Border>
@@ -1094,15 +1094,15 @@
                                 <StackPanel x:Name="BatteryPanel" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0" Visibility="Collapsed">
                                     <TextBlock x:Name="BatteryText" FontSize="11" VerticalAlignment="Center" Margin="0,0,5,0" />
                                     <Grid Width="23" Height="11" VerticalAlignment="Center">
-                                        <Border BorderBrush="#C0FFFFFF" BorderThickness="1" CornerRadius="3" Margin="0,0,2,0" />
-                                        <Border Width="2" Height="4" HorizontalAlignment="Right" Background="#C0FFFFFF" CornerRadius="1" />
-                                        <Border x:Name="BatteryFill" Background="White" CornerRadius="1.5" Margin="2,2,0,2"
+                                        <Border BorderBrush="{DynamicResource InkC0}" BorderThickness="1" CornerRadius="3" Margin="0,0,2,0" />
+                                        <Border Width="2" Height="4" HorizontalAlignment="Right" Background="{DynamicResource InkC0}" CornerRadius="1" />
+                                        <Border x:Name="BatteryFill" Background="{DynamicResource Ink}" CornerRadius="1.5" Margin="2,2,0,2"
                                                 HorizontalAlignment="Left" Width="0" />
                                     </Grid>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Margin="0,0,4,0">
                                     <TextBlock x:Name="BigClock" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" />
-                                    <TextBlock x:Name="DateText" FontSize="10" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Right" />
+                                    <TextBlock x:Name="DateText" FontSize="10" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Right" />
                                 </StackPanel>
                             </StackPanel>
                         </Grid>
@@ -1132,11 +1132,11 @@
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="*" />
                                                     </Grid.ColumnDefinitions>
-                                                    <Border x:Name="MiniArt" Width="42" Height="42" CornerRadius="10" Background="#22FFFFFF" />
+                                                    <Border x:Name="MiniArt" Width="42" Height="42" CornerRadius="10" Background="{DynamicResource Ink22}" />
                                                     <StackPanel Grid.Column="1" Margin="11,0,0,0" VerticalAlignment="Center">
                                                         <TextBlock x:Name="MiniTitle" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock x:Name="MiniArtist" FontSize="11" Foreground="{StaticResource SubtleText}" TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock x:Name="MiniMediaOutput" FontSize="10" Foreground="#66FFFFFF" TextTrimming="CharacterEllipsis" Margin="0,1,0,0" />
+                                                        <TextBlock x:Name="MiniArtist" FontSize="11" Foreground="{DynamicResource SubtleText}" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock x:Name="MiniMediaOutput" FontSize="10" Foreground="{DynamicResource Ink66}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0" />
                                                     </StackPanel>
                                                 </Grid>
                                                 <Grid x:Name="MiniProgressRow" Margin="0,9,0,0" Visibility="Collapsed">
@@ -1145,10 +1145,10 @@
                                                         <ColumnDefinition Width="*" />
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock x:Name="MiniElapsed" FontSize="10" Foreground="{StaticResource SubtleText}" VerticalAlignment="Center" MinWidth="28" />
+                                                    <TextBlock x:Name="MiniElapsed" FontSize="10" Foreground="{DynamicResource SubtleText}" VerticalAlignment="Center" MinWidth="28" />
                                                     <Slider x:Name="MiniProgress" Grid.Column="1" Style="{StaticResource SlimSlider}" Margin="6,0" Minimum="0" Maximum="1"
                                                             PreviewMouseLeftButtonDown="MediaProgress_MouseDown" PreviewMouseLeftButtonUp="MediaProgress_MouseUp" />
-                                                    <TextBlock x:Name="MiniDuration" Grid.Column="2" FontSize="10" Foreground="{StaticResource SubtleText}"
+                                                    <TextBlock x:Name="MiniDuration" Grid.Column="2" FontSize="10" Foreground="{DynamicResource SubtleText}"
                                                                VerticalAlignment="Center" MinWidth="28" TextAlignment="Right" />
                                                 </Grid>
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
@@ -1164,13 +1164,13 @@
                                                 </StackPanel>
                                             </StackPanel>
                                             <StackPanel x:Name="MiniMediaEmpty" Orientation="Horizontal" Margin="0,4">
-                                                <Border Width="42" Height="42" CornerRadius="10" Background="#14FFFFFF">
-                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="15" Text="&#xE8D6;" Foreground="#66FFFFFF"
+                                                <Border Width="42" Height="42" CornerRadius="10" Background="{DynamicResource Ink14}">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="15" Text="&#xE8D6;" Foreground="{DynamicResource Ink66}"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                 </Border>
                                                 <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
                                                     <TextBlock Text="Nothing playing" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Music and videos show up here" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                    <TextBlock Text="Music and videos show up here" FontSize="11" Foreground="{DynamicResource SubtleText}" />
                                                 </StackPanel>
                                             </StackPanel>
                                         </Grid>
@@ -1228,11 +1228,11 @@
                                 <!-- Clock -->
                                 <Border Style="{StaticResource Card}">
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock x:Name="GreetingText" FontSize="11.5" Foreground="{StaticResource SubtleText}" />
+                                        <TextBlock x:Name="GreetingText" FontSize="11.5" Foreground="{DynamicResource SubtleText}" />
                                         <TextBlock x:Name="TodayTime" FontSize="34" FontWeight="SemiBold" Margin="0,2,0,-2" />
                                         <TextBlock x:Name="TodayDay" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Accent}" />
-                                        <TextBlock x:Name="TodayDate" FontSize="11.5" Foreground="#CCFFFFFF" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="TodayExtra" FontSize="10" Foreground="{StaticResource SubtleText}" Margin="0,10,0,0" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="TodayDate" FontSize="11.5" Foreground="{DynamicResource InkCC}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock x:Name="TodayExtra" FontSize="10" Foreground="{DynamicResource SubtleText}" Margin="0,10,0,0" TextWrapping="Wrap" />
                                     </StackPanel>
                                 </Border>
 
@@ -1250,18 +1250,18 @@
                                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                                                     <TextBlock x:Name="WeatherTemp" FontSize="26" FontWeight="SemiBold" Margin="0,0,0,-3" />
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock x:Name="WeatherCondition" FontSize="11.5" Foreground="{StaticResource SubtleText}" TextTrimming="CharacterEllipsis" MaxWidth="120" />
-                                                        <TextBlock Text="  ·  " FontSize="11.5" Foreground="{StaticResource SubtleText}" />
-                                                        <TextBlock x:Name="WeatherHighLow" FontSize="11.5" Foreground="{StaticResource SubtleText}" />
+                                                        <TextBlock x:Name="WeatherCondition" FontSize="11.5" Foreground="{DynamicResource SubtleText}" TextTrimming="CharacterEllipsis" MaxWidth="120" />
+                                                        <TextBlock Text="  ·  " FontSize="11.5" Foreground="{DynamicResource SubtleText}" />
+                                                        <TextBlock x:Name="WeatherHighLow" FontSize="11.5" Foreground="{DynamicResource SubtleText}" />
                                                     </StackPanel>
                                                 </StackPanel>
-                                                <TextBlock x:Name="WeatherPlace" Grid.Column="2" FontSize="10.5" Foreground="{StaticResource SubtleText}" VerticalAlignment="Top"
+                                                <TextBlock x:Name="WeatherPlace" Grid.Column="2" FontSize="10.5" Foreground="{DynamicResource SubtleText}" VerticalAlignment="Top"
                                                            MaxWidth="90" TextTrimming="CharacterEllipsis" />
                                             </Grid>
                                             <UniformGrid x:Name="WeatherHours" Columns="5" Margin="0,14,0,0" />
                                         </StackPanel>
                                         <StackPanel x:Name="WeatherMessagePanel" VerticalAlignment="Center">
-                                            <TextBlock x:Name="WeatherMessage" Text="Loading weather…" FontSize="12" Foreground="{StaticResource SubtleText}"
+                                            <TextBlock x:Name="WeatherMessage" Text="Loading weather…" FontSize="12" Foreground="{DynamicResource SubtleText}"
                                                        TextWrapping="Wrap" TextAlignment="Center" />
                                             <Button x:Name="WeatherSetupButton" Style="{StaticResource CardButton}" Padding="12,6" Margin="0,10,0,0"
                                                     HorizontalAlignment="Center" Click="WeatherSetup_Click" Visibility="Collapsed">
@@ -1296,20 +1296,20 @@
 
                             <!-- ======================= APPS ======================= -->
                             <StackPanel x:Name="AppsTab" Visibility="Collapsed">
-                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="#12FFFFFF" BorderThickness="1" CornerRadius="14" Height="40" Margin="0,0,0,4">
+                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource Ink12}" BorderThickness="1" CornerRadius="14" Height="40" Margin="0,0,0,4">
                                     <Grid Margin="14,0,14,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE721;" Foreground="{StaticResource SubtleText}" />
+                                        <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE721;" Foreground="{DynamicResource SubtleText}" />
                                         <TextBlock x:Name="SearchPlaceholder" Grid.Column="1" Margin="10,0,0,0" Text="Search apps…"
-                                                   Foreground="#66FFFFFF" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                                   Foreground="{DynamicResource Ink66}" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
                                         <TextBox x:Name="SearchBox" Grid.Column="1" Margin="7,0,0,0" Background="Transparent" BorderThickness="0"
-                                                 Foreground="White" CaretBrush="White" SelectionBrush="#88D6B46A" FontSize="13"
+                                                 Foreground="{DynamicResource Ink}" CaretBrush="{DynamicResource Ink}" SelectionBrush="#88D6B46A" FontSize="13"
                                                  VerticalAlignment="Center" TextChanged="Search_TextChanged" PreviewKeyDown="Search_KeyDown" />
-                                        <TextBlock Grid.Column="2" Text="↑↓  Enter" FontSize="10.5" Foreground="#4DFFFFFF" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="↑↓  Enter" FontSize="10.5" Foreground="{DynamicResource Ink4D}" VerticalAlignment="Center" />
                                     </Grid>
                                 </Border>
 
@@ -1334,7 +1334,7 @@
                                                     </Style>
                                                 </ItemsControl.ItemContainerStyle>
                                             </ItemsControl>
-                                            <TextBlock x:Name="AppsStatus" FontSize="12" Foreground="#80FFFFFF" Margin="12,8,0,12" Visibility="Collapsed" />
+                                            <TextBlock x:Name="AppsStatus" FontSize="12" Foreground="{DynamicResource Ink80}" Margin="12,8,0,12" Visibility="Collapsed" />
                                         </StackPanel>
                                     </ScrollViewer>
                                     <Rectangle x:Name="AppsFadeTop" Height="18" VerticalAlignment="Top" IsHitTestVisible="False"
@@ -1347,18 +1347,18 @@
                             <!-- ======================= CLIPBOARD ======================= -->
                             <StackPanel x:Name="ClipboardTab" Visibility="Collapsed">
                                 <!-- Search + filters -->
-                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="#12FFFFFF" BorderThickness="1" CornerRadius="14" Height="40">
+                                <Border Background="{DynamicResource FieldBrush}" BorderBrush="{DynamicResource Ink12}" BorderThickness="1" CornerRadius="14" Height="40">
                                     <Grid Margin="14,0,8,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE721;" Foreground="{StaticResource SubtleText}" />
+                                        <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE721;" Foreground="{DynamicResource SubtleText}" />
                                         <TextBlock x:Name="ClipSearchPlaceholder" Grid.Column="1" Margin="10,0,0,0" Text="Search…"
-                                                   Foreground="#66FFFFFF" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                                   Foreground="{DynamicResource Ink66}" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
                                         <TextBox x:Name="ClipSearchBox" Grid.Column="1" Margin="7,0,0,0" Background="Transparent" BorderThickness="0"
-                                                 Foreground="White" CaretBrush="White" SelectionBrush="#88D6B46A" FontSize="13"
+                                                 Foreground="{DynamicResource Ink}" CaretBrush="{DynamicResource Ink}" SelectionBrush="#88D6B46A" FontSize="13"
                                                  VerticalAlignment="Center" TextChanged="ClipSearch_TextChanged" PreviewKeyDown="ClipSearch_KeyDown" />
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                             <RadioButton x:Name="ClipFilterAll" Style="{StaticResource ChipRadio}" GroupName="ClipFilter" Content="All" Tag="All" IsChecked="True" Checked="ClipFilter_Checked" />
@@ -1380,9 +1380,9 @@
                                         <StackPanel>
                                             <ItemsControl x:Name="ClipList" />
                                             <StackPanel x:Name="ClipEmpty" Margin="0,40,0,0" HorizontalAlignment="Center" Visibility="Collapsed">
-                                                <TextBlock Style="{StaticResource Glyph}" FontSize="26" Text="&#xE8C8;" Foreground="#55FFFFFF" />
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="26" Text="&#xE8C8;" Foreground="{DynamicResource Ink55}" />
                                                 <TextBlock x:Name="ClipEmptyText" Text="Nothing copied yet" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" />
-                                                <TextBlock Text="Password-manager copies are skipped." FontSize="11" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                                                <TextBlock Text="Password-manager copies are skipped." FontSize="11" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center" Margin="0,3,0,0" />
                                             </StackPanel>
                                         </StackPanel>
                                     </ScrollViewer>
@@ -1401,7 +1401,7 @@
                                                 </Grid>
                                             </ScrollViewer>
                                             <StackPanel x:Name="ClipDetailMeta" Grid.Row="1">
-                                                <Border Height="1" Background="#14FFFFFF" Margin="0,10,0,8" />
+                                                <Border Height="1" Background="{DynamicResource Ink14}" Margin="0,10,0,8" />
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="60" />
@@ -1412,11 +1412,11 @@
                                                         <RowDefinition />
                                                         <RowDefinition />
                                                     </Grid.RowDefinitions>
-                                                    <TextBlock Text="Type" FontSize="11" Foreground="{StaticResource SubtleText}" Margin="0,2" />
+                                                    <TextBlock Text="Type" FontSize="11" Foreground="{DynamicResource SubtleText}" Margin="0,2" />
                                                     <TextBlock x:Name="ClipDetailType" Grid.Column="1" FontSize="11" FontWeight="SemiBold" Margin="0,2" />
-                                                    <TextBlock Grid.Row="1" Text="Size" FontSize="11" Foreground="{StaticResource SubtleText}" Margin="0,2" />
+                                                    <TextBlock Grid.Row="1" Text="Size" FontSize="11" Foreground="{DynamicResource SubtleText}" Margin="0,2" />
                                                     <TextBlock x:Name="ClipDetailSize" Grid.Row="1" Grid.Column="1" FontSize="11" FontWeight="SemiBold" Margin="0,2" TextTrimming="CharacterEllipsis" />
-                                                    <TextBlock Grid.Row="2" Text="Copied" FontSize="11" Foreground="{StaticResource SubtleText}" Margin="0,2" />
+                                                    <TextBlock Grid.Row="2" Text="Copied" FontSize="11" Foreground="{DynamicResource SubtleText}" Margin="0,2" />
                                                     <TextBlock x:Name="ClipDetailCopied" Grid.Row="2" Grid.Column="1" FontSize="11" FontWeight="SemiBold" Margin="0,2" />
                                                 </Grid>
                                             </StackPanel>
@@ -1426,7 +1426,7 @@
 
                                 <!-- Shortcuts (also clickable) -->
                                 <DockPanel Margin="0,10,0,0">
-                                    <TextBlock DockPanel.Dock="Right" Text="↑↓ Move  ·  Tab Filter" FontSize="10.5" Foreground="#66FFFFFF" VerticalAlignment="Center" />
+                                    <TextBlock DockPanel.Dock="Right" Text="↑↓ Move  ·  Tab Filter" FontSize="10.5" Foreground="{DynamicResource Ink66}" VerticalAlignment="Center" />
                                     <StackPanel Orientation="Horizontal">
                                         <Button Style="{StaticResource KeyHint}" Tag="↵" Click="ClipPaste_Click">Paste</Button>
                                         <Button Style="{StaticResource KeyHint}" Tag="Ctrl C" Click="ClipCopy_Click">Copy</Button>
@@ -1458,17 +1458,17 @@
                                             </StackPanel>
                                         </Button>
                                     </StackPanel>
-                                    <TextBlock x:Name="ShelfTitle" Text="SHELF" FontSize="10.5" FontWeight="SemiBold" Foreground="#80FFFFFF" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="ShelfTitle" Text="SHELF" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink80}" VerticalAlignment="Center" />
                                 </DockPanel>
                                 <ScrollViewer MaxHeight="360" Focusable="False" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                                     <ItemsControl x:Name="ShelfList" ItemTemplate="{StaticResource ShelfTileTemplate}" ItemsPanel="{StaticResource WrapPanelTemplate}" />
                                 </ScrollViewer>
-                                <Border x:Name="ShelfEmpty" BorderBrush="#33FFFFFF" BorderThickness="1.5" CornerRadius="18" Height="170" Margin="0,2,0,0">
+                                <Border x:Name="ShelfEmpty" BorderBrush="{DynamicResource Ink33}" BorderThickness="1.5" CornerRadius="18" Height="170" Margin="0,2,0,0">
                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                        <TextBlock Style="{StaticResource Glyph}" FontSize="28" Text="&#xE8B7;" Foreground="#66FFFFFF" />
+                                        <TextBlock Style="{StaticResource Glyph}" FontSize="28" Text="&#xE8B7;" Foreground="{DynamicResource Ink66}" />
                                         <TextBlock Text="Drop files on the island to keep them here" FontSize="13" FontWeight="SemiBold" Margin="0,10,0,0" HorizontalAlignment="Center" />
                                         <TextBlock Text="Then drag them back out into any folder, email or app." FontSize="11.5"
-                                                   Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                                                   Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center" Margin="0,3,0,0" />
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -1528,40 +1528,42 @@
                                                 <StackPanel x:Name="AccentSwatches" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Accent colour" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Highlights, switches and the music bars" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Highlights, switches and the music bars" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                                                     <RadioButton x:Name="StyleBlack" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Black" Tag="Black" Click="SettingChanged" />
-                                                    <RadioButton x:Name="StyleGlass" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Glass" Tag="Glass" Click="SettingChanged" />
+                                                    <RadioButton x:Name="StyleLight" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Light" Tag="Light" Click="SettingChanged" />
                                                     <RadioButton x:Name="StyleGlow" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Glow" Tag="Glow" Click="SettingChanged" />
                                                     <RadioButton x:Name="StyleOutline" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Outline" Tag="Outline" Click="SettingChanged" />
+                                                    <RadioButton x:Name="StyleAuto" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Auto" Tag="Auto" Click="SettingChanged"
+                                                                 ToolTip="Black or Light, following Windows' light/dark mode" />
                                                 </StackPanel>
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Island style" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Black, frosted glass, a soft glow or a thin outline" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Black, light frosted, a soft glow, a thin outline, or Auto (follows Windows' light/dark mode)" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="LineIconsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Line icons" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock x:Name="LineIconsStatusText" Text="Tidy, matching icons for your apps instead of their own icons" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock x:Name="LineIconsStatusText" Text="Tidy, matching icons for your apps instead of their own icons" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="BatterySwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Battery on the island" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock x:Name="BatteryStatusText" Text="Show the battery level next to the date (laptops and tablets)" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock x:Name="BatteryStatusText" Text="Show the battery level next to the date (laptops and tablets)" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="MusicBarsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Music bars" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Little dancing bars on the island while something plays" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Little dancing bars on the island while something plays" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                         </StackPanel>
@@ -1570,7 +1572,7 @@
                                                 <CheckBox x:Name="PeekSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Show open apps on hover" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Rest the mouse on the island to see and switch apps" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Rest the mouse on the island to see and switch apps" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
@@ -1581,28 +1583,28 @@
                                                 </StackPanel>
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Hover delay" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="How long to rest the mouse before it opens" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="How long to rest the mouse before it opens" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="HideMaximizedSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Tuck away over maximised apps" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Rest the mouse at the top of the screen to bring it back" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Rest the mouse at the top of the screen to bring it back" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="SearchHotkeySwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Ctrl+Space opens app search" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock x:Name="SearchHotkeyStatusText" Text="From anywhere: type an app's name and press Enter. Press it again to close" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock x:Name="SearchHotkeyStatusText" Text="From anywhere: type an app's name and press Enter. Press it again to close" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="StartWithWindowsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Start with Windows" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock x:Name="StartupStatusText" Text="Opens when you sign in, and again when you reconnect or unlock if it isn't running" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock x:Name="StartupStatusText" Text="Opens when you sign in, and again when you reconnect or unlock if it isn't running" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <Button x:Name="StartupFixButton" Style="{StaticResource CardButton}" Padding="12,6" Margin="0,2,0,4"
@@ -1612,12 +1614,12 @@
                                         </StackPanel>
                                         <StackPanel x:Name="SettingsWeather" Visibility="Collapsed">
                                             <TextBlock Text="Your town" FontSize="12.5" FontWeight="SemiBold" Margin="0,2,0,2" />
-                                            <TextBlock Text="Leave it empty to use your PC's location" FontSize="10.5" Foreground="{StaticResource SubtleText}" Margin="0,0,0,8" />
-                                            <Border Background="#FF222222" CornerRadius="10" Height="34">
+                                            <TextBlock Text="Leave it empty to use your PC's location" FontSize="10.5" Foreground="{DynamicResource SubtleText}" Margin="0,0,0,8" />
+                                            <Border Background="{DynamicResource FieldBrush}" CornerRadius="10" Height="34">
                                                 <Grid Margin="10,0">
-                                                    <TextBlock x:Name="PlacePlaceholder" Text="e.g. London" Foreground="#66FFFFFF"
+                                                    <TextBlock x:Name="PlacePlaceholder" Text="e.g. London" Foreground="{DynamicResource Ink66}"
                                                                FontSize="12" VerticalAlignment="Center" IsHitTestVisible="False" />
-                                                    <TextBox x:Name="PlaceBox" Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White"
+                                                    <TextBox x:Name="PlaceBox" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Ink}" CaretBrush="{DynamicResource Ink}"
                                                              FontSize="12" VerticalAlignment="Center" TextChanged="PlaceBox_TextChanged" PreviewKeyDown="PlaceBox_KeyDown" />
                                                 </Grid>
                                             </Border>
@@ -1625,7 +1627,7 @@
                                                 <Button DockPanel.Dock="Right" Style="{StaticResource CardButton}" Padding="12,6" Margin="0" Click="SavePlace_Click">
                                                     <TextBlock Text="Save location" FontSize="11.5" />
                                                 </Button>
-                                                <TextBlock x:Name="PlaceStatus" FontSize="11" Foreground="{StaticResource SubtleText}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                                <TextBlock x:Name="PlaceStatus" FontSize="11" Foreground="{DynamicResource SubtleText}" VerticalAlignment="Center" TextWrapping="Wrap" />
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
@@ -1634,7 +1636,7 @@
                                                 </StackPanel>
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Temperature" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Celsius or Fahrenheit" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Celsius or Fahrenheit" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                         </StackPanel>
@@ -1643,57 +1645,57 @@
                                                 <CheckBox x:Name="ScreenshotPopupsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Screenshots" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Pops out with a preview when you take one (Win+Shift+S or Print Screen)" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Pops out with a preview when you take one (Win+Shift+S or Print Screen)" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="DownloadPopupsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Downloads" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Pops out when a download finishes in your Downloads folder" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Pops out when a download finishes in your Downloads folder" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="CapturesToShelfSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Put them on the Shelf" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="New screenshots and downloads wait on the Shelf, ready to drag into an email or chat. Click the pop-out to open it" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="New screenshots and downloads wait on the Shelf, ready to drag into an email or chat. Click the pop-out to open it" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,2,0,6">
                                                 <CheckBox x:Name="DownloadProgressSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Download progress" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="A glow runs along the pill while something downloads, with the speed. Hover for details" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="A glow runs along the pill while something downloads, with the speed. Hover for details" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="CapsLockPopupsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Caps Lock" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Pops out for a moment when you turn Caps Lock on or off" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Pops out for a moment when you turn Caps Lock on or off" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="DevicePopOutsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Device pop-ups" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Bluetooth devices, USB drives and headphones connecting" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Bluetooth devices, USB drives and headphones connecting" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                         </StackPanel>
                                         <StackPanel x:Name="SettingsTabs" Visibility="Collapsed">
                                             <TextBlock Text="Tabs" FontSize="12.5" FontWeight="SemiBold" Margin="0,2,0,0" />
-                                            <TextBlock Text="Choose which tabs show along the top, and their order" FontSize="10.5" Foreground="{StaticResource SubtleText}" Margin="0,0,0,6" />
+                                            <TextBlock Text="Choose which tabs show along the top, and their order" FontSize="10.5" Foreground="{DynamicResource SubtleText}" Margin="0,0,0,6" />
                                             <StackPanel x:Name="TabsList" />
                                         </StackPanel>
                                         <StackPanel x:Name="SettingsAbout" Visibility="Collapsed">
                                             <TextBlock Text="Dynamic Island for Windows" FontSize="14" FontWeight="SemiBold" Margin="0,2,0,0" />
-                                            <TextBlock x:Name="AboutVersionText" FontSize="11" Foreground="{StaticResource SubtleText}" />
-                                            <TextBlock Text="An iPhone-style island that replaces the Windows taskbar." FontSize="11" Foreground="{StaticResource SubtleText}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                                            <TextBlock x:Name="AboutVersionText" FontSize="11" Foreground="{DynamicResource SubtleText}" />
+                                            <TextBlock Text="An iPhone-style island that replaces the Windows taskbar." FontSize="11" Foreground="{DynamicResource SubtleText}" Margin="0,8,0,0" TextWrapping="Wrap" />
 
                                             <!-- Updates -->
-                                            <Border Background="#14FFFFFF" CornerRadius="12" Padding="12,10" Margin="0,12,0,0">
+                                            <Border Background="{DynamicResource Ink14}" CornerRadius="12" Padding="12,10" Margin="0,12,0,0">
                                                 <StackPanel>
                                                     <DockPanel>
                                                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
@@ -1704,13 +1706,13 @@
                                                         <StackPanel Margin="0,0,10,0">
                                                             <TextBlock Text="Updates" FontSize="12.5" FontWeight="SemiBold" />
                                                             <TextBlock x:Name="UpdateStatusText" Text="Checks GitHub for new versions" FontSize="10.5"
-                                                                       Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                                       Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                         </StackPanel>
                                                     </DockPanel>
                                                     <DockPanel Margin="0,10,0,0">
                                                         <CheckBox x:Name="AutoUpdateSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                         <TextBlock Text="Install updates automatically (when you're not using the island)" FontSize="11"
-                                                                   Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                                                   Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,10,0" />
                                                     </DockPanel>
                                                 </StackPanel>
                                             </Border>
@@ -1728,7 +1730,7 @@
                                                     <TextBlock Text="Remove from this PC…" FontSize="11.5" Foreground="#FFFF9A94" />
                                                 </Button>
                                             </WrapPanel>
-                                            <TextBlock FontSize="10.5" Foreground="#66FFFFFF" Margin="0,12,0,0" TextWrapping="Wrap"
+                                            <TextBlock FontSize="10.5" Foreground="{DynamicResource Ink66}" Margin="0,12,0,0" TextWrapping="Wrap"
                                                        Text="Your settings live in that folder too. The app itself is just DynamicIsland.exe: there's no installer, so updating means replacing that file." />
                                         </StackPanel>
                                     </Grid>
@@ -1746,10 +1748,10 @@
                                 </Border.Background>
                                 <Grid>
                                     <StackPanel x:Name="MediaEmpty" Margin="0,24,0,20" HorizontalAlignment="Center">
-                                        <TextBlock Style="{StaticResource Glyph}" FontSize="28" Text="&#xE8D6;" Foreground="#55FFFFFF" HorizontalAlignment="Center" />
+                                        <TextBlock Style="{StaticResource Glyph}" FontSize="28" Text="&#xE8D6;" Foreground="{DynamicResource Ink55}" HorizontalAlignment="Center" />
                                         <TextBlock Text="Nothing playing" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" />
                                         <TextBlock Text="Play music or a video and it'll appear here" FontSize="11.5"
-                                                   Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                                                   Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center" Margin="0,3,0,0" />
                                     </StackPanel>
 
                                     <Grid x:Name="MediaFull" Visibility="Collapsed">
@@ -1757,21 +1759,21 @@
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <Border x:Name="BigArt" Width="136" Height="136" CornerRadius="18" Background="#22FFFFFF" VerticalAlignment="Center" />
+                                        <Border x:Name="BigArt" Width="136" Height="136" CornerRadius="18" Background="{DynamicResource Ink22}" VerticalAlignment="Center" />
                                         <StackPanel Grid.Column="1" Margin="20,0,0,0" VerticalAlignment="Center">
                                             <TextBlock x:Name="BigSource" FontSize="10.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                             <TextBlock x:Name="BigTitle" FontSize="20" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
-                                            <TextBlock x:Name="BigArtist" FontSize="13" Foreground="{StaticResource SubtleText}" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock x:Name="BigArtist" FontSize="13" Foreground="{DynamicResource SubtleText}" TextTrimming="CharacterEllipsis" />
                                             <Grid x:Name="BigProgressRow" Margin="0,12,0,0" Visibility="Collapsed">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock x:Name="BigElapsed" FontSize="10.5" Foreground="{StaticResource SubtleText}" VerticalAlignment="Center" MinWidth="30" />
+                                                <TextBlock x:Name="BigElapsed" FontSize="10.5" Foreground="{DynamicResource SubtleText}" VerticalAlignment="Center" MinWidth="30" />
                                                 <Slider x:Name="BigProgress" Grid.Column="1" Style="{StaticResource SlimSlider}" Margin="8,0" Minimum="0" Maximum="1"
                                                         PreviewMouseLeftButtonDown="MediaProgress_MouseDown" PreviewMouseLeftButtonUp="MediaProgress_MouseUp" />
-                                                <TextBlock x:Name="BigDuration" Grid.Column="2" FontSize="10.5" Foreground="{StaticResource SubtleText}"
+                                                <TextBlock x:Name="BigDuration" Grid.Column="2" FontSize="10.5" Foreground="{DynamicResource SubtleText}"
                                                            VerticalAlignment="Center" MinWidth="30" TextAlignment="Right" />
                                             </Grid>
 
@@ -1809,8 +1811,8 @@
                                                     <Button Style="{StaticResource IslandButton}" Height="30" Click="OutputPicker_Click"
                                                             ToolTip="Choose speakers or headphones">
                                                         <StackPanel Orientation="Horizontal" Margin="8,0">
-                                                            <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE7F5;" Foreground="{StaticResource SubtleText}" VerticalAlignment="Center" />
-                                                            <TextBlock x:Name="MediaOutputText" FontSize="11" Foreground="{StaticResource SubtleText}" VerticalAlignment="Center"
+                                                            <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE7F5;" Foreground="{DynamicResource SubtleText}" VerticalAlignment="Center" />
+                                                            <TextBlock x:Name="MediaOutputText" FontSize="11" Foreground="{DynamicResource SubtleText}" VerticalAlignment="Center"
                                                                        MaxWidth="86" TextTrimming="CharacterEllipsis" Margin="6,0,0,0" />
                                                         </StackPanel>
                                                     </Button>
@@ -1827,7 +1829,7 @@
                                     <Border Style="{StaticResource Card}" Margin="4" Padding="8,14,8,12">
                                         <StackPanel>
                                             <Grid Width="84" Height="84" HorizontalAlignment="Center">
-                                                <Ellipse Stroke="#1FFFFFFF" StrokeThickness="7" />
+                                                <Ellipse Stroke="{DynamicResource Ink1F}" StrokeThickness="7" />
                                                 <Path x:Name="CpuRing" Stroke="{DynamicResource Accent}" StrokeThickness="7"
                                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
                                                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -1835,14 +1837,14 @@
                                                 </StackPanel>
                                             </Grid>
                                             <TextBlock Text="CPU" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,9,0,0" />
-                                            <TextBlock x:Name="CpuSub" FontSize="10.5" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center"
+                                            <TextBlock x:Name="CpuSub" FontSize="10.5" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" />
                                         </StackPanel>
                                     </Border>
                                     <Border Style="{StaticResource Card}" Margin="4" Padding="8,14,8,12">
                                         <StackPanel>
                                             <Grid Width="84" Height="84" HorizontalAlignment="Center">
-                                                <Ellipse Stroke="#1FFFFFFF" StrokeThickness="7" />
+                                                <Ellipse Stroke="{DynamicResource Ink1F}" StrokeThickness="7" />
                                                 <Path x:Name="MemRing" Stroke="{DynamicResource Accent}" StrokeThickness="7"
                                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
                                                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -1850,14 +1852,14 @@
                                                 </StackPanel>
                                             </Grid>
                                             <TextBlock Text="Memory" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,9,0,0" />
-                                            <TextBlock x:Name="MemSub" FontSize="10.5" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center"
+                                            <TextBlock x:Name="MemSub" FontSize="10.5" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" />
                                         </StackPanel>
                                     </Border>
                                     <Border Style="{StaticResource Card}" Margin="4" Padding="8,14,8,12">
                                         <StackPanel>
                                             <Grid Width="84" Height="84" HorizontalAlignment="Center">
-                                                <Ellipse Stroke="#1FFFFFFF" StrokeThickness="7" />
+                                                <Ellipse Stroke="{DynamicResource Ink1F}" StrokeThickness="7" />
                                                 <Path x:Name="DiskRing" Stroke="{DynamicResource Accent}" StrokeThickness="7"
                                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
                                                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -1865,23 +1867,23 @@
                                                 </StackPanel>
                                             </Grid>
                                             <TextBlock x:Name="DiskLabel" Text="Disk" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,9,0,0" />
-                                            <TextBlock x:Name="DiskSub" FontSize="10.5" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center"
+                                            <TextBlock x:Name="DiskSub" FontSize="10.5" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" />
                                         </StackPanel>
                                     </Border>
                                     <Border Style="{StaticResource Card}" Margin="4" Padding="8,14,8,12">
                                         <StackPanel>
                                             <Grid Width="84" Height="84" HorizontalAlignment="Center">
-                                                <Ellipse Stroke="#1FFFFFFF" StrokeThickness="7" />
+                                                <Ellipse Stroke="{DynamicResource Ink1F}" StrokeThickness="7" />
                                                 <Path x:Name="NetDownRing" Stroke="{DynamicResource Accent}" StrokeThickness="7"
                                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
                                                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                                     <TextBlock x:Name="NetDownText" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                                                    <TextBlock x:Name="NetUnitText" FontSize="10" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center" Margin="0,-2,0,0" />
+                                                    <TextBlock x:Name="NetUnitText" FontSize="10" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center" Margin="0,-2,0,0" />
                                                 </StackPanel>
                                             </Grid>
                                             <TextBlock Text="Download" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,9,0,0" />
-                                            <TextBlock x:Name="NetDownSub" FontSize="10.5" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center"
+                                            <TextBlock x:Name="NetDownSub" FontSize="10.5" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" />
                                         </StackPanel>
                                     </Border>
@@ -1896,14 +1898,14 @@
                                                 <ColumnDefinition Width="70" />
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="HEAVIEST OPEN APPS" FontSize="10.5" FontWeight="SemiBold" Foreground="#80FFFFFF" />
-                                                <TextBlock x:Name="UptimeText" FontSize="10.5" Foreground="#55FFFFFF" Margin="10,0,0,0" />
+                                                <TextBlock Text="HEAVIEST OPEN APPS" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink80}" />
+                                                <TextBlock x:Name="UptimeText" FontSize="10.5" Foreground="{DynamicResource Ink55}" Margin="10,0,0,0" />
                                             </StackPanel>
-                                            <TextBlock Grid.Column="1" Text="CPU" FontSize="10.5" FontWeight="SemiBold" Foreground="#80FFFFFF" TextAlignment="Right" />
-                                            <TextBlock Grid.Column="2" Text="MEMORY" FontSize="10.5" FontWeight="SemiBold" Foreground="#80FFFFFF" TextAlignment="Right" />
+                                            <TextBlock Grid.Column="1" Text="CPU" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink80}" TextAlignment="Right" />
+                                            <TextBlock Grid.Column="2" Text="MEMORY" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink80}" TextAlignment="Right" />
                                         </Grid>
                                         <ItemsControl x:Name="TopAppsList" ItemTemplate="{StaticResource AppUsageTemplate}" />
-                                        <TextBlock x:Name="TopAppsEmpty" Text="No apps open right now" FontSize="12" Foreground="{StaticResource SubtleText}"
+                                        <TextBlock x:Name="TopAppsEmpty" Text="No apps open right now" FontSize="12" Foreground="{DynamicResource SubtleText}"
                                                    Margin="6,6,6,4" Visibility="Collapsed" />
                                     </StackPanel>
                                 </Border>
@@ -1918,7 +1920,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock x:Name="PowerUptimeGlyph" Style="{StaticResource Glyph}" FontSize="13" Text="&#xE916;" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
                                                 <TextBlock x:Name="PowerUptimeValue" FontSize="12.5" FontWeight="SemiBold" Margin="7,0,0,0" VerticalAlignment="Center" />
-                                                <TextBlock x:Name="PowerUptimeSub" FontSize="11.5" Foreground="#73FFFFFF" Margin="5,0,0,0" VerticalAlignment="Center"
+                                                <TextBlock x:Name="PowerUptimeSub" FontSize="11.5" Foreground="{DynamicResource Ink73}" Margin="5,0,0,0" VerticalAlignment="Center"
                                                            MaxWidth="80" TextTrimming="CharacterEllipsis" />
                                             </StackPanel>
                                         </Button>
@@ -1926,7 +1928,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock x:Name="PowerUpdateGlyph" Style="{StaticResource Glyph}" FontSize="13" Text="&#xE896;" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
                                                 <TextBlock x:Name="PowerUpdateValue" FontSize="12.5" FontWeight="SemiBold" Margin="7,0,0,0" VerticalAlignment="Center" />
-                                                <TextBlock x:Name="PowerUpdateSub" FontSize="11.5" Foreground="#73FFFFFF" Margin="5,0,0,0" VerticalAlignment="Center"
+                                                <TextBlock x:Name="PowerUpdateSub" FontSize="11.5" Foreground="{DynamicResource Ink73}" Margin="5,0,0,0" VerticalAlignment="Center"
                                                            MaxWidth="80" TextTrimming="CharacterEllipsis" />
                                             </StackPanel>
                                         </Button>
@@ -1934,7 +1936,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock x:Name="PowerBatteryGlyph" Style="{StaticResource Glyph}" FontSize="13" Text="&#xE83E;" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
                                                 <TextBlock x:Name="PowerBatteryValue" FontSize="12.5" FontWeight="SemiBold" Margin="7,0,0,0" VerticalAlignment="Center" />
-                                                <TextBlock x:Name="PowerBatterySub" FontSize="11.5" Foreground="#73FFFFFF" Margin="5,0,0,0" VerticalAlignment="Center"
+                                                <TextBlock x:Name="PowerBatterySub" FontSize="11.5" Foreground="{DynamicResource Ink73}" Margin="5,0,0,0" VerticalAlignment="Center"
                                                            MaxWidth="80" TextTrimming="CharacterEllipsis" />
                                             </StackPanel>
                                         </Button>
@@ -1942,7 +1944,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock x:Name="PowerAppsGlyph" Style="{StaticResource Glyph}" FontSize="13" Text="&#xE71D;" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
                                                 <TextBlock x:Name="PowerAppsValue" FontSize="12.5" FontWeight="SemiBold" Margin="7,0,0,0" VerticalAlignment="Center" />
-                                                <TextBlock x:Name="PowerAppsSub" FontSize="11.5" Foreground="#73FFFFFF" Margin="5,0,0,0" VerticalAlignment="Center"
+                                                <TextBlock x:Name="PowerAppsSub" FontSize="11.5" Foreground="{DynamicResource Ink73}" Margin="5,0,0,0" VerticalAlignment="Center"
                                                            MaxWidth="80" TextTrimming="CharacterEllipsis" />
                                             </StackPanel>
                                         </Button>
@@ -1971,11 +1973,11 @@
                                     <Border x:Name="RestartSlideHost" Grid.Column="1" />
                                     <Border x:Name="ShutDownSlideHost" Grid.Column="3" />
                                 </Grid>
-                                <TextBlock x:Name="PowerHint" FontSize="11" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center" Margin="0,7,0,0" Height="15" />
+                                <TextBlock x:Name="PowerHint" FontSize="11" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center" Margin="0,7,0,0" Height="15" />
 
                                 <!-- Quick launch as small chips -->
                                 <StackPanel Orientation="Horizontal" Margin="2,8,0,0">
-                                    <TextBlock Text="OPEN" FontSize="10.5" FontWeight="SemiBold" Foreground="#73FFFFFF" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <TextBlock Text="OPEN" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink73}" VerticalAlignment="Center" Margin="0,0,10,0" />
                                     <Button Style="{StaticResource CardButton}" Padding="11,6" Margin="0,0,6,0" Tag="taskmgr" Click="Launch_Click">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE9D9;" VerticalAlignment="Center" />

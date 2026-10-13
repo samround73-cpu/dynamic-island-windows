@@ -38,7 +38,8 @@ public partial class MainWindow : Window
     private const double GlassCornerRadius = 8;
 
     /// <summary>Glass style with a working blur: the island takes the shape Windows can blur behind.</summary>
-    private bool IsGlass => _settings.IslandStyle == "Glass" && _glass.Supported;
+    /// <summary>The light frosted style, with Windows' blur available (the island is then a panel shape over the blur).</summary>
+    private bool IsGlass => Theme.Light && _glass.Supported;
 
     /// <summary>How long the mouse has to rest at the top edge to pull the island down over a maximised app.</summary>
     private static readonly TimeSpan RevealDelay = TimeSpan.FromMilliseconds(300);
@@ -116,6 +117,7 @@ public partial class MainWindow : Window
         _shelf = new Shelf(_settings);
 
         InitializeComponent();
+        ApplyThemeResources();
 
         PeekAppsList.ItemsSource = _otherOpenApps;
         PeekDock.ItemsSource = _dock;
@@ -193,6 +195,7 @@ public partial class MainWindow : Window
         SystemEvents.DisplaySettingsChanged += OnDisplayChanged;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
         SystemEvents.SessionSwitch += OnSessionSwitch;
+        SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
         DpiChanged += (_, args) =>
         {
             // Windows also sends this when nothing has really changed (e.g. while taking a screenshot); only a real
@@ -335,6 +338,7 @@ public partial class MainWindow : Window
         SystemEvents.DisplaySettingsChanged -= OnDisplayChanged;
         SystemEvents.PowerModeChanged -= OnPowerModeChanged;
         SystemEvents.SessionSwitch -= OnSessionSwitch;
+        SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
         _captures.Dispose();
 
         if (_foregroundHook != IntPtr.Zero) Native.UnhookWinEvent(_foregroundHook);
@@ -1153,6 +1157,17 @@ public partial class MainWindow : Window
     {
         Collapse();
         Native.PressWinKey('N');
+    }
+
+    /// <summary>With the Auto style, follow Windows when it switches between light and dark mode.</summary>
+    private void OnUserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
+    {
+        if (e.Category != UserPreferenceCategory.General) return;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (_settings.IslandStyle != "Auto" || Theme.WindowsUsesLight() == Theme.Light) return;
+            App.RestartIsland("Windows switched between light and dark mode", counted: false);
+        }));
     }
 
     private void OpenAndCollapse(string target)

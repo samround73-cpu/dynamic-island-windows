@@ -81,12 +81,29 @@ internal sealed class AcrylicBackdrop : Window
             Native.DwmSetWindowAttribute(_hwnd, Native.DWMWA_WINDOW_CORNER_PREFERENCE, ref corner, sizeof(int));
             int noBorder = unchecked((int)DWMWA_COLOR_NONE); // no thin grey Windows border around it
             Native.DwmSetWindowAttribute(_hwnd, DWMWA_BORDER_COLOR, ref noBorder, sizeof(int));
-            int dark = 1; // dark frost, so white text stays readable
+            int dark = _light ? 0 : 1; // light frost for the light island, dark frost otherwise
             Native.DwmSetWindowAttribute(_hwnd, Native.DWMWA_USE_IMMERSIVE_DARK_MODE, ref dark, sizeof(int));
 
             SetAcrylic(true);
             Conceal();
         };
+    }
+
+    private bool _light;
+
+    /// <summary>Light frost (for the light island) or dark frost.</summary>
+    public void SetLight(bool light)
+    {
+        if (light == _light) return;
+        _light = light;
+        if (_hwnd == IntPtr.Zero) return; // applied when the window is created
+        int dark = light ? 0 : 1;
+        Native.DwmSetWindowAttribute(_hwnd, Native.DWMWA_USE_IMMERSIVE_DARK_MODE, ref dark, sizeof(int));
+        if (_acrylicOn)
+        {
+            SetAcrylic(false);
+            SetAcrylic(true);
+        }
     }
 
     /// <summary>Turns the frosted backdrop on or off.</summary>
@@ -110,7 +127,7 @@ internal sealed class AcrylicBackdrop : Window
         var policy = new Native.ACCENT_POLICY
         {
             AccentState = on ? Native.ACCENT_ENABLE_ACRYLICBLURBEHIND : Native.ACCENT_DISABLED,
-            GradientColor = 0x55141414, // about a third opaque, near-black (0xAABBGGRR)
+            GradientColor = _light ? 0x99F6F4F4u : 0x55141414u, // light: soft white; dark: a third opaque near-black (0xAABBGGRR)
         };
         int size = Marshal.SizeOf(policy);
         IntPtr pointer = Marshal.AllocHGlobal(size);

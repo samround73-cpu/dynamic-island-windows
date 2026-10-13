@@ -123,7 +123,7 @@ public partial class MainWindow
                 Text = names[((int)FirstDayOfWeek + i) % 7],
                 FontSize = 10,
                 FontWeight = FontWeights.SemiBold,
-                Foreground = new SolidColorBrush(Color.FromArgb(0x80, 0xFF, 0xFF, 0xFF)),
+                Foreground = Theme.Ink(0x80),
                 HorizontalAlignment = HorizontalAlignment.Center,
             });
         }
@@ -138,8 +138,8 @@ public partial class MainWindow
 
         int offset = ((int)_calendarMonth.DayOfWeek - (int)FirstDayOfWeek + 7) % 7;
         var day = _calendarMonth.AddDays(-offset);
-        var dimText = new SolidColorBrush(Color.FromArgb(0x40, 0xFF, 0xFF, 0xFF));
-        var weekendText = new SolidColorBrush(Color.FromArgb(0xB0, 0xFF, 0xFF, 0xFF));
+        var dimText = Theme.Ink(0x40);
+        var weekendText = Theme.Ink(0xB0);
 
         for (int i = 0; i < 42; i++, day = day.AddDays(1))
         {
@@ -160,7 +160,7 @@ public partial class MainWindow
                     Text = day.Day.ToString(),
                     FontSize = 11,
                     FontWeight = isToday ? FontWeights.Bold : FontWeights.Normal,
-                    Foreground = isToday ? ToggleTile.AccentText : !inMonth ? dimText : weekend ? weekendText : Brushes.White,
+                    Foreground = isToday ? ToggleTile.AccentText : !inMonth ? dimText : weekend ? weekendText : Theme.Ink(),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
                 },
@@ -308,7 +308,7 @@ public partial class MainWindow
 
         Brush level = charging
             ? ToggleTile.Accent
-            : percent <= 20 ? new SolidColorBrush(Color.FromRgb(0xFF, 0x5F, 0x57)) : Brushes.White;
+            : percent <= 20 ? new SolidColorBrush(Color.FromRgb(0xFF, 0x5F, 0x57)) : Theme.Ink();
         BatteryText.Text = $"{percent}%";
         BatteryFill.Width = 17 * percent / 100.0;
         BatteryFill.Background = level;
@@ -690,7 +690,7 @@ public partial class MainWindow
     {
         bool hasMedia = _media.HasSession && _media.Title.Length > 0;
         Brush art = _media.Art is null
-            ? new SolidColorBrush(Color.FromArgb(0x22, 0xFF, 0xFF, 0xFF))
+            ? Theme.Ink(0x22)
             : new ImageBrush(_media.Art) { Stretch = Stretch.UniformToFill };
         string playGlyph = _media.IsPlaying ? "" : "";
 
@@ -855,7 +855,7 @@ public partial class MainWindow
 
     private void UpdateShuffleRepeat()
     {
-        var off = new SolidColorBrush(Color.FromArgb(0x80, 0xFF, 0xFF, 0xFF));
+        var off = Theme.Ink(0x80);
         ShuffleButton.Visibility = _media.CanShuffle ? Visibility.Visible : Visibility.Collapsed;
         RepeatButton.Visibility = _media.CanRepeat ? Visibility.Visible : Visibility.Collapsed;
         ShuffleGlyph.Foreground = _media.ShuffleOn && _mediaTint is not null ? _mediaTint : off;

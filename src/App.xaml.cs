@@ -145,13 +145,13 @@ public partial class App : Application
     /// Used after you reconnect to the PC or the screen scaling changes, when Windows can leave see-through windows
     /// drawn wrongly (e.g. as a black box) until the app is restarted.
     /// </summary>
-    public static void RestartIsland(string reason)
+    public static void RestartIsland(string reason, bool counted = true)
     {
         if (Current is not App app || app._shuttingDown) return;
         string? exe = Environment.ProcessPath;
         if (exe is null) return;
-        // Safety limit: never more than 3 automatic restarts in half an hour, whatever triggers them.
-        if (!RecordRestart())
+        // Safety limit: never more than 3 automatic restarts in half an hour (restarts you ask for don't count).
+        if (counted && !RecordRestart())
         {
             LogNote($"not restarting ({reason}): already restarted 3 times in the last 30 minutes");
             return;

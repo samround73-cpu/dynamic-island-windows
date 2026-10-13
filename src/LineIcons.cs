@@ -208,6 +208,16 @@ public static class LineIcons
 
     private static Brush Solid(Color c)
     {
+        // On the light island, very pale icon colours (e.g. Steam's near-white) are darkened so they still show.
+        if (Theme.Light)
+        {
+            double lightness = (0.299 * c.R + 0.587 * c.G + 0.114 * c.B) / 255;
+            if (lightness > 0.62)
+            {
+                double k = 0.62 / lightness;
+                c = Color.FromArgb(c.A, (byte)(c.R * k), (byte)(c.G * k), (byte)(c.B * k));
+            }
+        }
         var brush = new SolidColorBrush(c);
         brush.Freeze();
         return brush;

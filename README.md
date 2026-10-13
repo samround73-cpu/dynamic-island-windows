@@ -112,9 +112,9 @@ be switched off in Settings › Pop-ups.
 
 ### Make it yours
 
-Choose from four island styles (Black, Glass, Glow and Outline) and any accent colour.
+Choose from four island styles (Black, Light, Glow and Outline), or **Auto** to switch between Black and Light with Windows' own light/dark mode, plus any accent colour.
 
-<img src="docs/images/styles.png" alt="The four island styles: Black, Glass, Glow and Outline" width="880">
+<img src="docs/images/styles.png" alt="The four island styles: Black, Light, Glow and Outline" width="880">
 
 Settings are grouped into **Appearance, Behaviour, Pop-ups, Tabs, Weather and About**. Under **Tabs** you can
 hide the ones you don't use and put the rest in whatever order you like.
@@ -125,7 +125,7 @@ hide the ones you don't use and put the rest in whatever order you like.
 
 ## Getting started
 
-> **Requirements:** Windows 11. The Glass style needs Windows 11 22H2 or later.
+> **Requirements:** Windows 11. The frosted blur in the Light style needs Windows 11 22H2 or later (otherwise it's solid soft white).
 > Windows 10 (version 2004 or later) may work but hasn't been tested.
 
 1. **Download [`DynamicIsland.exe`](https://github.com/samround73-cpu/dynamic-island-windows/releases/latest/download/DynamicIsland.exe)** from the [latest release](../../releases/latest).

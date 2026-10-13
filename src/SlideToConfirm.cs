@@ -65,7 +65,7 @@ public sealed class SlideToConfirm : Border
         _label = new TextBlock
         {
             FontSize = 12.5,
-            Foreground = new SolidColorBrush(Color.FromArgb(0x99, 0xFF, 0xFF, 0xFF)),
+            Foreground = Theme.Ink(0x99),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(KnobSize + Inset, 0, 8, 0),
