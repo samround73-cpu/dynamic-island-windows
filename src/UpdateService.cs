@@ -79,7 +79,12 @@ public static class UpdateService
     private static string ExePath => Environment.ProcessPath ?? throw new InvalidOperationException("Can't tell where the app is");
     private static string Folder => Path.GetDirectoryName(ExePath)!;
     private static string NewPath => Path.Combine(Folder, Path.GetFileNameWithoutExtension(ExePath) + ".new.exe");
-    private static string OldPath => Path.Combine(Folder, Path.GetFileNameWithoutExtension(ExePath) + ".old.exe");
+    // Each update moves the running exe aside under a new name, so a previous one that's still closing never blocks it.
+    private static string OldPath => Path.Combine(Folder, Path.GetFileNameWithoutExtension(ExePath) + $".old-{DateTime.Now:yyyyMMddHHmmss}.exe");
+    private static string OldPattern => Path.GetFileNameWithoutExtension(ExePath) + ".old*.exe";
+
+    /// <summary>Set once an update has been swapped in: this copy is about to close and must not try again.</summary>
+    public static bool Applied { get; private set; }
 
     /// <summary>False when the app lives somewhere it can't write (e.g. Program Files), so it can't replace itself.</summary>
     public static bool CanUpdateInPlace
@@ -134,10 +139,10 @@ public static class UpdateService
     /// <summary>Swaps the downloaded exe in for the running one and starts it. On any problem, puts things back.</summary>
     public static bool ApplyAndRestart(string downloaded, Version version)
     {
+        if (Applied) return true;
         string exe = ExePath, old = OldPath;
         try
         {
-            if (File.Exists(old)) File.Delete(old);
             File.Move(exe, old);          // allowed even while running
             File.Move(downloaded, exe);
         }
@@ -149,7 +154,11 @@ public static class UpdateService
         }
 
         App.LogNote($"update: installed {version}, restarting");
-        if (App.StartReplacement(exe, $"{App.RestartArgument} {UpdatedArgument}")) return true;
+        if (App.StartReplacement(exe, $"{App.RestartArgument} {UpdatedArgument}"))
+        {
+            Applied = true;
+            return true;
+        }
 
         // Couldn't start the new one: put the old one back so nothing is lost.
         try
@@ -164,7 +173,12 @@ public static class UpdateService
     /// <summary>Deletes the previous version left beside the exe after an update (called a little after starting).</summary>
     public static void CleanUpOldVersion()
     {
-        try { if (File.Exists(OldPath)) File.Delete(OldPath); } catch { }
+        try
+        {
+            foreach (var file in Directory.GetFiles(Folder, OldPattern))
+                try { File.Delete(file); } catch { } // still closing: it'll be tidied next time
+        }
+        catch { }
         try { if (File.Exists(NewPath)) File.Delete(NewPath); } catch { }
     }
 }

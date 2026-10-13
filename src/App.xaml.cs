@@ -67,6 +67,7 @@ public partial class App : Application
         SessionEnding += (_, _) => Taskbar.Restore();
 
         base.OnStartup(e);
+        LogNote($"started version {UpdateService.Current.ToString(3)}" + (e.Args.Length > 0 ? $" ({string.Join(" ", e.Args)})" : ""));
 
         // Started by Windows at sign-in / reconnect: let the desktop and taskbar finish loading before touching them.
         bool autostart = Array.Exists(e.Args, a => string.Equals(a, StartupManager.AutostartArgument, StringComparison.OrdinalIgnoreCase));
@@ -210,6 +211,8 @@ public partial class App : Application
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(CrashLogPath)!);
+            var info = new FileInfo(CrashLogPath);
+            if (info.Exists && info.Length > 512 * 1024) info.Delete(); // keep it small
             File.AppendAllText(CrashLogPath, $"---- {DateTime.Now:yyyy-MM-dd HH:mm:ss}  note: {message}\n");
         }
         catch { }

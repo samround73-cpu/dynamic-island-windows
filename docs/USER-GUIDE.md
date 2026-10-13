@@ -1,6 +1,6 @@
 # User guide
 
-Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.34.)
+Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.35.)
 
 An iPhone-style "Dynamic Island" that replaces the Windows taskbar.
 
@@ -27,7 +27,7 @@ island (it restarts in a second or two and pops up "Updated to …"). You can tu
 ## What it puts on your PC
 
 There's no installer: the app is just `DynamicIsland.exe`, wherever you saved it. It updates itself by replacing
-that file (the previous version is briefly kept as `DynamicIsland.old.exe` and deleted on the next start). Starting a copy doesn't install or uninstall anything, and
+that file (the previous version is briefly kept as `DynamicIsland.old-….exe` and deleted on the next start). Starting a copy doesn't install or uninstall anything, and
 **Settings › About** shows which version is running.
 
 While it runs, it creates:

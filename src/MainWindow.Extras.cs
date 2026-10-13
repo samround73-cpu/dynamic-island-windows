@@ -1089,7 +1089,7 @@ public partial class MainWindow
 
     private async void CheckForUpdate(bool manual)
     {
-        if (_updateBusy) return;
+        if (_updateBusy || UpdateService.Applied) return;
         _updateBusy = true;
         SetUpdateMessage("Checking for updates…");
         try
@@ -1133,7 +1133,7 @@ public partial class MainWindow
     /// <summary>Downloads the update, then installs it (restarting the island) as soon as you're not using it.</summary>
     private async void InstallUpdate(UpdateInfo update, bool automatic)
     {
-        if (_updateBusy) return;
+        if (_updateBusy || UpdateService.Applied) return;
         if (!UpdateService.CanUpdateInPlace)
         {
             SystemActions.Open(update.PageUrl);
@@ -1196,7 +1196,7 @@ public partial class MainWindow
         CheckUpdatesText.Text = _availableUpdate is not null
             ? (UpdateService.CanUpdateInPlace ? "Update now" : "Open download page")
             : "Check now";
-        CheckUpdatesButton.IsEnabled = !_updateBusy;
+        CheckUpdatesButton.IsEnabled = !_updateBusy && !UpdateService.Applied;
     }
 
     // ---- Settings sections and the About page ----
