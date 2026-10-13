@@ -22,8 +22,13 @@ public partial class App : Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
-        // Only ever run one island.
+        // Only ever run one island. When the island restarts itself, the new copy waits for the old one to finish closing.
         _singleInstance = new Mutex(true, "DynamicIsland_SingleInstance", out _ownsMutex);
+        if (!_ownsMutex && Array.Exists(e.Args, a => string.Equals(a, RestartArgument, StringComparison.OrdinalIgnoreCase)))
+        {
+            try { _ownsMutex = _singleInstance.WaitOne(TimeSpan.FromSeconds(15)); }
+            catch (AbandonedMutexException) { _ownsMutex = true; } // the old copy closed without tidying up
+        }
         if (!_ownsMutex)
         {
             Shutdown();
@@ -129,6 +134,32 @@ public partial class App : Application
                 $"==== {DateTime.Now:yyyy-MM-dd HH:mm:ss}  (version {typeof(App).Assembly.GetName().Version})\n{ex}\n\n");
         }
         catch { /* never let logging cause another problem */ }
+    }
+
+    public const string RestartArgument = "--restarted";
+
+    /// <summary>
+    /// Closes this island (putting the taskbar back as usual) and starts a fresh one, which takes over a second later.
+    /// Used after you reconnect to the PC or the screen scaling changes, when Windows can leave see-through windows
+    /// drawn wrongly (e.g. as a black box) until the app is restarted.
+    /// </summary>
+    public static void RestartIsland(string reason)
+    {
+        if (Current is not App app || app._shuttingDown) return;
+        string? exe = Environment.ProcessPath;
+        if (exe is null) return;
+        LogNote($"restarting the island: {reason}");
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, RestartArgument) { UseShellExecute = false });
+        }
+        catch (Exception ex)
+        {
+            LogNote($"couldn't restart: {ex.Message}");
+            return; // carry on as we are rather than closing with nothing to replace us
+        }
+        app._shuttingDown = true;
+        app.Shutdown();
     }
 
     /// <summary>A short note in errors.log for things that went wrong without crashing (helps with bug reports).</summary>

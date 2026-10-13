@@ -133,6 +133,9 @@ New versions are built automatically by GitHub: pushing a tag like `v0.30.0` bui
   Settings and pinned items are kept on your PC in `%AppData%\DynamicIsland`.
 - **Limitations.** It works on the main monitor only. Some apps don't allow other programs to jump around in a song
   (Spotify, for one), so scrubbing may not work with them. The battery only shows on PCs that have one.
+- **Updating and removing.** There's no installer: updating means replacing `DynamicIsland.exe` (right-click the
+  island → Exit first). Settings › About shows the version and has **Remove from this PC…**, which clears the startup
+  entry, Start menu shortcut and settings. The [user guide](docs/USER-GUIDE.md#what-it-puts-on-your-pc) lists every file it creates.
 - **Apps running as administrator** (like Task Manager) can be switched to, but Windows doesn't let normal apps
   close them. The island tells you when that happens.
 - **Problems?** Details are saved to `%AppData%\DynamicIsland\errors.log` (Settings › About › Open error log folder).

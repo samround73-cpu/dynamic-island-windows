@@ -1520,9 +1520,12 @@
                                                 <Button Style="{StaticResource CardButton}" Padding="12,7" Click="Exit_Click">
                                                     <TextBlock Text="Quit and restore taskbar" FontSize="11.5" />
                                                 </Button>
+                                                <Button Style="{StaticResource CardButton}" Padding="12,7" Click="RemoveFromPc_Click">
+                                                    <TextBlock Text="Remove from this PC…" FontSize="11.5" Foreground="#FFFF9A94" />
+                                                </Button>
                                             </WrapPanel>
                                             <TextBlock FontSize="10.5" Foreground="#66FFFFFF" Margin="0,12,0,0" TextWrapping="Wrap"
-                                                       Text="If something goes wrong, the details are saved in errors.log in that folder." />
+                                                       Text="Your settings live in that folder too. The app itself is just DynamicIsland.exe: there's no installer, so updating means replacing that file." />
                                         </StackPanel>
                                     </Grid>
                                 </Border>

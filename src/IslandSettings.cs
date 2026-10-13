@@ -66,8 +66,13 @@ public sealed class IslandSettings
         return new IslandSettings();
     }
 
+    /// <summary>Set when the island is being removed from the PC, so closing doesn't write the settings back.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool DoNotSave { get; set; }
+
     public void Save()
     {
+        if (DoNotSave) return;
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);

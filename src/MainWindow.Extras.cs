@@ -930,6 +930,44 @@ public partial class MainWindow
         SystemActions.Open("https://github.com/samround73-cpu/dynamic-island-windows");
     }
 
+    /// <summary>
+    /// Removes everything the island has added to this PC (startup entry, Start menu shortcut, settings and logs,
+    /// and the files .NET unpacks to run it), then quits with the normal taskbar back. Only the exe itself is left.
+    /// </summary>
+    private void RemoveFromPc_Click(object sender, RoutedEventArgs e)
+    {
+        _menuOpen = true; // keep the island open while the question is up
+        var answer = MessageBox.Show(
+            "This removes Dynamic Island's startup entry, Start menu shortcut, settings, pinned clips and logs, " +
+            "then closes it and brings your normal taskbar back.\n\n" +
+            "Afterwards you can delete DynamicIsland.exe itself.\n\nRemove it now?",
+            "Remove Dynamic Island", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+        _menuOpen = false;
+        if (answer != MessageBoxResult.Yes) return;
+
+        try { StartupManager.SetEnabled(false); } catch { }
+        StartMenuShortcut.Remove();
+
+        // The settings folder (and the .NET files unpacked to run the exe) can only go once the island has closed,
+        // so a tiny hidden command waits a few seconds and then deletes them.
+        string data = Path.GetDirectoryName(App.CrashLogPath)!;
+        string unpacked = Path.Combine(Path.GetTempPath(), ".net", "DynamicIsland");
+        try
+        {
+            Process.Start(new ProcessStartInfo("cmd.exe",
+                $"/c ping -n 5 127.0.0.1 >nul & rmdir /s /q \"{data}\" & rmdir /s /q \"{unpacked}\"")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                WindowStyle = ProcessWindowStyle.Hidden,
+            });
+        }
+        catch { }
+
+        _settings.DoNotSave = true; // don't recreate the settings file while closing
+        Close();
+    }
+
     private void StartupFix_Click(object sender, RoutedEventArgs e)
     {
         Collapse();

@@ -12,6 +12,11 @@ public static class StartMenuShortcut
     private static string ShortcutPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Dynamic Island.lnk");
 
+    public static void Remove()
+    {
+        try { if (File.Exists(ShortcutPath)) File.Delete(ShortcutPath); } catch { }
+    }
+
     public static void Ensure()
     {
         try

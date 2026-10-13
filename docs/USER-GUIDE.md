@@ -1,6 +1,6 @@
 # User guide
 
-Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.30.)
+Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.31.)
 
 An iPhone-style "Dynamic Island" that replaces the Windows taskbar.
 
@@ -21,6 +21,25 @@ To update: right-click the island → **Exit**, replace `DynamicIsland.exe` with
    (pick **SDK 8.0 → Windows → x64**).
 2. Double-click **`Build.cmd`**. It builds the app into the `App` folder and offers to start it.
 
+## What it puts on your PC
+
+There's no installer: the app is just `DynamicIsland.exe`, wherever you saved it. Updating means replacing that one
+file (right-click the island → **Exit** first). Starting a copy doesn't install or uninstall anything, and
+**Settings › About** shows which version is running.
+
+While it runs, it creates:
+
+| What | Where |
+|---|---|
+| Settings, starred apps, pinned clips and shelf items | `%AppData%\DynamicIsland\settings.json` |
+| Error log (only if something goes wrong) | `%AppData%\DynamicIsland\errors.log` |
+| Your own taskbar setting, while the island is running | `%AppData%\DynamicIsland\taskbar-state.txt` |
+| Start menu shortcut | `%AppData%\Microsoft\Windows\Start Menu\Programs\Dynamic Island.lnk` |
+| Start with Windows (only if you turn it on) | A scheduled task called **DynamicIsland** |
+| Files .NET unpacks to run the single-file exe | `%Temp%\.net\DynamicIsland` |
+
+To remove it all, use **Settings › About › Remove from this PC…**, then delete `DynamicIsland.exe`.
+
 ## How it behaves
 
 - **Normally** the island sits at the top-centre of the screen, showing the time, date and (on a laptop) battery.
@@ -34,6 +53,8 @@ To update: right-click the island → **Exit**, replace `DynamicIsland.exe` with
   a second. You can also drag files up there and pause to bring it down and drop them on the shelf.
   If nothing maximised is under it (desktop showing, or windows that aren't maximised), it simply stays put.
 - **Full-screen games and videos** hide it completely.
+- **After you reconnect to the PC** (e.g. reopening a Shadow or Remote Desktop session) or the screen scaling changes,
+  the island quietly restarts itself a few seconds later, because Windows can otherwise leave it drawn as a black box.
 
 ## The tabs (click the island to open)
 

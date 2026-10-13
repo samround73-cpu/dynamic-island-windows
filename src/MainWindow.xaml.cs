@@ -190,6 +190,9 @@ public partial class MainWindow : Window
 
         SystemEvents.DisplaySettingsChanged += OnDisplayChanged;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
+        SystemEvents.SessionSwitch += OnSessionSwitch;
+        DpiChanged += (_, args) => ScheduleFreshStart(
+            $"screen scaling changed ({args.OldDpi.PixelsPerInchX:0} to {args.NewDpi.PixelsPerInchX:0} dpi)");
 
         // Selecting the first tab here (rather than in XAML) means everything above is ready when it fires.
         TodayTabButton.IsChecked = true;
@@ -321,6 +324,7 @@ public partial class MainWindow : Window
 
         SystemEvents.DisplaySettingsChanged -= OnDisplayChanged;
         SystemEvents.PowerModeChanged -= OnPowerModeChanged;
+        SystemEvents.SessionSwitch -= OnSessionSwitch;
 
         if (_foregroundHook != IntPtr.Zero) Native.UnhookWinEvent(_foregroundHook);
         if (_hwnd != IntPtr.Zero) Native.RemoveClipboardFormatListener(_hwnd);
@@ -380,6 +384,43 @@ public partial class MainWindow : Window
             App.Taskbar.StartWatching();
         }
         return IntPtr.Zero;
+    }
+
+    // ---- Starting fresh after a reconnect or a scaling change ----
+
+    private readonly DateTime _startedAt = DateTime.Now;
+    private DispatcherTimer? _freshStartTimer;
+    private string _freshStartReason = "";
+
+    /// <summary>
+    /// Reconnecting to the PC (e.g. reopening a Shadow or Remote Desktop session) can leave the island's see-through
+    /// window drawn as a black box until it's restarted, so it restarts itself, once the display has settled.
+    /// </summary>
+    private void OnSessionSwitch(object? sender, SessionSwitchEventArgs e)
+    {
+        App.LogNote($"session change: {e.Reason}");
+        if (e.Reason is SessionSwitchReason.RemoteConnect or SessionSwitchReason.ConsoleConnect)
+            Dispatcher.BeginInvoke(new Action(() => ScheduleFreshStart($"reconnected to the PC ({e.Reason})")));
+    }
+
+    private void ScheduleFreshStart(string reason)
+    {
+        // Not straight after starting (Windows reports the screen's scaling as the window first appears).
+        if (DateTime.Now - _startedAt < TimeSpan.FromSeconds(20)) return;
+        _freshStartReason = reason;
+        if (_freshStartTimer is null)
+        {
+            _freshStartTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
+            _freshStartTimer.Tick += (_, _) =>
+            {
+                _freshStartTimer!.Stop();
+                // Don't pull the rug out mid-use: if the island is open or a menu is up, try again shortly.
+                if (_expanded || _menuOpen) { _freshStartTimer.Start(); return; }
+                App.RestartIsland(_freshStartReason);
+            };
+        }
+        _freshStartTimer.Stop();
+        _freshStartTimer.Start();
     }
 
     private void OnDisplayChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(new Action(() =>
