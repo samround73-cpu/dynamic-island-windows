@@ -225,8 +225,20 @@ public static class WindowTracker
         if ((info.dwFlags & Native.MONITORINFOF_PRIMARY) == 0) return false;
 
         var screen = info.rcMonitor;
-        return rect.Left <= screen.Left && rect.Top <= screen.Top && rect.Right >= screen.Right && rect.Bottom >= screen.Bottom;
+        bool coversScreen = rect.Left <= screen.Left && rect.Top <= screen.Top && rect.Right >= screen.Right && rect.Bottom >= screen.Bottom;
+        if (!coversScreen) return false;
+
+        // Screenshot tools cover the whole screen with a see-through overlay while you pick an area;
+        // that's not a game or a video, so the island shouldn't vanish for it.
+        string exe = System.IO.Path.GetFileNameWithoutExtension(GetExePath(hWnd));
+        return !ScreenCaptureTools.Contains(exe);
     }
+
+    private static readonly HashSet<string> ScreenCaptureTools = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "ScreenClippingHost", "SnippingTool", "ScreenSketch", "ShareX", "Greenshot", "Lightshot", "Flameshot",
+        "SnagitCapture", "Snagit32", "PicPick", "Screenpresso", "ScreenToGif",
+    };
 
     public static string GetExePath(IntPtr hWnd)
     {

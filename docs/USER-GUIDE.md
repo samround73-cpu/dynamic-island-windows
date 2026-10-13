@@ -1,6 +1,6 @@
 # User guide
 
-Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.35.)
+Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.36.)
 
 An iPhone-style "Dynamic Island" that replaces the Windows taskbar.
 
@@ -56,7 +56,7 @@ To remove it all, use **Settings › About › Remove from this PC…**, then de
   It then stays for at least 3 seconds, and tucks away once the mouse has been away from it for a little over
   a second. You can also drag files up there and pause to bring it down and drop them on the shelf.
   If nothing maximised is under it (desktop showing, or windows that aren't maximised), it simply stays put.
-- **Full-screen games and videos** hide it completely.
+- **Full-screen games and videos** hide it completely (screenshot tools like Snipping Tool don't count).
 - **After you reconnect to the PC** (e.g. reopening a Shadow or Remote Desktop session) or the screen scaling changes,
   the island quietly restarts itself a few seconds later, because Windows can otherwise leave it drawn as a black box
   (at most 3 times in half an hour).
