@@ -934,10 +934,12 @@ public partial class MainWindow
         if (progress is not null)
         {
             CompactDownloadText.Text = FormatSpeed(progress.BytesPerSecond);
-            PeekDownloadName.Text = progress.Count > 1 ? $"{progress.Name}  +{progress.Count - 1} more" : progress.Name;
-            PeekDownloadSub.Text = $"{FormatBytes(progress.Bytes)} so far · {FormatSpeed(progress.BytesPerSecond)}";
+            PeekDownloadName.Text = progress.Count > 1 ? $"{progress.Count} downloads" : progress.Name;
+            PeekDownloadSub.Text = $"{FormatBytes(progress.Bytes)} so far";
+            PeekDownloadSpeed.Text = FormatSpeed(progress.BytesPerSecond);
         }
         ApplyDownloadState();
+        UpdatePillWidth(); // the speed's width changes a little
     }
 
     /// <summary>Shows or hides the download glow, speed and tray row, and resizes the pill to fit.</summary>
@@ -951,7 +953,7 @@ public partial class MainWindow
         CompactDownload.Visibility = visibility;
         CompactDownloadGlow.Visibility = visibility;
         PeekDownloadRow.Visibility = visibility;
-        EqBars.Opacity = show ? 0 : 1; // the speed sits where the music bars usually are
+        UpdateLiveCard();
 
         foreach (var (shift, width, distance) in new[] { (CompactDownloadGlowShift, 80.0, 360.0), (PeekDownloadGlowShift, 110.0, 440.0) })
         {
@@ -960,12 +962,45 @@ public partial class MainWindow
                 : null);
         }
 
+        UpdatePillItems(); // the speed takes the music bars' place, and the pill resizes to fit
+        RemeasurePeek();
+    }
+
+    /// <summary>The hover tray's card for the song and any download: shown if either is, with a hairline between both.</summary>
+    private void UpdateLiveCard()
+    {
+        bool media = PeekMediaRow.Visibility == Visibility.Visible;
+        bool download = PeekDownloadRow.Visibility == Visibility.Visible;
+        PeekLiveCard.Visibility = media || download ? Visibility.Visible : Visibility.Collapsed;
+        PeekLiveDivider.Visibility = media && download ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    // ---- The pill: one centred line that grows to fit ----
+
+    private double _pillWidth = 236;
+
+    /// <summary>Music bars show on the pill while something plays, unless a download's speed is showing instead.</summary>
+    private void UpdatePillItems()
+    {
+        EqBars.Visibility = _equalizerOn && !DownloadShowing ? Visibility.Visible : Visibility.Collapsed;
+        UpdatePillWidth();
+    }
+
+    /// <summary>
+    /// Works out how wide the pill needs to be for what it's showing (time and date, plus battery, music bars or
+    /// download speed), and resizes it if that's changed by more than a few pixels.
+    /// </summary>
+    private void UpdatePillWidth()
+    {
+        CompactRow.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        double width = Math.Max(236, Math.Ceiling(CompactRow.DesiredSize.Width + 90));
+        if (Math.Abs(width - _pillWidth) < 6) return;
+        _pillWidth = width;
         if (!_expanded && !_peeking && !_activityShowing)
         {
             IslandHost.BeginAnimation(WidthProperty, null);
             AnimateSize(CompactWidth, CompactHeight, 300, bouncy: false);
         }
-        RemeasurePeek();
     }
 
     private static string FormatSpeed(double bytesPerSecond)

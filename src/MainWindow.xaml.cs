@@ -23,7 +23,7 @@ public partial class MainWindow : Window
     private const double CompactHeight = 38;
 
     /// <summary>The pill is a little wider when it's showing the battery.</summary>
-    private double CompactWidth => (BatteryInPill ? 300 : 236) + (DownloadShowing ? 30 : 0);
+    private double CompactWidth => _pillWidth; // grows to fit what the pill shows (UpdatePillWidth)
     private const double ActivityWidth = 340, ActivityHeight = 64;
     private const double ExpandedWidth = 660;
     private const double MinPeekWidth = 250;

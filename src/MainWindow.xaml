@@ -312,6 +312,15 @@
             </Setter>
         </Style>
 
+        <!-- The small dot between items on the pill -->
+        <Style x:Key="PillDot" TargetType="Ellipse">
+            <Setter Property="Width" Value="3" />
+            <Setter Property="Height" Value="3" />
+            <Setter Property="Fill" Value="#4DFFFFFF" />
+            <Setter Property="Margin" Value="9,1,9,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
         <Style x:Key="Glyph" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="{StaticResource IconFont}" />
             <Setter Property="FontSize" Value="16" />
@@ -566,6 +575,10 @@
                     <Setter TargetName="TileBg" Property="Background" Value="{DynamicResource TileHoverBrush}" />
                     <Setter TargetName="IconHolder" Property="Opacity" Value="1" />
                 </Trigger>
+                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                    <Setter TargetName="TileBg" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                    <Setter TargetName="TileBg" Property="BorderThickness" Value="2" />
+                </DataTrigger>
                 <DataTrigger Binding="{Binding IsDivider}" Value="True">
                     <Setter TargetName="Divider" Property="Visibility" Value="Visible" />
                     <Setter TargetName="DockButton" Property="Visibility" Value="Collapsed" />
@@ -800,12 +813,15 @@
 
                 <Grid x:Name="IslandContent" ClipToBounds="True">
 
-                    <!-- ============ COMPACT: the little pill you see most of the time ============ -->
+                    <!-- ============ COMPACT: the little pill you see most of the time ============
+                         One centred line: time and date, then battery, music bars or download speed when there's
+                         something to show, each after a small dot. The pill widens to fit (see UpdatePillWidth). -->
                     <Grid x:Name="CompactContent" Margin="16,0,14,1">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <StackPanel x:Name="CompactRow" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock x:Name="CompactClock" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock x:Name="CompactDate" FontSize="11.5" Foreground="{StaticResource SubtleText}" Margin="9,1,0,0" VerticalAlignment="Center" />
-                            <StackPanel x:Name="CompactBattery" Orientation="Horizontal" Margin="10,1,0,0" VerticalAlignment="Center" Visibility="Collapsed">
+                            <Ellipse x:Name="BatteryDot" Style="{StaticResource PillDot}" Visibility="{Binding Visibility, ElementName=CompactBattery}" />
+                            <StackPanel x:Name="CompactBattery" Orientation="Horizontal" Margin="0,1,0,0" VerticalAlignment="Center" Visibility="Collapsed">
                                 <Grid Width="21" Height="10" VerticalAlignment="Center">
                                     <Border BorderBrush="#B3FFFFFF" BorderThickness="1" CornerRadius="2.5" Margin="0,0,2,0" />
                                     <Border Width="1.5" Height="4" HorizontalAlignment="Right" Background="#B3FFFFFF" CornerRadius="0.75" />
@@ -815,29 +831,28 @@
                                            Foreground="{DynamicResource Accent}" Visibility="Collapsed" />
                                 <TextBlock x:Name="CompactBatteryText" FontSize="11" Foreground="{StaticResource SubtleText}" Margin="4,0,0,0" VerticalAlignment="Center" />
                             </StackPanel>
+                            <Ellipse x:Name="MusicDot" Style="{StaticResource PillDot}" Visibility="{Binding Visibility, ElementName=EqBars}" />
+                            <StackPanel x:Name="EqBars" Orientation="Horizontal" Width="18"
+                                        VerticalAlignment="Center" Visibility="Collapsed">
+                                <Rectangle Width="2.5" Height="11" Margin="1.25,0" RadiusX="1.25" RadiusY="1.25" Fill="{DynamicResource Accent}" RenderTransformOrigin="0.5,1">
+                                    <Rectangle.RenderTransform><ScaleTransform x:Name="Eq1" ScaleY="0.5" /></Rectangle.RenderTransform>
+                                </Rectangle>
+                                <Rectangle Width="2.5" Height="11" Margin="1.25,0" RadiusX="1.25" RadiusY="1.25" Fill="{DynamicResource Accent}" RenderTransformOrigin="0.5,1">
+                                    <Rectangle.RenderTransform><ScaleTransform x:Name="Eq2" ScaleY="0.8" /></Rectangle.RenderTransform>
+                                </Rectangle>
+                                <Rectangle Width="2.5" Height="11" Margin="1.25,0" RadiusX="1.25" RadiusY="1.25" Fill="{DynamicResource Accent}" RenderTransformOrigin="0.5,1">
+                                    <Rectangle.RenderTransform><ScaleTransform x:Name="Eq3" ScaleY="0.4" /></Rectangle.RenderTransform>
+                                </Rectangle>
+                            </StackPanel>
+                            <Ellipse x:Name="DownloadDot" Style="{StaticResource PillDot}" Visibility="{Binding Visibility, ElementName=CompactDownload}" />
+                            <StackPanel x:Name="CompactDownload" Orientation="Horizontal" VerticalAlignment="Center"
+                                        Visibility="Collapsed" IsHitTestVisible="False">
+                                <TextBlock Style="{StaticResource Glyph}" FontSize="10" Text="&#xE896;" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
+                                <TextBlock x:Name="CompactDownloadText" FontSize="11" MinWidth="54" FontWeight="SemiBold" Foreground="{DynamicResource Accent}"
+                                           Margin="4,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
                         </StackPanel>
 
-                        <!-- Little dancing bars, only while music is playing -->
-                        <StackPanel x:Name="EqBars" Orientation="Horizontal" Width="18" HorizontalAlignment="Right"
-                                    VerticalAlignment="Center" Visibility="Hidden">
-                            <Rectangle Width="2.5" Height="11" Margin="1.25,0" RadiusX="1.25" RadiusY="1.25" Fill="{DynamicResource Accent}" RenderTransformOrigin="0.5,1">
-                                <Rectangle.RenderTransform><ScaleTransform x:Name="Eq1" ScaleY="0.5" /></Rectangle.RenderTransform>
-                            </Rectangle>
-                            <Rectangle Width="2.5" Height="11" Margin="1.25,0" RadiusX="1.25" RadiusY="1.25" Fill="{DynamicResource Accent}" RenderTransformOrigin="0.5,1">
-                                <Rectangle.RenderTransform><ScaleTransform x:Name="Eq2" ScaleY="0.8" /></Rectangle.RenderTransform>
-                            </Rectangle>
-                            <Rectangle Width="2.5" Height="11" Margin="1.25,0" RadiusX="1.25" RadiusY="1.25" Fill="{DynamicResource Accent}" RenderTransformOrigin="0.5,1">
-                                <Rectangle.RenderTransform><ScaleTransform x:Name="Eq3" ScaleY="0.4" /></Rectangle.RenderTransform>
-                            </Rectangle>
-                        </StackPanel>
-
-                        <!-- While downloading: the speed where the music bars usually are, and a glow running along the bottom -->
-                        <StackPanel x:Name="CompactDownload" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                    Visibility="Collapsed" IsHitTestVisible="False">
-                            <TextBlock Style="{StaticResource Glyph}" FontSize="10" Text="&#xE896;" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
-                            <TextBlock x:Name="CompactDownloadText" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Accent}"
-                                       Margin="4,0,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
                         <Grid x:Name="CompactDownloadGlow" Height="2.5" VerticalAlignment="Bottom" Margin="8,0,8,2" ClipToBounds="True"
                               Visibility="Collapsed" IsHitTestVisible="False">
                             <Border Background="#1AFFFFFF" CornerRadius="1.25" />
@@ -885,74 +900,83 @@
                                 </Rectangle>
                             </StackPanel>
                         </Grid>
-                        <!-- Now playing: one quiet line (art · title — artist · controls) with a hairline progress bar -->
-                        <StackPanel x:Name="PeekMediaRow" Margin="8,0,8,8" Visibility="Collapsed" MinWidth="270" MaxWidth="400">
-                            <Grid Height="26">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Border x:Name="PeekMediaArt" Width="18" Height="18" CornerRadius="4" Background="#22FFFFFF" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1" Margin="8,0,6,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" FontSize="11.5">
-                                    <Run x:Name="PeekMediaTitle" FontWeight="SemiBold" />
-                                    <Run x:Name="PeekMediaArtist" Foreground="#8CFFFFFF" />
-                                </TextBlock>
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Style="{StaticResource IslandButton}" Width="22" Height="22" Click="Previous_Click" ToolTip="Previous">
-                                        <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE892;" Foreground="#B3FFFFFF" />
-                                    </Button>
-                                    <Button Style="{StaticResource IslandButton}" Width="24" Height="22" Margin="1,0" Click="PlayPause_Click" ToolTip="Play / pause">
-                                        <TextBlock x:Name="PeekPlayGlyph" Style="{StaticResource Glyph}" FontSize="11" Text="&#xE768;" Foreground="{DynamicResource Accent}" />
-                                    </Button>
-                                    <Button Style="{StaticResource IslandButton}" Width="22" Height="22" Click="Next_Click" ToolTip="Next">
-                                        <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE893;" Foreground="#B3FFFFFF" />
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
-                            <Grid x:Name="PeekProgress" Height="2" Margin="0,4,0,0" Visibility="Collapsed">
-                                <Border Background="#1FFFFFFF" CornerRadius="1" />
-                                <Border Background="{DynamicResource Accent}" CornerRadius="1" RenderTransformOrigin="0,0.5">
-                                    <Border.RenderTransform><ScaleTransform x:Name="PeekProgressScale" ScaleX="0" /></Border.RenderTransform>
-                                </Border>
-                            </Grid>
-                        </StackPanel>
-                        <!-- Downloading: file, how much has arrived and the speed, with a moving glow (no % — browsers don't say how big it is) -->
-                        <Border x:Name="PeekDownloadRow" Background="{DynamicResource CardBrush}" CornerRadius="12" Padding="10,7,6,9" Margin="2,0,2,8"
-                                MinWidth="300" MaxWidth="420" Visibility="Collapsed">
+                        <!-- What's happening now: the song and any download share one card, split by a hairline -->
+                        <Border x:Name="PeekLiveCard" Background="{DynamicResource CardBrush}" CornerRadius="14" Padding="10,8,8,9" Margin="2,0,2,10"
+                                Visibility="Collapsed">
                             <StackPanel>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Style="{StaticResource Glyph}" FontSize="15" Text="&#xE896;" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
-                                    <StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
-                                        <TextBlock x:Name="PeekDownloadName" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="PeekDownloadSub" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextTrimming="CharacterEllipsis" />
-                                    </StackPanel>
-                                    <Button Grid.Column="2" Style="{StaticResource IslandButton}" Width="30" Height="28" Click="OpenDownloads_Click" ToolTip="Open your Downloads folder">
-                                        <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE838;" />
-                                    </Button>
-                                </Grid>
-                                <Grid Height="3" Margin="0,7,4,0" ClipToBounds="True">
-                                    <Border Background="#1FFFFFFF" CornerRadius="1.5" />
-                                    <Border Width="110" HorizontalAlignment="Left" CornerRadius="1.5" Background="{DynamicResource Accent}">
-                                        <Border.OpacityMask>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="Transparent" Offset="0" />
-                                                <GradientStop Color="Black" Offset="0.5" />
-                                                <GradientStop Color="Transparent" Offset="1" />
-                                            </LinearGradientBrush>
-                                        </Border.OpacityMask>
-                                        <Border.RenderTransform><TranslateTransform x:Name="PeekDownloadGlowShift" X="-110" /></Border.RenderTransform>
-                                    </Border>
-                                </Grid>
+                                <!-- Now playing: one quiet line (art · title — artist · controls) with a hairline progress bar -->
+                                <StackPanel x:Name="PeekMediaRow" Visibility="Collapsed" MinWidth="270" MaxWidth="420">
+                                    <Grid Height="26">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border x:Name="PeekMediaArt" Width="18" Height="18" CornerRadius="4" Background="#22FFFFFF" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Margin="8,0,6,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" FontSize="11.5">
+                                            <Run x:Name="PeekMediaTitle" FontWeight="SemiBold" />
+                                            <Run x:Name="PeekMediaArtist" Foreground="#8CFFFFFF" />
+                                        </TextBlock>
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Style="{StaticResource IslandButton}" Width="22" Height="22" Click="Previous_Click" ToolTip="Previous">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE892;" Foreground="#B3FFFFFF" />
+                                            </Button>
+                                            <Button Style="{StaticResource IslandButton}" Width="24" Height="22" Margin="1,0" Click="PlayPause_Click" ToolTip="Play / pause">
+                                                <TextBlock x:Name="PeekPlayGlyph" Style="{StaticResource Glyph}" FontSize="11" Text="&#xE768;" Foreground="{DynamicResource Accent}" />
+                                            </Button>
+                                            <Button Style="{StaticResource IslandButton}" Width="22" Height="22" Click="Next_Click" ToolTip="Next">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE893;" Foreground="#B3FFFFFF" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid x:Name="PeekProgress" Height="2" Margin="0,4,0,0" Visibility="Collapsed">
+                                        <Border Background="#1FFFFFFF" CornerRadius="1" />
+                                        <Border Background="{DynamicResource Accent}" CornerRadius="1" RenderTransformOrigin="0,0.5">
+                                            <Border.RenderTransform><ScaleTransform x:Name="PeekProgressScale" ScaleX="0" /></Border.RenderTransform>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                                <Border x:Name="PeekLiveDivider" Height="1" Background="#14FFFFFF" Margin="-4,9,-2,9" Visibility="Collapsed" />
+                                <!-- Downloading: one line (what, how much so far, speed) with a moving glow underneath -->
+                                <StackPanel x:Name="PeekDownloadRow" Visibility="Collapsed" MinWidth="270" MaxWidth="420">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE896;" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
+                                        <TextBlock x:Name="PeekDownloadName" Grid.Column="1" Margin="9,0,0,0" FontSize="12" FontWeight="SemiBold" MaxWidth="190"
+                                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <TextBlock x:Name="PeekDownloadSub" Grid.Column="2" Margin="8,1,8,0" FontSize="11" Foreground="{StaticResource SubtleText}"
+                                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <TextBlock x:Name="PeekDownloadSpeed" Grid.Column="3" FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource Accent}"
+                                                   VerticalAlignment="Center" />
+                                        <Button Grid.Column="4" Style="{StaticResource IslandButton}" Width="26" Height="24" Margin="4,0,0,0"
+                                                Click="OpenDownloads_Click" ToolTip="Open your Downloads folder">
+                                            <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE838;" Foreground="#B3FFFFFF" />
+                                        </Button>
+                                    </Grid>
+                                    <Grid Height="2.5" Margin="0,6,0,0" ClipToBounds="True">
+                                        <Border Background="#1FFFFFFF" CornerRadius="1.25" />
+                                        <Border Width="110" HorizontalAlignment="Left" CornerRadius="1.25" Background="{DynamicResource Accent}">
+                                            <Border.OpacityMask>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="Transparent" Offset="0" />
+                                                    <GradientStop Color="Black" Offset="0.5" />
+                                                    <GradientStop Color="Transparent" Offset="1" />
+                                                </LinearGradientBrush>
+                                            </Border.OpacityMask>
+                                            <Border.RenderTransform><TranslateTransform x:Name="PeekDownloadGlowShift" X="-110" /></Border.RenderTransform>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                         <!-- Now using: the app in front with its window title, the other open apps as icons on the right -->
-                        <Border x:Name="PeekNowRow" Background="{DynamicResource CardBrush}" CornerRadius="12" Padding="4,3,6,3" Margin="2,0"
+                        <Border x:Name="PeekNowRow" Background="{DynamicResource CardBrush}" CornerRadius="12" Padding="4,3,6,3" Margin="2,0" Visibility="Collapsed"
                                 MinWidth="300" MaxWidth="420">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -999,7 +1023,7 @@
                             </Grid>
                         </Border>
                         <!-- Pinned apps and other open apps, in one row (only when something is pinned) -->
-                        <ItemsControl x:Name="PeekDock" Margin="4,10,0,-6" MaxWidth="424" HorizontalAlignment="Left"
+                        <ItemsControl x:Name="PeekDock" Margin="4,2,0,-6" MaxWidth="424" HorizontalAlignment="Left"
                                       ItemTemplate="{StaticResource DockIconTemplate}" Visibility="Collapsed">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>

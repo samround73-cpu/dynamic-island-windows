@@ -46,13 +46,15 @@ To remove it all, use **Settings › About › Remove from this PC…**, then de
 
 ## How it behaves
 
-- **Normally** the island sits at the top-centre of the screen, showing the time, date and (on a laptop) battery.
-- **Rest the mouse on it** (it waits until the mouse actually pauses, so passing over it doesn't count) and it grows into a small tray of your open apps. Click one to bring it
+- **Normally** the island sits at the top-centre of the screen, showing the time and date. Battery (on a laptop),
+  music bars (while something plays) and download speed join the same centred line after a small dot when there's
+  something to show, and the pill widens to fit.
+- **Rest the mouse on it** (it waits until the mouse actually pauses, so passing over it doesn't count) and it grows into a small tray: the song and any download share one card at the top, with a row of your open apps underneath (the one you're using has a ring in your accent colour). Click one to bring it
   back (even if it's minimised — those are shown dimmed), click the app in front to minimise it, or hover
   an icon for a live preview (hover a preview for its ✕ to close that window). While music is playing, the tray
   also shows the song with back / play-pause / next. Click the island itself (not an icon) to open everything.
 - **Pinned apps:** right-click any app in the tray (or on the Apps tab) and choose **Pin to tray**. Pinned apps then
-  always sit at the start of the tray's row of icons, followed by a thin line and any other open apps. Pinned apps
+  always sit at the start of the tray's row of apps, followed by a thin line and any other open apps. Pinned apps
   that aren't running are shown as faded outlines; click one to start it. Right-click a pinned app to unpin it or
   use **Move left / Move right** to change the order. (Apps that aren't in the Start menu can't be pinned.)
 - **While something downloads** (in your Downloads folder), a glow runs along the bottom of the pill with the

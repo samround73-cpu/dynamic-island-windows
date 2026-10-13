@@ -219,19 +219,11 @@ public partial class MainWindow
     private static readonly AppTile DockDivider = new() { Key = "|divider", IsDivider = true };
 
     /// <summary>
-    /// With apps pinned, the hover tray shows one row of every pinned app plus the other open apps,
-    /// instead of the small icons beside the app in front. With nothing pinned, it looks as it always has.
+    /// The hover tray's row of apps: pinned apps first (faded if they aren't running), a thin line, then the other
+    /// open apps. The app in front has a ring in the accent colour.
     /// </summary>
     private void UpdateDock()
     {
-        if (_settings.TrayPins.Count == 0)
-        {
-            _dock.Clear();
-            PeekDock.Visibility = Visibility.Collapsed;
-            PeekAppsList.Visibility = Visibility.Visible;
-            return;
-        }
-
         var pinned = new List<AppTile>();
         var shown = new HashSet<AppTile>();
         foreach (var launch in _settings.TrayPins)
@@ -263,7 +255,6 @@ public partial class MainWindow
         SyncTiles(_dock, all);
 
         PeekDock.Visibility = _dock.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        PeekAppsList.Visibility = Visibility.Collapsed;
     }
 
     /// <summary>Click in the dock row: a closed pinned app starts; an open one behaves like any open app.</summary>

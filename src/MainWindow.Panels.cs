@@ -61,12 +61,7 @@ public partial class MainWindow
         var visibility = BatteryInPill ? Visibility.Visible : Visibility.Collapsed;
         CompactBattery.Visibility = visibility;
         PeekBattery.Visibility = visibility;
-        // Resize the pill to fit (only if it's showing as the plain pill right now).
-        if (!_expanded && !_peeking && !_activityShowing)
-        {
-            IslandHost.BeginAnimation(WidthProperty, null);
-            AnimateSize(CompactWidth, CompactHeight, 300, bouncy: false);
-        }
+        UpdatePillWidth();
     }
     private bool _lastCharging;
     private DateTime _calendarMonth = new(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -96,6 +91,7 @@ public partial class MainWindow
         BigClock.Text = time;
         DateText.Text = date;
         if (_expanded && _currentTab == "Today") UpdateToday();
+        UpdatePillWidth(); // the time can change width a little (it only resizes for real changes)
     }
 
     // =====================================================================================
@@ -722,6 +718,7 @@ public partial class MainWindow
         var peekVisibility = hasMedia ? Visibility.Visible : Visibility.Collapsed;
         bool peekRowChanged = PeekMediaRow.Visibility != peekVisibility;
         PeekMediaRow.Visibility = peekVisibility;
+        UpdateLiveCard();
         PeekMediaTitle.Text = _media.Title;
         PeekMediaArtist.Text = _media.Artist.Length > 0 ? "  —  " + _media.Artist : "";
         PeekMediaArt.Background = art;
@@ -794,7 +791,7 @@ public partial class MainWindow
         bool on = playing && _settings.ShowMusicBars;
         if (on == _equalizerOn) return;
         _equalizerOn = on;
-        EqBars.Visibility = on ? Visibility.Visible : Visibility.Hidden;
+        UpdatePillItems();
         PeekEqBars.Visibility = on ? Visibility.Visible : Visibility.Hidden;
 
         var bars = new[] { Eq1, Eq2, Eq3, Eq4, Eq5, Eq6 };
