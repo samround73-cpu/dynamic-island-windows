@@ -118,6 +118,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         PeekAppsList.ItemsSource = _otherOpenApps;
+        PeekDock.ItemsSource = _dock;
         AppsOpenChips.ItemsSource = _openApps;
         BuildTiles();
         BuildPowerSliders();
