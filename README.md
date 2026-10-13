@@ -46,6 +46,14 @@ and clicking them brings back the window you already have instead of starting a 
 
 <img src="docs/images/apps.png" alt="The Apps tab with search, open-app chips and the app list" width="880">
 
+### Search from anywhere
+
+Press **Ctrl+Space** in any app and the island drops down with the search box ready. Results include your apps
+and a **Settings** section, so typing "blue" offers Bluetooth & devices and Night light as well. Use the arrow
+keys and Enter, or press Ctrl+Space again to close it. (You can turn the shortcut off in Settings › Behaviour.)
+
+<img src="docs/images/search.png" alt="Ctrl+Space search showing app results and Windows Settings pages" width="880">
+
 ### Controls
 
 Switches for Wi-Fi, Bluetooth, sound, microphone and dark mode, with a compact music player and volume
@@ -75,20 +83,40 @@ If Windows has updates waiting, they're installed on the way, just like the Star
 
 <img src="docs/images/power.png" alt="The Power tab with slide-to-restart and slide-to-shut-down" width="880">
 
+### Today
+
+The time and date with a greeting, the weather now and for the next few hours, and a month calendar you can flip
+through.
+
+<img src="docs/images/today.png" alt="The Today tab with the clock, weather and calendar" width="880">
+
+### Screenshot and download pop-ups
+
+Take a screenshot (Win+Shift+S or Print Screen) or finish a download and the island pops out with a preview.
+Click it to open the Shelf, where the file is waiting to be dragged into an email, chat or folder. Each kind can
+be switched off in Settings › Pop-ups.
+
+<img src="docs/images/popouts.png" alt="Pop-outs for a new screenshot and a finished download" width="880">
+
 ### …and more
 
-- **Today:** a greeting, the weather (now and the next few hours) and a month calendar.
 - **Clipboard:** your recent copies, with search, filters (text, images, links) and pinning.
   Copies from password managers are skipped.
 - **Shelf:** drop files onto the island to keep them handy, then drag them out into any folder, email or chat.
-- **Pop-ups:** the island briefly pops out for screenshots (with a preview), finished downloads, volume changes,
-  new songs, Bluetooth devices, USB drives and charging. New screenshots and downloads also land on the Shelf.
+- **More pop-ups:** volume changes, new songs, Bluetooth devices, USB drives and charging.
+- **Looks after itself:** updates install automatically, it reopens when you reconnect or unlock (great for
+  Shadow and Remote Desktop), and if anything goes wrong it restarts itself quietly.
 
 ### Make it yours
 
-Choose from four island styles and any accent colour, and show, hide or reorder the tabs.
+Choose from four island styles (Black, Glass, Glow and Outline) and any accent colour.
 
 <img src="docs/images/styles.png" alt="The four island styles: Black, Glass, Glow and Outline" width="880">
+
+Settings are grouped into **Appearance, Behaviour, Pop-ups, Tabs, Weather and About**. Under **Tabs** you can
+hide the ones you don't use and put the rest in whatever order you like.
+
+<img src="docs/images/settings.png" alt="Settings › Tabs, with tabs reordered and Clipboard hidden" width="880">
 
 ---
 
