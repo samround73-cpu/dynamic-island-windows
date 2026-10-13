@@ -466,6 +466,48 @@ public partial class MainWindow
     }
 
     /// <summary>Rebuilds the list (sections, rows) and plays the cascade animation.</summary>
+    // ---- Opening the Apps tab quickly ----
+
+    private string _appListStamp = "";
+    private bool _listShowsSearch;
+
+    /// <summary>Everything the full list depends on; if none of it has changed, the list can simply be reused.</summary>
+    private string AppListStamp(List<AppRow> otherOpen) => string.Join("|",
+        _installedApps.Count,
+        System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(_installedApps),
+        _settings.UseLineIcons && LineIcons.Available,
+        string.Join(",", _settings.Starred),
+        string.Join(",", _settings.Recent),
+        string.Join(",", otherOpen.Select(o => o.Key)));
+
+    /// <summary>
+    /// Called when the Apps tab opens. Reuses the list from last time when nothing has changed (just refreshing which
+    /// apps are open); otherwise rebuilds it just after the island has started opening, so the animation stays smooth.
+    /// </summary>
+    private void OpenAppsTab()
+    {
+        if (SearchText.Length == 0 && !_listShowsSearch && _rows.Count > 0)
+        {
+            var (_, otherOpen) = ScanOpenWindows();
+            if (AppListStamp(otherOpen) == _appListStamp)
+            {
+                UpdateAppListOpenState();
+                foreach (var row in _rows.Where(r => r.IsSelected)) row.IsSelected = false;
+                _selectedRow = -1;
+                StopSmoothScroll();
+                _scrollTarget = _scrollCurrent = 0;
+                AppsScroller.ScrollToTop();
+                Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() => RevealVisibleRows(cascade: false)));
+                ResizeExpandedIfNeeded();
+                return;
+            }
+        }
+        Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+        {
+            if (_currentTab == "Apps") RebuildAppList();
+        }));
+    }
+
     private void RebuildAppList()
     {
         string query = SearchText;
@@ -528,6 +570,8 @@ public partial class MainWindow
         // Searching: the top result is highlighted, ready for Enter.
         _selectedRow = searching && _rows.Count > 0 ? 0 : -1;
         if (_selectedRow == 0) _rows[0].IsSelected = true;
+        _listShowsSearch = searching;
+        _appListStamp = searching ? "" : AppListStamp(otherOpen);
 
         AppsList.ItemsSource = items;
         AppsStatus.Visibility = _rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -789,6 +833,31 @@ public partial class MainWindow
         bool starred = _settings.IsStarred(row.LaunchPath);
         // The same app can appear in several sections; update them all.
         foreach (var other in _rows.Where(r => r.LaunchPath == row.LaunchPath)) other.IsStarred = starred;
+    }
+
+    /// <summary>Right-click on an app in the list: its menu is built now rather than for every row up front.</summary>
+    private void AppRow_RightClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement element || element.DataContext is not AppRow row) return;
+        e.Handled = true;
+
+        MenuItem Item(string header, RoutedEventHandler click)
+        {
+            var item = new MenuItem { Header = header };
+            item.Click += click;
+            return item;
+        }
+
+        var menu = new ContextMenu { DataContext = row };
+        menu.Opened += Menu_Opened;
+        menu.Closed += Menu_Closed;
+        menu.Items.Add(Item("Open new window", AppRowNewWindow_Click));
+        menu.Items.Add(Item("Star / unstar", AppRowStar_Click));
+        if (row.IsOpen) menu.Items.Add(Item("Close all its windows", AppRowClose_Click));
+
+        element.ContextMenu = menu; // attached to the row, so it picks up the island's menu styling
+        menu.PlacementTarget = element;
+        menu.IsOpen = true;
     }
 
     private void AppRowNewWindow_Click(object sender, RoutedEventArgs e)

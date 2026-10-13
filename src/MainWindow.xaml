@@ -543,16 +543,10 @@
 
         <!-- Apps list: one app. Gold dot + "Open" when it's running; star to favourite it. -->
         <DataTemplate DataType="{x:Type local:AppRow}">
+            <!-- The right-click menu is made only when you right-click (MouseRightButtonUp), keeping rows light. -->
             <Border x:Name="Row" Height="40" CornerRadius="12" Background="Transparent" Margin="0,1" Cursor="Hand"
-                    MouseLeftButtonUp="AppRow_Click" MouseUp="AppRow_MouseUp" MouseEnter="AppRow_MouseEnter">
-                <Border.ContextMenu>
-                    <ContextMenu Opened="Menu_Opened" Closed="Menu_Closed">
-                        <MenuItem Header="Open new window" Click="AppRowNewWindow_Click" />
-                        <MenuItem Header="Star / unstar" Click="AppRowStar_Click" />
-                        <MenuItem Header="Close all its windows" Click="AppRowClose_Click"
-                                  Visibility="{Binding IsOpen, Converter={StaticResource BoolToVis}}" />
-                    </ContextMenu>
-                </Border.ContextMenu>
+                    MouseLeftButtonUp="AppRow_Click" MouseUp="AppRow_MouseUp" MouseEnter="AppRow_MouseEnter"
+                    MouseRightButtonUp="AppRow_RightClick">
                 <Grid Margin="8,0,6,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />

@@ -1,6 +1,6 @@
 # User guide
 
-Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.29.)
+Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.30.)
 
 An iPhone-style "Dynamic Island" that replaces the Windows taskbar.
 

@@ -902,7 +902,11 @@ public partial class MainWindow
                      (SettingsNavWeather, SettingsWeather), (SettingsNavAbout, SettingsAbout),
                  })
             panel.Visibility = nav.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-        if (_currentTab == "Settings") ResizeExpandedIfNeeded();
+        if (_currentTab == "Settings")
+        {
+            ResizeExpandedIfNeeded();
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(ResizeExpandedIfNeeded));
+        }
     }
 
     /// <summary>"Set your town" on the Today tab: straight to the Weather settings.</summary>

@@ -251,7 +251,7 @@ public partial class MainWindow : Window
         if (_peeking) ExitPeek();
         if (!_revealed) SlideBack(); // tucked away over a maximised app: bring it down first
 
-        SearchBox.Clear();
+        if (SearchBox.Text.Length > 0) SearchBox.Clear();
         if (!_expanded) Expand();
         if (AppsTabButton.IsChecked == true) ShowTab("Apps", animate: true);
         else AppsTabButton.IsChecked = true;
@@ -937,6 +937,9 @@ public partial class MainWindow : Window
 
     private double MeasureExpandedHeight()
     {
+        // Let WPF finish laying out anything that just changed (a new tab, a Settings section, late-arriving content)
+        // first; otherwise it hands back the size of what was showing before, and the island ends up too short.
+        ExpandedContent.UpdateLayout();
         ExpandedContent.Measure(new Size(ExpandedWidth, double.PositiveInfinity));
         double height = ExpandedContent.DesiredSize.Height; // includes its margins
         return Math.Min(height, Height - 8);
@@ -1013,7 +1016,7 @@ public partial class MainWindow : Window
                 // Pick up newly installed apps every so often.
                 if (DateTime.Now - _installedAppsLoadedAt > TimeSpan.FromMinutes(10)) LoadInstalledApps();
                 RefreshOpenApps();
-                RebuildAppList();
+                OpenAppsTab();
                 if (_expanded) Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() => Keyboard.Focus(SearchBox)));
                 break;
             case "Clipboard":
@@ -1028,7 +1031,12 @@ public partial class MainWindow : Window
                 break;
         }
 
-        if (animate) ResizeExpandedIfNeeded();
+        if (animate)
+        {
+            ResizeExpandedIfNeeded();
+            // And once more after everything has been drawn, for anything that settles a moment later.
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(ResizeExpandedIfNeeded));
+        }
     }
 
     // =====================================================================================
