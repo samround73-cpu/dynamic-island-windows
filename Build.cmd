@@ -35,7 +35,7 @@ dotnet publish "src\DynamicIsland.csproj" -c Release -r win-x64 --self-contained
     -p:EnableCompressionInSingleFile=true -p:DebugType=embedded -o "App" -nologo
 if errorlevel 1 (
     echo.
-    echo  The build failed. Copy the red error text above and send it to Claude.
+    echo  The build failed. Copy the red error text above and include it when you report the problem.
     echo.
     pause
     exit /b 1

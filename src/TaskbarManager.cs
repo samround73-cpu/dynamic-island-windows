@@ -44,8 +44,15 @@ public sealed class TaskbarManager
 
         if (_originalState is null)
         {
-            var data = Native.NewAppBarData(primary);
-            _originalState = (int)Native.SHAppBarMessage(Native.ABM_GETSTATE, ref data).ToInt64();
+            // If a previous run ended without tidying up (PC switched off, app force-closed), the taskbar is still in
+            // our auto-hide mode, so use the setting saved back then rather than what Windows reports now.
+            _originalState = ReadSavedState();
+            if (_originalState is null)
+            {
+                var data = Native.NewAppBarData(primary);
+                _originalState = (int)Native.SHAppBarMessage(Native.ABM_GETSTATE, ref data).ToInt64();
+                SaveState(_originalState.Value);
+            }
         }
 
         SetState(primary, _originalState.Value | Native.ABS_AUTOHIDE);
@@ -60,7 +67,37 @@ public sealed class TaskbarManager
 
         foreach (var bar in AllTaskbars()) Native.ShowWindow(bar, Native.SW_SHOW);
         var primary = PrimaryTaskbar();
-        if (primary != IntPtr.Zero && _originalState is int state) SetState(primary, state);
+        if (primary != IntPtr.Zero && _originalState is int state)
+        {
+            SetState(primary, state);
+            ClearSavedState();
+        }
+    }
+
+    // ---- Your own taskbar setting, saved while the island runs ----
+
+    private static string StatePath => System.IO.Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DynamicIsland", "taskbar-state.txt");
+
+    private static int? ReadSavedState()
+    {
+        try { return int.TryParse(System.IO.File.ReadAllText(StatePath).Trim(), out int v) ? v : null; }
+        catch { return null; }
+    }
+
+    private static void SaveState(int state)
+    {
+        try
+        {
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(StatePath)!);
+            System.IO.File.WriteAllText(StatePath, state.ToString());
+        }
+        catch { }
+    }
+
+    private static void ClearSavedState()
+    {
+        try { System.IO.File.Delete(StatePath); } catch { }
     }
 
     /// <summary>Backup check, run on a timer, in case a show slipped past the listener.</summary>

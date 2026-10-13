@@ -1,0 +1,78 @@
+# Builds DynamicIsland.exe on GitHub's own Windows machines.
+#
+# To publish a new version: push a tag like v0.30.0 (or create a release with that tag on GitHub).
+# The exe is built and attached to a GitHub Release automatically.
+# You can also run it by hand from the Actions tab ("Run workflow") to get a test build without releasing.
+
+name: Build and release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download the line-icon set (optional; the app works without it)
+        shell: pwsh
+        run: ./tools/get-icons.ps1
+
+      - name: Work out the version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_TYPE -eq 'tag') { $version = $env:GITHUB_REF_NAME.TrimStart('v') }
+          else { $version = ([xml](Get-Content src/DynamicIsland.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1 }
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Building version $version"
+
+      - name: Build the single-file exe (includes .NET, nothing to install)
+        shell: pwsh
+        run: >
+          dotnet publish src/DynamicIsland.csproj -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:DebugType=embedded
+          -p:Version=${{ env.VERSION }} -o out -nologo
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist, pkg | Out-Null
+          Copy-Item out/DynamicIsland.exe dist/DynamicIsland.exe
+          Copy-Item out/DynamicIsland.exe pkg/
+          Copy-Item "Restore taskbar (emergency).cmd" pkg/
+          Copy-Item docs/USER-GUIDE.md pkg/
+          Copy-Item LICENSE pkg/LICENSE.txt
+          Compress-Archive -Path pkg/* -DestinationPath "dist/DynamicIsland-${{ env.VERSION }}.zip"
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - name: Keep the build (for test runs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: DynamicIsland-${{ env.VERSION }}
+          path: dist/*
+
+      - name: Publish the release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Dynamic Island ${{ env.VERSION }}
+          files: dist/*
+          body: |
+            **Download `DynamicIsland.exe`** below, put it somewhere it can stay (e.g. a "Dynamic Island" folder in Documents) and double-click it. Nothing else to install — it adds itself to the Start menu the first time it runs.
+
+            The zip has the same exe plus the emergency taskbar-restore script, the user guide and the licence.
+
+            Windows may show "Windows protected your PC" the first time, because the app isn't signed by a publisher: click **More info → Run anyway**.
+
+            To quit and get your normal taskbar back: right-click the island → **Exit**.

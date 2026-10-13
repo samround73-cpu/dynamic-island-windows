@@ -36,6 +36,9 @@ public sealed class IslandSettings
     public bool HideOverMaximized { get; set; } = true;
     public bool DevicePopOuts { get; set; } = true;
 
+    /// <summary>Ctrl+Space opens the island straight to app search, from anywhere.</summary>
+    public bool SearchHotkey { get; set; } = true;
+
     // ---- Weather ----
     /// <summary>The town you typed in Settings; empty means "use Windows' location".</summary>
     public string WeatherPlace { get; set; } = "";

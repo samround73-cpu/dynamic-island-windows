@@ -8,6 +8,8 @@ A small black pill sits at the top of your screen with the time, date and what's
 Rest your mouse on it to see your open apps. Click it, and it opens into a full control centre for
 your apps, music, clipboard, files, system stats and power options.
 
+<a href="https://github.com/samround73-cpu/dynamic-island-windows/releases/latest/download/DynamicIsland.exe"><b>⬇ Download DynamicIsland.exe</b></a> &nbsp;·&nbsp; <a href="../../releases">All releases</a> &nbsp;·&nbsp; <a href="docs/USER-GUIDE.md">User guide</a>
+
 <img src="docs/images/hero.png" alt="The island opened on the Media tab, glowing with a colour taken from the album artwork" width="880">
 
 </div>
@@ -37,8 +39,8 @@ its window title, and below that are the song controls.
 
 ### Apps
 
-Every installed app in one list, with **Starred**, **Recent** and **Applications** sections. Start typing
-anywhere to search (initials work too: "vsc" finds Visual Studio Code). Apps that are already open are marked,
+Every installed app in one list, with **Starred**, **Recent** and **Applications** sections. Press **Ctrl+Space**
+from anywhere, type a name and press Enter (initials work too: "vsc" finds Visual Studio Code). Apps that are already open are marked,
 and clicking them brings back the window you already have instead of starting a new copy.
 
 <img src="docs/images/apps.png" alt="The Apps tab with search, open-app chips and the app list" width="880">
@@ -90,23 +92,38 @@ Choose from four island styles and any accent colour.
 
 ## Getting started
 
-> **Requirements:** Windows 11 and the free **.NET 8 SDK** from Microsoft. The Glass style needs Windows 11 22H2
-> or later. Windows 10 (version 2004 or later) may work but hasn't been tested.
+> **Requirements:** Windows 11. The Glass style needs Windows 11 22H2 or later.
+> Windows 10 (version 2004 or later) may work but hasn't been tested.
 
-1. **Download** this project: click the green **Code** button above, then **Download ZIP**, and unzip it anywhere.
-2. **Install the .NET 8 SDK** if you don't already have it. You only need to do this once, and `Build.cmd` opens the
-   download page for you if it's missing (choose **SDK 8.0 → Windows → x64**).
-3. **Double-click `Build.cmd`.** It builds the app into an `App` folder and offers to start it.
-4. The first time, Windows may show a blue **"Windows protected your PC"** box, because the app isn't signed
+1. **Download [`DynamicIsland.exe`](https://github.com/samround73-cpu/dynamic-island-windows/releases/latest/download/DynamicIsland.exe)** from the [latest release](../../releases/latest).
+   It's a single file with everything included, so there's nothing else to install.
+2. **Put it somewhere it can stay**, for example a `Dynamic Island` folder in your Documents, and double-click it.
+3. The first time, Windows may show a blue **"Windows protected your PC"** box, because the app isn't signed
    by a publisher. Click **More info → Run anyway**.
 
-To start it automatically, right-click the pill and choose **Start with Windows**.
+It adds itself to the Start menu the first time it runs. To have it start automatically, right-click the pill and
+choose **Start with Windows**. It then opens when you sign in, and again when you reconnect to the PC (handy for
+Shadow or Remote Desktop) or unlock it.
+
+**To update**, right-click the island → **Exit**, replace `DynamicIsland.exe` with the new one and start it again.
+
+<details>
+<summary><b>Building it yourself from the source code</b></summary>
+
+1. Install the free [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (`Build.cmd` opens the download page if it's missing).
+2. Download this repository (green **Code** button → **Download ZIP**) and unzip it.
+3. Double-click **`Build.cmd`**. It builds the app into an `App` folder and offers to start it.
+
+New versions are built automatically by GitHub: pushing a tag like `v0.30.0` builds the exe and publishes a release
+(see `.github/workflows/release.yml`).
+</details>
 
 ### Getting your taskbar back
 
 - **To quit:** right-click the pill → **Exit Dynamic Island**. Your normal taskbar comes straight back.
-- **If the app was force-closed** (for example from Task Manager) and the taskbar is still hidden, double-click
-  **`Restore taskbar (emergency).cmd`**.
+- **If the app was force-closed** (for example from Task Manager) and the taskbar is still hidden, run
+  **`Restore taskbar (emergency).cmd`** (it's in the zip on the release page, and in this repository).
+  It can also stop the island starting automatically.
 
 ## Good to know
 
@@ -116,8 +133,10 @@ To start it automatically, right-click the pill and choose **Start with Windows*
   Settings and pinned items are kept on your PC in `%AppData%\DynamicIsland`.
 - **Limitations.** It works on the main monitor only. Some apps don't allow other programs to jump around in a song
   (Spotify, for one), so scrubbing may not work with them. The battery only shows on PCs that have one.
-- **Problems?** Details are saved to `%AppData%\DynamicIsland\errors.log`. Attach that file if you
-  [open an issue](../../issues).
+- **Apps running as administrator** (like Task Manager) can be switched to, but Windows doesn't let normal apps
+  close them. The island tells you when that happens.
+- **Problems?** Details are saved to `%AppData%\DynamicIsland\errors.log` (Settings › About › Open error log folder).
+  Attach that file if you [open an issue](../../issues).
 
 The full **[user guide](docs/USER-GUIDE.md)** covers every tab, setting and keyboard shortcut.
 
@@ -126,6 +145,10 @@ The full **[user guide](docs/USER-GUIDE.md)** covers every tab, setting and keyb
 - C# and WPF on .NET 8, with Windows' own APIs for media, Wi-Fi/Bluetooth, the taskbar and window tracking
 - [NAudio](https://github.com/naudio/NAudio) for volume and audio devices
 - [Tabler Icons](https://tabler.io/icons) (MIT) for the line-style app icons, downloaded automatically on first build
+
+## Licence
+
+[MIT](LICENSE): free to use, change and share.
 
 ---
 

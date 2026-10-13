@@ -1,20 +1,25 @@
 # User guide
 
-Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.27.)
+Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.29.)
 
 An iPhone-style "Dynamic Island" that replaces the Windows taskbar.
 
 ## Getting it running
 
-1. **Install the .NET 8 SDK** (free, from Microsoft, one time only).
-   Double-clicking `Build.cmd` opens the download page for you if it's missing.
-   Pick **SDK 8.0 → Windows → x64**.
-2. **Double-click `Build.cmd`.** It builds the app into the `App` folder and offers to start it.
-3. Windows may show a blue "Windows protected your PC" box the first time, because the app isn't
-   signed by a publisher. Click **More info → Run anyway**.
+**The easy way:** download **`DynamicIsland.exe`** from the
+[latest release](https://github.com/samround73-cpu/dynamic-island-windows/releases/latest), put it somewhere it can
+stay (for example a `Dynamic Island` folder in your Documents) and double-click it. Nothing else to install.
+It adds itself to the Start menu the first time it runs.
 
-To update to a newer version: right-click the island → **Exit**, unzip the new version over this folder,
-and run `Build.cmd` again.
+Windows may show a blue "Windows protected your PC" box the first time, because the app isn't signed by a
+publisher. Click **More info → Run anyway**.
+
+To update: right-click the island → **Exit**, replace `DynamicIsland.exe` with the new one, and start it again.
+
+**Building it yourself** (from the source code):
+1. Install the free **.NET 8 SDK** from Microsoft. `Build.cmd` opens the download page for you if it's missing
+   (pick **SDK 8.0 → Windows → x64**).
+2. Double-click **`Build.cmd`**. It builds the app into the `App` folder and offers to start it.
 
 ## How it behaves
 
@@ -34,7 +39,7 @@ and run `Build.cmd` again.
 
 | Tab | What's there |
 |---|---|
-| **Today** | The time and date, the **weather** (now, high/low and the next five hours), and a month calendar — use the arrows (or scroll over it) to change month |
+| **Today** | Three cards side by side: the clock (with week and day of the year), the **weather** (now, high/low and the next five hours) and a month calendar — use the arrows (or scroll over it) to change month |
 | **Controls** | A list of switches (Wi-Fi, Bluetooth, Sound, Microphone, Dark mode) — click a row to flip it, click its arrow for more options. Beside it: a compact player, the volume bar, and buttons for Windows Settings, Quick settings, Notifications and tray icons |
 | **Apps** | A small row of your open apps at the top for quick switching, then every installed app as a list, with **Starred**, **Recent** and **Applications** sections and a search box. Apps that are already open show a gold dot and "Open" — clicking them brings that window back rather than starting a new copy. Click the star to favourite an app (the apps pinned to your old taskbar are starred for you the first time). Middle-click or right-click for a new window |
 | **Clipboard** | Recent copies under Pinned / Today / Yesterday, with search, filters (All, Text, Images, Links) and a preview with details. **Enter** pastes into the app you were using, **Ctrl+C** copies, **Ctrl+P** pins, **Del** removes, **Tab** changes filter, double-click pastes. Only pinned text is saved; the rest is forgotten when the island closes. Password-manager copies are skipped |
@@ -43,7 +48,7 @@ and run `Build.cmd` again.
 | **Stats** | Rings for CPU, memory, disk and download speed, plus the five heaviest open apps with their CPU and memory use |
 | **Power** | Up time, Windows Update status, battery/power and how many apps are open at a glance. Lock, Sleep and Sign out buttons, and slide-to-confirm sliders for Restart and Shut down (they install waiting updates, like the Start menu does). Plus quick launch buttons |
 
-**Searching for apps:** with the island open, just start typing — it jumps to the Apps tab and searches as you type.
+**Searching for apps:** press **Ctrl+Space** anywhere (press it again to close), or with the island open just start typing — it jumps to the Apps tab and searches as you type. The shortcut can be turned off in Settings › Behaviour.
 Use **↑ ↓** to choose, **Enter** to open, **Esc** to clear the search. Initials work too ("vsc" finds Visual Studio Code).
 
 Other things you can do:
@@ -53,19 +58,25 @@ Other things you can do:
 | Close the island | Click anywhere else, or press **Esc** |
 | Change the volume | Scroll over the pill |
 | Search apps | Start typing, or click the magnifying glass top-left of the open island |
-| Start automatically with Windows | Right-click the pill → **Start with Windows** |
+| Start automatically with Windows | Right-click the pill → **Start with Windows** (or Settings › Behaviour). It opens when you sign in, and again when you reconnect (e.g. to a Shadow or Remote Desktop PC) or unlock, if it isn't already running |
 | Quit | Right-click the pill → **Exit Dynamic Island** (your normal taskbar comes back) |
 
-**Settings** — the gear at the top-left of the open island: island style (Black; Glass — real frosted blur of what's behind, as a panel hanging from the top edge (Windows can only blur behind that shape); Glow — an accent halo; or Outline), accent colour, battery on the island, music bars, the hover tray and its delay,
-tucking away over maximised apps, device pop-ups, start with Windows, and your town for the weather (°C or °F).
+**Settings** — the gear at the top-left of the open island. Pick a section on the left:
+- **Appearance:** accent colour, island style (Black; Glass — real frosted blur of what's behind, as a panel hanging from the top edge; Glow — an accent halo; or Outline), line icons, battery on the island, music bars.
+- **Behaviour:** the hover tray and its delay, tucking away over maximised apps, device pop-ups, the Ctrl+Space shortcut, and Start with Windows (it tells you if Windows has switched it off, with a button to fix it).
+- **Weather:** your town (or leave it empty to use Windows' location) and °C or °F.
+- **About:** the version, the error-log folder, the project page, and Quit.
 
 **Pop-ups** also appear for Bluetooth devices connecting/disconnecting, USB drives being plugged in or removed,
 and sound switching to different speakers or headphones.
 
-**If something goes wrong**, the details are saved to `%AppData%\DynamicIsland\errors.log` — include that file when you report a problem.
+**If something goes wrong**, the details are saved to `%AppData%\DynamicIsland\errors.log` (Settings › About › Open error log folder) — include that file when you report a problem.
 
 **If the taskbar ever goes missing** (e.g. the app was force-closed from Task Manager), double-click
-`Restore taskbar (emergency).cmd`.
+`Restore taskbar (emergency).cmd`. It also offers to stop the island starting automatically.
+
+**Apps running as administrator** (Task Manager, for example) can be switched to, but Windows doesn't let normal apps
+close them — the island tells you when that happens.
 
 ## Known limitations
 

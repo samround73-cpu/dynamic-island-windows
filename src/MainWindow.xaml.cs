@@ -212,6 +212,52 @@ public partial class MainWindow : Window
         Native.AddClipboardFormatListener(_hwnd); // tells us whenever anything is copied
 
         PositionWindow();
+        UpdateSearchHotkey();
+    }
+
+    // ---- Ctrl+Space: open app search from anywhere ----
+
+    private const int SearchHotkeyId = 0x5150;
+    private bool _hotkeyRegistered;
+    private bool _hotkeyTaken; // another app already uses Ctrl+Space
+
+    /// <summary>Turns the shortcut on or off to match Settings.</summary>
+    private void UpdateSearchHotkey()
+    {
+        if (_hwnd == IntPtr.Zero) return;
+        if (_settings.SearchHotkey && !_hotkeyRegistered)
+        {
+            _hotkeyRegistered = Native.RegisterHotKey(_hwnd, SearchHotkeyId, Native.MOD_CONTROL | Native.MOD_NOREPEAT, Native.VK_SPACE);
+            _hotkeyTaken = !_hotkeyRegistered;
+            if (_hotkeyTaken) App.LogNote("Ctrl+Space is already used by another app, so the app-search shortcut is off");
+        }
+        else if (!_settings.SearchHotkey && _hotkeyRegistered)
+        {
+            Native.UnregisterHotKey(_hwnd, SearchHotkeyId);
+            _hotkeyRegistered = false;
+            _hotkeyTaken = false;
+        }
+    }
+
+    /// <summary>Opens the island on the Apps tab, ready to type. Pressing it again closes it.</summary>
+    private void OnSearchHotkey()
+    {
+        if (_expanded && _currentTab == "Apps")
+        {
+            Collapse();
+            return;
+        }
+        if (_presence == Presence.FullScreen) return; // games and full-screen videos keep the screen
+        if (_peeking) ExitPeek();
+        if (!_revealed) SlideBack(); // tucked away over a maximised app: bring it down first
+
+        SearchBox.Clear();
+        if (!_expanded) Expand();
+        if (AppsTabButton.IsChecked == true) ShowTab("Apps", animate: true);
+        else AppsTabButton.IsChecked = true;
+
+        Native.SetForegroundWindow(_hwnd); // the shortcut lets us take the keyboard
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() => Keyboard.Focus(SearchBox)));
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -321,6 +367,11 @@ public partial class MainWindow : Window
         {
             _clipboardRetries = 0;
             Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(CaptureClipboard));
+        }
+        else if (msg == Native.WM_HOTKEY && wParam.ToInt32() == SearchHotkeyId)
+        {
+            handled = true;
+            Dispatcher.BeginInvoke(new Action(OnSearchHotkey));
         }
         else if (_taskbarCreatedMessage != 0 && msg == (int)_taskbarCreatedMessage)
         {
@@ -789,7 +840,7 @@ public partial class MainWindow : Window
         _menuOpen = true;
         HidePreview();
         _peekCloseTimer.Stop();
-        StartWithWindowsMenuItem.IsChecked = StartupManager.IsEnabled;
+        StartWithWindowsMenuItem.IsChecked = _startupEnabled;
         ShowTaskbarMenuItem.IsChecked = !App.Taskbar.IsHidden;
     }
 
@@ -986,8 +1037,7 @@ public partial class MainWindow : Window
 
     private void StartWithWindows_Click(object sender, RoutedEventArgs e)
     {
-        StartupManager.SetEnabled(!StartupManager.IsEnabled);
-        StartWithWindowsMenuItem.IsChecked = StartupManager.IsEnabled;
+        SetStartup(!_startupEnabled);
     }
 
     private void ShowTaskbarMenu_Click(object sender, RoutedEventArgs e) => ToggleRealTaskbar();

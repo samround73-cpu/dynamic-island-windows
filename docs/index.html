@@ -72,15 +72,15 @@
 </head>
 <body>
 
-<div class="navpill"><nav><b>Dynamic Island</b><a href="#tour">Tour</a><a href="#start">Get it</a><a class="repo-link" href="#">GitHub</a></nav></div>
+<div class="navpill"><nav><b>Dynamic Island</b><a href="#tour">Tour</a><a href="#start">Get it</a><a class="repo-link" href="https://github.com/samround73-cpu/dynamic-island-windows">GitHub</a></nav></div>
 
 <header class="hero">
   <div class="wrap">
     <h1>The Dynamic Island,<br><span>for Windows.</span></h1>
     <p class="lead">A small black pill that replaces the Windows 11 taskbar. It shows the time and what's playing, steps out of the way when you're working, and opens into a full control centre when you click it.</p>
     <div class="cta">
-      <a class="btn primary zip-link" href="#start">Download</a>
-      <a class="btn ghost repo-link" href="#">View on GitHub</a>
+      <a class="btn primary exe-link" href="https://github.com/samround73-cpu/dynamic-island-windows/releases/latest/download/DynamicIsland.exe">Download for Windows</a>
+      <a class="btn ghost repo-link" href="https://github.com/samround73-cpu/dynamic-island-windows">View on GitHub</a>
     </div>
     <img class="shot" src="images/hero.png" alt="The island opened on the Media tab, glowing with a colour from the album artwork">
   </div>
@@ -151,20 +151,20 @@
   <div class="wrap">
     <p class="kicker">Get it</p>
     <h2>Up and running in a few minutes</h2>
-    <p class="intro">You'll need Windows 11 and Microsoft's free .NET 8 SDK.</p>
+    <p class="intro">One file, nothing else to install. Works on Windows 11.</p>
     <ol class="steps">
-      <li><b>Download the project</b> as a ZIP (<a class="zip-link" href="#">direct link</a>, or the green Code button on GitHub) and unzip it anywhere.</li>
-      <li><b>Install the .NET 8 SDK</b> if you don't have it. <code>Build.cmd</code> opens the download page for you if it's missing (choose SDK 8.0 → Windows → x64).</li>
-      <li><b>Double-click <code>Build.cmd</code>.</b> It builds the app into an <code>App</code> folder and offers to start it.</li>
+      <li><b>Download <a class="exe-link" href="https://github.com/samround73-cpu/dynamic-island-windows/releases/latest/download/DynamicIsland.exe">DynamicIsland.exe</a></b> from the latest release.</li>
+      <li><b>Put it somewhere it can stay</b>, such as a "Dynamic Island" folder in your Documents, and double-click it. It adds itself to the Start menu.</li>
       <li><b>First run:</b> if Windows shows "Windows protected your PC", click More info → Run anyway. The app just isn't signed by a publisher.</li>
+      <li><b>Optional:</b> right-click the pill → Start with Windows. Press <code>Ctrl+Space</code> any time to search your apps.</li>
     </ol>
-    <p class="note">To quit, right-click the pill → <b>Exit</b> and your normal taskbar comes straight back. If the app is ever force-closed, double-click <code>Restore taskbar (emergency).cmd</code>.</p>
+    <p class="note">To quit, right-click the pill → <b>Exit</b> and your normal taskbar comes straight back. If the app is ever force-closed, run <code>Restore taskbar (emergency).cmd</code> from the release zip.</p>
     <p class="note">Privacy: nothing is collected. The only things fetched from the internet are the weather (Open-Meteo) and your town name (BigDataCloud), using your approximate location.</p>
   </div>
 </section>
 
 <footer>
-  <div class="wrap">Inspired by the iPhone's Dynamic Island. An independent project, not affiliated with or endorsed by Apple or Microsoft.</div>
+  <div class="wrap">Free and open source (MIT licence). Inspired by the iPhone's Dynamic Island. An independent project, not affiliated with or endorsed by Apple or Microsoft.</div>
 </footer>
 
 <script>
@@ -175,7 +175,7 @@
     var user = host.split('.')[0], repo = parts[0] || (user + '.github.io');
     var base = 'https://github.com/' + user + '/' + repo;
     document.querySelectorAll('.repo-link').forEach(function (a) { a.href = base; });
-    document.querySelectorAll('.zip-link').forEach(function (a) { a.href = base + '/archive/refs/heads/main.zip'; });
+    document.querySelectorAll('.exe-link').forEach(function (a) { a.href = base + '/releases/latest/download/DynamicIsland.exe'; });
   })();
 </script>
 </body>

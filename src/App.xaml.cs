@@ -11,7 +11,7 @@ public partial class App : Application
     /// <summary>Shared so every exit path (normal, crash, sign-out) can put the real taskbar back.</summary>
     public static TaskbarManager Taskbar { get; } = new();
 
-    /// <summary>Where error details are written, for sending to Claude.</summary>
+    /// <summary>Where error details are written, to include when reporting a problem.</summary>
     public static string CrashLogPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DynamicIsland", "errors.log");
 
@@ -20,7 +20,7 @@ public partial class App : Application
     private readonly Queue<DateTime> _recentErrors = new();
     private bool _shuttingDown;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         // Only ever run one island.
         _singleInstance = new Mutex(true, "DynamicIsland_SingleInstance", out _ownsMutex);
@@ -48,7 +48,7 @@ public partial class App : Application
             MessageBox.Show(
                 "Dynamic Island keeps running into a problem, so it will close. Your normal taskbar has been restored.\n\n"
                 + args.Exception.Message
-                + "\n\nThe details are saved in:\n" + CrashLogPath + "\n(send that file to Claude to get it fixed)",
+                + "\n\nThe details are saved in:\n" + CrashLogPath + "\n(include that file if you report the problem)",
                 "Dynamic Island", MessageBoxButton.OK, MessageBoxImage.Warning);
             Shutdown();
         };
@@ -61,11 +61,60 @@ public partial class App : Application
         SessionEnding += (_, _) => Taskbar.Restore();
 
         base.OnStartup(e);
+
+        // Started by Windows at sign-in / reconnect: let the desktop and taskbar finish loading before touching them.
+        bool autostart = Array.Exists(e.Args, a => string.Equals(a, StartupManager.AutostartArgument, StringComparison.OrdinalIgnoreCase));
+        if (autostart)
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown; // no window yet; don't let WPF think we're finished
+            await WaitForDesktopAsync();
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
+        }
+
         LineIcons.Load(); // before the window, which uses the icon font
 
         var window = new MainWindow();
         MainWindow = window;
         window.Show();
+
+        // Escape hatch: if the island hasn't properly appeared a little later, put the taskbar back and quit,
+        // so you're never left with no taskbar and no island.
+        _ = Dispatcher.InvokeAsync(async () =>
+        {
+            await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(15));
+            // (Not "is it visible": the island legitimately hides itself for full-screen apps.)
+            bool showing = window.IsLoaded && window.ActualWidth > 0
+                        && new System.Windows.Interop.WindowInteropHelper(window).Handle != IntPtr.Zero;
+            if (!showing && !_shuttingDown)
+            {
+                LogNote("the island didn't appear within 15 seconds of starting, so the taskbar was restored and it closed");
+                _shuttingDown = true;
+                Taskbar.Restore();
+                Shutdown();
+            }
+        });
+
+        // Move an older "Start with Windows" setting over to the scheduled task (off the UI thread).
+        _ = System.Threading.Tasks.Task.Run(StartupManager.UpgradeIfNeeded);
+
+        // Make sure it's in the Start menu, pointing at where it's running from now.
+        _ = System.Threading.Tasks.Task.Run(StartMenuShortcut.Ensure);
+    }
+
+    /// <summary>
+    /// Waits (up to a minute) until Explorer's desktop and taskbar exist and the PC has had a few seconds to settle.
+    /// </summary>
+    private static async System.Threading.Tasks.Task WaitForDesktopAsync()
+    {
+        var started = DateTime.Now;
+        while (DateTime.Now - started < TimeSpan.FromSeconds(60))
+        {
+            bool ready = Native.FindWindow("Shell_TrayWnd", null) != IntPtr.Zero
+                      && Native.FindWindow("Progman", null) != IntPtr.Zero;
+            if (ready) break;
+            await System.Threading.Tasks.Task.Delay(500);
+        }
+        await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(4));
     }
 
     /// <summary>Writes the full error (including where in the code it happened) to errors.log.</summary>

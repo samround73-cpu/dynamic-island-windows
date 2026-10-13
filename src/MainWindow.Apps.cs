@@ -99,7 +99,7 @@ public partial class MainWindow
         _settings.UseLineIcons ? LineIcons.For(name, exePath ?? "", realIcon) : null;
 
     /// <summary>
-    /// "Dynamic island - Claude - Personal - Microsoft Edge" → "Dynamic island": just what you're looking at.
+    /// "Dynamic island - Work - Microsoft Edge" → "Dynamic island": just what you're looking at.
     /// Returns "" when the title is only the app's own name.
     /// </summary>
     private static string CleanTitle(string title, string appName)
@@ -187,7 +187,26 @@ public partial class MainWindow
     private void TileClose_Click(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is not AppTile tile) return;
-        foreach (var window in tile.Windows) WindowTracker.Close(window);
+        CloseWindows(tile.Windows, tile.Name);
+    }
+
+    /// <summary>Closes an app's windows; if Windows won't allow it (an administrator app), says so instead of doing nothing.</summary>
+    private void CloseWindows(IEnumerable<IntPtr> windows, string appName)
+    {
+        bool refused = false;
+        foreach (var window in windows.ToList())
+            if (!WindowTracker.Close(window)) refused = true;
+        if (refused) ShowCloseRefused(appName);
+    }
+
+    private async void ShowCloseRefused(string appName)
+    {
+        string name = appName.Length > 0 ? appName : "This app";
+        // The pop-out only shows on the plain pill, so close the tray / panel first.
+        if (_peeking) ExitPeek();
+        if (_expanded) Collapse();
+        await System.Threading.Tasks.Task.Delay(450);
+        ShowActivity("\uE7BA", null, $"Can't close {name}", "It runs as administrator; close it from its own window", null);
     }
 
     // ---- Live previews when hovering an app in the tray ----
@@ -272,7 +291,12 @@ public partial class MainWindow
     /// <summary>The ✕ on a preview: close that window, then refresh the previews (or hide them if none are left).</summary>
     private async void OnPreviewCloseRequested(IntPtr hWnd)
     {
-        WindowTracker.Close(hWnd);
+        if (!WindowTracker.Close(hWnd))
+        {
+            HidePreview();
+            ShowCloseRefused(WindowTracker.GetTitle(hWnd));
+            return;
+        }
         await System.Threading.Tasks.Task.Delay(350); // give the app a moment to close (it may ask "save changes?")
         RefreshOpenApps();
         if (_openApps.Count == 0)
@@ -780,7 +804,7 @@ public partial class MainWindow
     private void AppRowClose_Click(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is not AppRow row) return;
-        foreach (var window in row.Windows) WindowTracker.Close(window);
+        CloseWindows(row.Windows, row.Name);
     }
 
     // ---- Search ----

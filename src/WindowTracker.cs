@@ -340,6 +340,15 @@ public static class WindowTracker
 
     public static void Minimize(IntPtr hWnd) => Native.ShowWindow(hWnd, Native.SW_MINIMIZE);
 
-    /// <summary>Asks the window to close, exactly like clicking its X (so apps can still ask "save changes?").</summary>
-    public static void Close(IntPtr hWnd) => Native.PostMessage(hWnd, Native.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+    /// <summary>
+    /// Asks the window to close, exactly like clicking its X (so apps can still ask "save changes?").
+    /// Returns false if Windows refused because the app runs as administrator (e.g. Task Manager):
+    /// normal apps aren't allowed to control those.
+    /// </summary>
+    public static bool Close(IntPtr hWnd)
+    {
+        if (Native.PostMessage(hWnd, Native.WM_CLOSE, IntPtr.Zero, IntPtr.Zero)) return true;
+        const int ERROR_ACCESS_DENIED = 5;
+        return System.Runtime.InteropServices.Marshal.GetLastWin32Error() != ERROR_ACCESS_DENIED;
+    }
 }

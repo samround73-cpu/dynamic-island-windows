@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 
 namespace DynamicIsland;
@@ -467,7 +468,8 @@ public partial class MainWindow
         WeatherTemp.Text = $"{report.Temperature:0}°";
         WeatherCondition.Text = WeatherService.Describe(report.Code);
         WeatherHighLow.Text = $"H {report.High:0}°  L {report.Low:0}°";
-        WeatherPlace.Text = $"{report.Place}  ·  feels like {report.FeelsLike:0}°";
+        WeatherPlace.Text = report.Place;
+        WeatherPlace.ToolTip = $"{report.Place}  ·  feels like {report.FeelsLike:0}°";
 
         WeatherHours.Children.Clear();
         var subtle = new SolidColorBrush(Color.FromArgb(0x99, 0xFF, 0xFF, 0xFF));
@@ -830,12 +832,16 @@ public partial class MainWindow
         DelayRelaxed.IsChecked = _settings.PeekDelayMs > 600;
         HideMaximizedSwitch.IsChecked = _settings.HideOverMaximized;
         DevicePopOutsSwitch.IsChecked = _settings.DevicePopOuts;
-        StartWithWindowsSwitch.IsChecked = StartupManager.IsEnabled;
+        SearchHotkeySwitch.IsChecked = _settings.SearchHotkey;
+        ShowHotkeyStatus();
+        StartWithWindowsSwitch.IsChecked = _startupEnabled;
+        AboutVersionText.Text = $"Version {typeof(App).Assembly.GetName().Version?.ToString(2)}";
         CelsiusChip.IsChecked = !_settings.Fahrenheit;
         FahrenheitChip.IsChecked = _settings.Fahrenheit;
         PlaceBox.Text = _settings.WeatherPlace;
         PlaceStatus.Text = _settings.WeatherLatitude is null ? "Using Windows' location." : $"Using {_settings.WeatherPlace}.";
         _loadingSettings = false;
+        RefreshStartupStatus();
     }
 
     /// <summary>Any switch or choice in Settings: save it and apply it straight away.</summary>
@@ -857,13 +863,15 @@ public partial class MainWindow
         _settings.PeekDelayMs = DelayQuick.IsChecked == true ? 250 : DelayRelaxed.IsChecked == true ? 750 : 450;
         _settings.HideOverMaximized = HideMaximizedSwitch.IsChecked == true;
         _settings.DevicePopOuts = DevicePopOutsSwitch.IsChecked == true;
+        _settings.SearchHotkey = SearchHotkeySwitch.IsChecked == true;
         _settings.Fahrenheit = FahrenheitChip.IsChecked == true;
         _settings.Save();
 
-        if (StartupManager.IsEnabled != (StartWithWindowsSwitch.IsChecked == true))
-            StartupManager.SetEnabled(StartWithWindowsSwitch.IsChecked == true);
+        if (sender == StartWithWindowsSwitch) SetStartup(StartWithWindowsSwitch.IsChecked == true);
 
         ApplyBehaviourSettings();
+        UpdateSearchHotkey();
+        ShowHotkeyStatus();
         ApplyIslandStyle();
         if (batteryChanged) UpdatePillBatteryVisibility();
         if (iconsChanged)
@@ -872,6 +880,94 @@ public partial class MainWindow
             _rows.Clear(); // the Apps list rebuilds with the new icons next time it opens
         }
         if (unitsChanged) RefreshWeather(force: true);
+    }
+
+    private void ShowHotkeyStatus()
+    {
+        bool taken = _settings.SearchHotkey && _hotkeyTaken;
+        SearchHotkeyStatusText.Text = taken
+            ? "Another app is already using Ctrl+Space, so this can't be used right now"
+            : "From anywhere: type an app's name and press Enter. Press it again to close";
+        SearchHotkeyStatusText.Foreground = taken ? new SolidColorBrush(Color.FromRgb(0xFF, 0x9A, 0x94)) : (Brush)FindResource("SubtleText");
+    }
+
+    // ---- Settings sections and the About page ----
+
+    private void SettingsSection_Checked(object sender, RoutedEventArgs e)
+    {
+        if (SettingsAppearance is null) return; // still being built
+        foreach (var (nav, panel) in new (RadioButton, FrameworkElement)[]
+                 {
+                     (SettingsNavAppearance, SettingsAppearance), (SettingsNavBehaviour, SettingsBehaviour),
+                     (SettingsNavWeather, SettingsWeather), (SettingsNavAbout, SettingsAbout),
+                 })
+            panel.Visibility = nav.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        if (_currentTab == "Settings") ResizeExpandedIfNeeded();
+    }
+
+    /// <summary>"Set your town" on the Today tab: straight to the Weather settings.</summary>
+    private void WeatherSetup_Click(object sender, RoutedEventArgs e)
+    {
+        SettingsNavWeather.IsChecked = true;
+        Settings_Click(sender, e);
+    }
+
+    private void OpenLogFolder_Click(object sender, RoutedEventArgs e)
+    {
+        string folder = Path.GetDirectoryName(App.CrashLogPath)!;
+        Directory.CreateDirectory(folder);
+        Collapse();
+        SystemActions.Open(folder);
+    }
+
+    private void OpenProjectPage_Click(object sender, RoutedEventArgs e)
+    {
+        Collapse();
+        SystemActions.Open("https://github.com/samround73-cpu/dynamic-island-windows");
+    }
+
+    private void StartupFix_Click(object sender, RoutedEventArgs e)
+    {
+        Collapse();
+        SystemActions.Open("ms-settings:startupapps");
+    }
+
+    // ---- Start with Windows (checking it runs a small Windows tool, so it's done off the UI thread) ----
+
+    private bool _startupEnabled;
+
+    private async void RefreshStartupStatus()
+    {
+        StartupManager.Method method;
+        bool blocked;
+        try
+        {
+            (method, blocked) = await Task.Run(() => (StartupManager.Current, StartupManager.BlockedByWindows));
+        }
+        catch { return; }
+
+        _startupEnabled = method != StartupManager.Method.Off;
+        _loadingSettings = true;
+        StartWithWindowsSwitch.IsChecked = _startupEnabled;
+        _loadingSettings = false;
+        StartWithWindowsMenuItem.IsChecked = _startupEnabled;
+
+        StartupStatusText.Text = method switch
+        {
+            StartupManager.Method.RunEntry when blocked => "Windows has switched this off in its Startup apps list",
+            StartupManager.Method.RunEntry => "Opens when you sign in (Windows didn't allow reopening on reconnect)",
+            _ => "Opens when you sign in, and again when you reconnect or unlock if it isn't running",
+        };
+        StartupStatusText.Foreground = blocked ? new SolidColorBrush(Color.FromRgb(0xFF, 0x9A, 0x94)) : (Brush)FindResource("SubtleText");
+        StartupFixButton.Visibility = blocked ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private async void SetStartup(bool enabled)
+    {
+        _startupEnabled = enabled;
+        StartWithWindowsMenuItem.IsChecked = enabled;
+        try { await Task.Run(() => StartupManager.SetEnabled(enabled)); } catch { }
+        RefreshStartupStatus();
     }
 
     private void ApplyBehaviourSettings()

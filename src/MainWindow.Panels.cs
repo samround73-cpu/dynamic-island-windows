@@ -125,7 +125,7 @@ public partial class MainWindow
             WeekdayHeader.Children.Add(new TextBlock
             {
                 Text = names[((int)FirstDayOfWeek + i) % 7],
-                FontSize = 11,
+                FontSize = 10,
                 FontWeight = FontWeights.SemiBold,
                 Foreground = new SolidColorBrush(Color.FromArgb(0x80, 0xFF, 0xFF, 0xFF)),
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -153,16 +153,16 @@ public partial class MainWindow
 
             CalendarGrid.Children.Add(new Border
             {
-                Width = 30,
-                Height = 30,
-                CornerRadius = new CornerRadius(15),
+                Width = 24,
+                Height = 24,
+                CornerRadius = new CornerRadius(12),
                 Background = isToday ? ToggleTile.Accent : Brushes.Transparent,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 1, 0, 1),
+                Margin = new Thickness(0, 0.5, 0, 0.5),
                 Child = new TextBlock
                 {
                     Text = day.Day.ToString(),
-                    FontSize = 12.5,
+                    FontSize = 11,
                     FontWeight = isToday ? FontWeights.Bold : FontWeights.Normal,
                     Foreground = isToday ? ToggleTile.AccentText : !inMonth ? dimText : weekend ? weekendText : Brushes.White,
                     HorizontalAlignment = HorizontalAlignment.Center,

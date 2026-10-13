@@ -39,7 +39,7 @@ internal static class Native
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr hWnd, int cmd);
-    [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll", SetLastError = true)] public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
     [DllImport("user32.dll", SetLastError = true)]
     public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam, uint flags, uint timeout, out IntPtr result);
 
@@ -320,6 +320,13 @@ internal static class Native
     [DllImport("user32.dll", SetLastError = true)] public static extern bool AddClipboardFormatListener(IntPtr hWnd);
     [DllImport("user32.dll", SetLastError = true)] public static extern bool RemoveClipboardFormatListener(IntPtr hWnd);
     public const int WM_CLIPBOARDUPDATE = 0x031D;
+
+    // Global keyboard shortcut (Ctrl+Space opens app search)
+    public const int WM_HOTKEY = 0x0312;
+    public const uint MOD_CONTROL = 0x0002, MOD_NOREPEAT = 0x4000;
+    public const uint VK_SPACE = 0x20;
+    [DllImport("user32.dll", SetLastError = true)] public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint modifiers, uint vk);
+    [DllImport("user32.dll")] public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
     // ---- Turning Windows bitmaps into WPF images (app icons) -------------------------------
     [StructLayout(LayoutKind.Sequential)]

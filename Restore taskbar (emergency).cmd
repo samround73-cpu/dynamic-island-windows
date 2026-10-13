@@ -18,6 +18,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2;" ^
   "if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) { Start-Process explorer.exe }"
 
+del "%APPDATA%\DynamicIsland\taskbar-state.txt" >nul 2>nul
+
 echo.
 echo  Done - your taskbar should be back.
+echo.
+choice /c YN /m "  Also stop Dynamic Island starting automatically with Windows"
+if errorlevel 2 goto :end
+schtasks /delete /tn DynamicIsland /f >nul 2>nul
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v DynamicIsland /f >nul 2>nul
+echo  It won't start automatically any more. Turn it back on in the island's Settings when you like.
+:end
+echo.
 pause

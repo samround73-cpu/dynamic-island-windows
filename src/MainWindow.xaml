@@ -209,7 +209,33 @@
         </Style>
 
         <!-- Small pill choices (clipboard filters, hover delay, °C/°F) -->
-        <Style x:Key="ChipRadio" TargetType="RadioButton">
+<!-- A section in the Settings sidebar: subtle until chosen, then accent-tinted -->
+        <Style x:Key="NavRadio" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#B3FFFFFF" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bg" Background="Transparent" CornerRadius="10" Padding="10,8" Margin="0,1">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#14FFFFFF" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentFaint}" />
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBright}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+                <Style x:Key="ChipRadio" TargetType="RadioButton">
             <Setter Property="Foreground" Value="#B3FFFFFF" />
             <Setter Property="FontSize" Value="11.5" />
             <Setter Property="FontWeight" Value="SemiBold" />
@@ -1068,72 +1094,80 @@
                             </Grid>
 
                             <!-- ======================= TODAY ======================= -->
+                            <!-- Three cards side by side: the clock, the weather (with the next few hours) and the month -->
                             <Grid x:Name="TodayTab" Visibility="Collapsed">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="240" />
+                                    <ColumnDefinition Width="158" />
+                                    <ColumnDefinition Width="10" />
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="214" />
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Margin="0,0,10,0">
-                                    <Border Style="{StaticResource Card}">
-                                        <StackPanel Margin="4,0">
-                                            <TextBlock x:Name="GreetingText" FontSize="12" Foreground="{StaticResource SubtleText}" />
-                                            <TextBlock x:Name="TodayTime" FontSize="40" FontWeight="SemiBold" Margin="0,0,0,-2" />
-                                            <TextBlock x:Name="TodayDay" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Accent}" />
-                                            <TextBlock x:Name="TodayDate" FontSize="12" Foreground="#CCFFFFFF" />
-                                            <TextBlock x:Name="TodayExtra" FontSize="10.5" Foreground="{StaticResource SubtleText}" Margin="0,8,0,0" />
-                                        </StackPanel>
-                                    </Border>
+                                <!-- Clock -->
+                                <Border Style="{StaticResource Card}">
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock x:Name="GreetingText" FontSize="11.5" Foreground="{StaticResource SubtleText}" />
+                                        <TextBlock x:Name="TodayTime" FontSize="34" FontWeight="SemiBold" Margin="0,2,0,-2" />
+                                        <TextBlock x:Name="TodayDay" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Accent}" />
+                                        <TextBlock x:Name="TodayDate" FontSize="11.5" Foreground="#CCFFFFFF" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock x:Name="TodayExtra" FontSize="10" Foreground="{StaticResource SubtleText}" Margin="0,10,0,0" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
 
-                                    <Border Style="{StaticResource Card}" Margin="0,10,0,0" MinHeight="138">
-                                        <Grid>
-                                            <StackPanel x:Name="WeatherPanel" Visibility="Collapsed">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
+                                <!-- Weather -->
+                                <Border Grid.Column="2" Style="{StaticResource Card}">
+                                    <Grid>
+                                        <StackPanel x:Name="WeatherPanel" Visibility="Collapsed" VerticalAlignment="Center">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock x:Name="WeatherSymbol" FontFamily="Segoe UI Symbol" FontSize="30" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
+                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                                    <TextBlock x:Name="WeatherTemp" FontSize="26" FontWeight="SemiBold" Margin="0,0,0,-3" />
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock x:Name="WeatherSymbol" FontFamily="Segoe UI Symbol" FontSize="28" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
-                                                        <TextBlock x:Name="WeatherTemp" FontSize="30" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                                        <TextBlock x:Name="WeatherCondition" FontSize="11.5" Foreground="{StaticResource SubtleText}" TextTrimming="CharacterEllipsis" MaxWidth="120" />
+                                                        <TextBlock Text="  ·  " FontSize="11.5" Foreground="{StaticResource SubtleText}" />
+                                                        <TextBlock x:Name="WeatherHighLow" FontSize="11.5" Foreground="{StaticResource SubtleText}" />
                                                     </StackPanel>
-                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                                        <TextBlock x:Name="WeatherCondition" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock x:Name="WeatherHighLow" FontSize="10.5" Foreground="{StaticResource SubtleText}" HorizontalAlignment="Right" />
-                                                    </StackPanel>
-                                                </Grid>
-                                                <TextBlock x:Name="WeatherPlace" FontSize="10.5" Foreground="{StaticResource SubtleText}" Margin="0,2,0,8" TextTrimming="CharacterEllipsis" />
-                                                <UniformGrid x:Name="WeatherHours" Columns="5" />
-                                            </StackPanel>
-                                            <StackPanel x:Name="WeatherMessagePanel" VerticalAlignment="Center">
-                                                <TextBlock x:Name="WeatherMessage" Text="Loading weather…" FontSize="12" Foreground="{StaticResource SubtleText}"
-                                                           TextWrapping="Wrap" TextAlignment="Center" />
-                                                <Button x:Name="WeatherSetupButton" Style="{StaticResource CardButton}" Padding="12,6" Margin="0,10,0,0"
-                                                        HorizontalAlignment="Center" Click="Settings_Click" Visibility="Collapsed">
-                                                    <TextBlock Text="Set your town" FontSize="11.5" />
-                                                </Button>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </StackPanel>
+                                                </StackPanel>
+                                                <TextBlock x:Name="WeatherPlace" Grid.Column="2" FontSize="10.5" Foreground="{StaticResource SubtleText}" VerticalAlignment="Top"
+                                                           MaxWidth="90" TextTrimming="CharacterEllipsis" />
+                                            </Grid>
+                                            <UniformGrid x:Name="WeatherHours" Columns="5" Margin="0,14,0,0" />
+                                        </StackPanel>
+                                        <StackPanel x:Name="WeatherMessagePanel" VerticalAlignment="Center">
+                                            <TextBlock x:Name="WeatherMessage" Text="Loading weather…" FontSize="12" Foreground="{StaticResource SubtleText}"
+                                                       TextWrapping="Wrap" TextAlignment="Center" />
+                                            <Button x:Name="WeatherSetupButton" Style="{StaticResource CardButton}" Padding="12,6" Margin="0,10,0,0"
+                                                    HorizontalAlignment="Center" Click="WeatherSetup_Click" Visibility="Collapsed">
+                                                <TextBlock Text="Set your town" FontSize="11.5" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
 
-                                <Border Grid.Column="1" Style="{StaticResource Card}" MouseWheel="Calendar_MouseWheel">
+                                <!-- Month -->
+                                <Border Grid.Column="4" Style="{StaticResource Card}" Padding="10,8,10,8" MouseWheel="Calendar_MouseWheel">
                                     <StackPanel>
-                                        <DockPanel Margin="2,0,0,8">
+                                        <DockPanel Margin="2,0,0,4">
                                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                                <Button Style="{StaticResource IslandButton}" Width="30" Height="30" Click="PreviousMonth_Click" ToolTip="Previous month">
-                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="11" Text="&#xE76B;" />
+                                                <Button Style="{StaticResource IslandButton}" Width="24" Height="24" Click="PreviousMonth_Click" ToolTip="Previous month">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE76B;" />
                                                 </Button>
-                                                <Button Style="{StaticResource IslandButton}" Height="30" Click="ThisMonth_Click" ToolTip="Back to this month">
-                                                    <TextBlock Text="Today" FontSize="11.5" Margin="10,0" />
+                                                <Button Style="{StaticResource IslandButton}" Height="24" Click="ThisMonth_Click" ToolTip="Back to this month">
+                                                    <TextBlock Text="Today" FontSize="10.5" Margin="6,0" />
                                                 </Button>
-                                                <Button Style="{StaticResource IslandButton}" Width="30" Height="30" Click="NextMonth_Click" ToolTip="Next month">
-                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="11" Text="&#xE76C;" />
+                                                <Button Style="{StaticResource IslandButton}" Width="24" Height="24" Click="NextMonth_Click" ToolTip="Next month">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="9" Text="&#xE76C;" />
                                                 </Button>
                                             </StackPanel>
-                                            <TextBlock x:Name="MonthTitle" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                            <TextBlock x:Name="MonthTitle" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                         </DockPanel>
-                                        <UniformGrid x:Name="WeekdayHeader" Columns="7" Margin="0,0,0,4" />
+                                        <UniformGrid x:Name="WeekdayHeader" Columns="7" Margin="0,0,0,2" />
                                         <UniformGrid x:Name="CalendarGrid" Columns="7" Rows="6" />
                                     </StackPanel>
                                 </Border>
@@ -1319,127 +1353,186 @@
                             </StackPanel>
 
                             <!-- ======================= SETTINGS ======================= -->
-                            <ScrollViewer x:Name="SettingsTab" Visibility="Collapsed" MaxHeight="440" Focusable="False"
-                                          VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
-                                <StackPanel>
-                                    <TextBlock Text="APPEARANCE" Style="{StaticResource SectionLabel}" Margin="6,0,0,6" />
-                                    <Border Style="{StaticResource Card}" Padding="16,10">
-                                        <StackPanel>
-                                            <DockPanel Margin="0,4">
+                            <!-- Sections down the left, the chosen section's settings on the right -->
+                            <Grid x:Name="SettingsTab" Visibility="Collapsed">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Style="{StaticResource Card}" Padding="6" VerticalAlignment="Top">
+                                    <StackPanel>
+                                        <RadioButton x:Name="SettingsNavAppearance" Style="{StaticResource NavRadio}" GroupName="SettingsSection" IsChecked="True" Checked="SettingsSection_Checked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE790;" VerticalAlignment="Center" />
+                                                <TextBlock Text="Appearance" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </RadioButton>
+                                        <RadioButton x:Name="SettingsNavBehaviour" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE8B0;" VerticalAlignment="Center" />
+                                                <TextBlock Text="Behaviour" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </RadioButton>
+                                        <RadioButton x:Name="SettingsNavWeather" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE753;" VerticalAlignment="Center" />
+                                                <TextBlock Text="Weather" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </RadioButton>
+                                        <RadioButton x:Name="SettingsNavAbout" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE946;" VerticalAlignment="Center" />
+                                                <TextBlock Text="About" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </RadioButton>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="2" Style="{StaticResource Card}" Padding="16,10">
+                                    <Grid>
+                                        <StackPanel x:Name="SettingsAppearance">
+                                            <DockPanel Margin="0,2,0,6">
                                                 <StackPanel x:Name="AccentSwatches" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Accent colour" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Used for highlights, switches and the music bars" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Accent colour" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Highlights, switches and the music bars" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
-                                            <DockPanel Margin="0,10,0,4">
+                                            <DockPanel Margin="0,8,0,6">
                                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                                                     <RadioButton x:Name="StyleBlack" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Black" Tag="Black" Click="SettingChanged" />
                                                     <RadioButton x:Name="StyleGlass" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Glass" Tag="Glass" Click="SettingChanged" />
                                                     <RadioButton x:Name="StyleGlow" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Glow" Tag="Glow" Click="SettingChanged" />
                                                     <RadioButton x:Name="StyleOutline" Style="{StaticResource ChipRadio}" GroupName="IslandStyle" Content="Outline" Tag="Outline" Click="SettingChanged" />
                                                 </StackPanel>
-                                                <StackPanel>
-                                                    <TextBlock Text="Island style" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Black, see-through glass, a soft glow or a thin outline" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Island style" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Black, frosted glass, a soft glow or a thin outline" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
-                                            <DockPanel Margin="0,10,0,4">
+                                            <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="LineIconsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Line icons" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock x:Name="LineIconsStatusText" Text="Tidy, matching icons for your apps instead of their own icons" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Line icons" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock x:Name="LineIconsStatusText" Text="Tidy, matching icons for your apps instead of their own icons" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
-                                            <DockPanel Margin="0,10,0,4">
+                                            <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="BatterySwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Battery on the island" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock x:Name="BatteryStatusText" Text="Show the battery level next to the date (laptops and tablets)" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Battery on the island" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock x:Name="BatteryStatusText" Text="Show the battery level next to the date (laptops and tablets)" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
-                                            <DockPanel Margin="0,10,0,4">
+                                            <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="MusicBarsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Music bars" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Little dancing bars on the island while something plays" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Music bars" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Little dancing bars on the island while something plays" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                         </StackPanel>
-                                    </Border>
-
-                                    <TextBlock Text="BEHAVIOUR" Style="{StaticResource SectionLabel}" />
-                                    <Border Style="{StaticResource Card}" Padding="16,10">
-                                        <StackPanel>
-                                            <DockPanel Margin="0,4">
+                                        <StackPanel x:Name="SettingsBehaviour" Visibility="Collapsed">
+                                            <DockPanel Margin="0,2,0,6">
                                                 <CheckBox x:Name="PeekSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Show open apps on hover" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Rest the mouse on the island to see and switch apps" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Show open apps on hover" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Rest the mouse on the island to see and switch apps" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
-                                            <DockPanel Margin="0,10,0,4">
+                                            <DockPanel Margin="0,8,0,6">
                                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                                                     <RadioButton x:Name="DelayQuick" Style="{StaticResource ChipRadio}" GroupName="PeekDelay" Content="Quick" Tag="250" Click="SettingChanged" />
                                                     <RadioButton x:Name="DelayNormal" Style="{StaticResource ChipRadio}" GroupName="PeekDelay" Content="Normal" Tag="450" Click="SettingChanged" />
                                                     <RadioButton x:Name="DelayRelaxed" Style="{StaticResource ChipRadio}" GroupName="PeekDelay" Content="Relaxed" Tag="750" Click="SettingChanged" />
                                                 </StackPanel>
-                                                <StackPanel>
-                                                    <TextBlock Text="Hover delay" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock Text="How long to rest the mouse before it opens" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Hover delay" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="How long to rest the mouse before it opens" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
-                                            <DockPanel Margin="0,10,0,4">
+                                            <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="HideMaximizedSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Tuck away over maximised apps" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Rest the mouse at the top of the screen to bring it back" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Tuck away over maximised apps" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Rest the mouse at the top of the screen to bring it back" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
-                                            <DockPanel Margin="0,10,0,4">
+                                            <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="DevicePopOutsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Device pop-ups" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Bluetooth devices, USB drives and headphones connecting" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Device pop-ups" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Bluetooth devices, USB drives and headphones connecting" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
-                                            <DockPanel Margin="0,10,0,4">
+                                            <DockPanel Margin="0,8,0,6">
+                                                <CheckBox x:Name="SearchHotkeySwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Ctrl+Space opens app search" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock x:Name="SearchHotkeyStatusText" Text="From anywhere: type an app's name and press Enter. Press it again to close" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="StartWithWindowsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Start with Windows" FontSize="13" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Open the island automatically when you sign in" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Start with Windows" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock x:Name="StartupStatusText" Text="Opens when you sign in, and again when you reconnect or unlock if it isn't running" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
+                                            <Button x:Name="StartupFixButton" Style="{StaticResource CardButton}" Padding="12,6" Margin="0,2,0,4"
+                                                    HorizontalAlignment="Left" Click="StartupFix_Click" Visibility="Collapsed">
+                                                <TextBlock Text="Open Windows startup settings" FontSize="11.5" />
+                                            </Button>
                                         </StackPanel>
-                                    </Border>
-
-                                    <TextBlock Text="WEATHER" Style="{StaticResource SectionLabel}" />
-                                    <Border Style="{StaticResource Card}" Padding="16,12" Margin="0,0,0,4">
-                                        <StackPanel>
-                                            <DockPanel>
-                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                                                    <RadioButton x:Name="CelsiusChip" Style="{StaticResource ChipRadio}" GroupName="Units" Content="°C" Click="SettingChanged" />
-                                                    <RadioButton x:Name="FahrenheitChip" Style="{StaticResource ChipRadio}" GroupName="Units" Content="°F" Click="SettingChanged" />
-                                                </StackPanel>
-                                                <Border Background="#FF222222" CornerRadius="10" Height="34">
-                                                    <Grid Margin="10,0">
-                                                        <TextBlock x:Name="PlacePlaceholder" Text="Your town (leave empty to use Windows location)" Foreground="#66FFFFFF"
-                                                                   FontSize="12" VerticalAlignment="Center" IsHitTestVisible="False" />
-                                                        <TextBox x:Name="PlaceBox" Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White"
-                                                                 FontSize="12" VerticalAlignment="Center" TextChanged="PlaceBox_TextChanged" PreviewKeyDown="PlaceBox_KeyDown" />
-                                                    </Grid>
-                                                </Border>
-                                            </DockPanel>
+                                        <StackPanel x:Name="SettingsWeather" Visibility="Collapsed">
+                                            <TextBlock Text="Your town" FontSize="12.5" FontWeight="SemiBold" Margin="0,2,0,2" />
+                                            <TextBlock Text="Leave it empty to use your PC's location" FontSize="10.5" Foreground="{StaticResource SubtleText}" Margin="0,0,0,8" />
+                                            <Border Background="#FF222222" CornerRadius="10" Height="34">
+                                                <Grid Margin="10,0">
+                                                    <TextBlock x:Name="PlacePlaceholder" Text="e.g. London" Foreground="#66FFFFFF"
+                                                               FontSize="12" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                                    <TextBox x:Name="PlaceBox" Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White"
+                                                             FontSize="12" VerticalAlignment="Center" TextChanged="PlaceBox_TextChanged" PreviewKeyDown="PlaceBox_KeyDown" />
+                                                </Grid>
+                                            </Border>
                                             <DockPanel Margin="0,8,0,0">
                                                 <Button DockPanel.Dock="Right" Style="{StaticResource CardButton}" Padding="12,6" Margin="0" Click="SavePlace_Click">
                                                     <TextBlock Text="Save location" FontSize="11.5" />
                                                 </Button>
                                                 <TextBlock x:Name="PlaceStatus" FontSize="11" Foreground="{StaticResource SubtleText}" VerticalAlignment="Center" TextWrapping="Wrap" />
                                             </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton x:Name="CelsiusChip" Style="{StaticResource ChipRadio}" GroupName="Units" Content="°C" Click="SettingChanged" />
+                                                    <RadioButton x:Name="FahrenheitChip" Style="{StaticResource ChipRadio}" GroupName="Units" Content="°F" Click="SettingChanged" />
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Temperature" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Celsius or Fahrenheit" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
                                         </StackPanel>
-                                    </Border>
-                                </StackPanel>
-                            </ScrollViewer>
+                                        <StackPanel x:Name="SettingsAbout" Visibility="Collapsed">
+                                            <TextBlock Text="Dynamic Island for Windows" FontSize="14" FontWeight="SemiBold" Margin="0,2,0,0" />
+                                            <TextBlock x:Name="AboutVersionText" FontSize="11" Foreground="{StaticResource SubtleText}" />
+                                            <TextBlock Text="An iPhone-style island that replaces the Windows taskbar." FontSize="11" Foreground="{StaticResource SubtleText}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                                            <WrapPanel Margin="-4,12,0,0">
+                                                <Button Style="{StaticResource CardButton}" Padding="12,7" Click="OpenLogFolder_Click">
+                                                    <TextBlock Text="Open error log folder" FontSize="11.5" />
+                                                </Button>
+                                                <Button Style="{StaticResource CardButton}" Padding="12,7" Click="OpenProjectPage_Click">
+                                                    <TextBlock Text="Project page" FontSize="11.5" />
+                                                </Button>
+                                                <Button Style="{StaticResource CardButton}" Padding="12,7" Click="Exit_Click">
+                                                    <TextBlock Text="Quit and restore taskbar" FontSize="11.5" />
+                                                </Button>
+                                            </WrapPanel>
+                                            <TextBlock FontSize="10.5" Foreground="#66FFFFFF" Margin="0,12,0,0" TextWrapping="Wrap"
+                                                       Text="If something goes wrong, the details are saved in errors.log in that folder." />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </Grid>
 
                             <!-- ======================= MEDIA ======================= -->
                             <Border x:Name="MediaTab" Visibility="Collapsed" CornerRadius="22" Padding="16,16,16,14" Margin="-6,-4,-6,0">
