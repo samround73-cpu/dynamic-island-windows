@@ -51,6 +51,13 @@ To remove it all, use **Settings › About › Remove from this PC…**, then de
   back (even if it's minimised — those are shown dimmed), click the app in front to minimise it, or hover
   an icon for a live preview (hover a preview for its ✕ to close that window). While music is playing, the tray
   also shows the song with back / play-pause / next. Click the island itself (not an icon) to open everything.
+- **Pinned apps:** right-click any app in the tray (or on the Apps tab) and choose **Pin to tray**. Pinned apps then
+  always sit at the start of the tray's row of icons, followed by a thin line and any other open apps. Pinned apps
+  that aren't running are shown as faded outlines; click one to start it. Right-click a pinned app to unpin it or
+  use **Move left / Move right** to change the order. (Apps that aren't in the Start menu can't be pinned.)
+- **While something downloads** (in your Downloads folder), a glow runs along the bottom of the pill with the
+  download speed beside it. Hover for the file name and how much has arrived so far. Browsers don't tell other apps
+  how big a download will be, so there's no percentage or time left.
 - **When the app under the island is maximised**, the island slides out of the way so it doesn't cover the app.
   Rest the mouse at the top edge, around where the island lives, for about a third of a second to bring it back.
   It then stays for at least 3 seconds, and tucks away once the mouse has been away from it for a little over
@@ -91,15 +98,16 @@ Other things you can do:
 **Settings** — the gear at the top-left of the open island. Pick a section on the left:
 - **Appearance:** accent colour, island style (Black; Glass — real frosted blur of what's behind, as a panel hanging from the top edge; Glow — an accent halo; or Outline), line icons, battery on the island, music bars.
 - **Behaviour:** the hover tray and its delay, tucking away over maximised apps, the Ctrl+Space shortcut, and Start with Windows (it tells you if Windows has switched it off, with a button to fix it).
-- **Pop-ups:** screenshots, finished downloads, whether those go onto the Shelf, and device pop-ups.
+- **Pop-ups:** screenshots, finished downloads, whether those go onto the Shelf, the download-progress glow,
+  Caps Lock, and device pop-ups.
 - **Tabs:** show or hide each tab and change their order.
 - **Weather:** your town (or leave it empty to use Windows' location) and °C or °F.
 - **About:** the version, the error-log folder, the project page, and Quit.
 
 **Pop-ups** also appear when you take a screenshot (with a preview) or a download finishes, and both are put on the
 Shelf ready to drag into an email or chat (click the pop-out to open the Shelf). They also appear for Bluetooth
-devices connecting/disconnecting, USB drives being plugged in or removed, and sound switching to different speakers
-or headphones. Each kind can be turned off in Settings › Pop-ups.
+devices connecting/disconnecting, USB drives being plugged in or removed, sound switching to different speakers
+or headphones, and Caps Lock being turned on or off. Each kind can be turned off in Settings › Pop-ups.
 
 **If something goes wrong**, the details are saved to `%AppData%\DynamicIsland\errors.log` (Settings › About › Open error log folder) — include that file when you report a problem.
 

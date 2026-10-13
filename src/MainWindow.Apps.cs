@@ -65,6 +65,7 @@ public partial class MainWindow
                     Icon = WindowTracker.GetIcon(window),
                     ExePath = isStoreApp ? "" : window.ExePath,
                     MostRecent = window.Handle, // the list is newest-first
+                    LaunchPath = MatchInstalled(window)?.LaunchPath,
                 };
                 groups[window.GroupKey] = tile;
             }
@@ -148,6 +149,8 @@ public partial class MainWindow
             existing.IsMinimized = incoming.IsMinimized;
             existing.Title = incoming.Title;
             existing.Line = incoming.Line;
+            existing.LaunchPath = incoming.LaunchPath;
+            existing.IsClosedPin = incoming.IsClosedPin;
             if (current != i) target.Move(current, i);
         }
     }
@@ -209,6 +212,146 @@ public partial class MainWindow
         ShowActivity("\uE7BA", null, $"Can't close {name}", "It runs as administrator; close it from its own window", null);
     }
 
+    // ---- Pinned apps: a dock row in the hover tray ----
+
+    /// <summary>Pinned apps (open ones in colour, closed ones faded), a divider, then any other open apps.</summary>
+    private readonly ObservableCollection<AppTile> _dock = new();
+    private static readonly AppTile DockDivider = new() { Key = "|divider", IsDivider = true };
+
+    /// <summary>
+    /// With apps pinned, the hover tray shows one row of every pinned app plus the other open apps,
+    /// instead of the small icons beside the app in front. With nothing pinned, it looks as it always has.
+    /// </summary>
+    private void UpdateDock()
+    {
+        if (_settings.TrayPins.Count == 0)
+        {
+            _dock.Clear();
+            PeekDock.Visibility = Visibility.Collapsed;
+            PeekAppsList.Visibility = Visibility.Visible;
+            return;
+        }
+
+        var pinned = new List<AppTile>();
+        var shown = new HashSet<AppTile>();
+        foreach (var launch in _settings.TrayPins)
+        {
+            var open = _openApps.FirstOrDefault(t => string.Equals(t.LaunchPath, launch, StringComparison.OrdinalIgnoreCase));
+            if (open is not null)
+            {
+                if (shown.Add(open)) pinned.Add(open);
+                continue;
+            }
+            var app = _installedApps.FirstOrDefault(a => string.Equals(a.LaunchPath, launch, StringComparison.OrdinalIgnoreCase));
+            if (app is null) continue; // still loading the apps list, or it was uninstalled
+            pinned.Add(new AppTile
+            {
+                Key = "pin:" + launch,
+                Name = app.Name,
+                Icon = app.Icon,
+                ExePath = app.ExePath ?? "",
+                LaunchPath = launch,
+                Line = LineIconFor(app.Name, app.ExePath, app.Icon),
+                IsClosedPin = true,
+            });
+        }
+
+        var others = _openApps.Where(t => !shown.Contains(t)).ToList();
+        var all = new List<AppTile>(pinned);
+        if (pinned.Count > 0 && others.Count > 0) all.Add(DockDivider);
+        all.AddRange(others);
+        SyncTiles(_dock, all);
+
+        PeekDock.Visibility = _dock.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        PeekAppsList.Visibility = Visibility.Collapsed;
+    }
+
+    /// <summary>Click in the dock row: a closed pinned app starts; an open one behaves like any open app.</summary>
+    private void DockTile_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not AppTile tile || tile.IsDivider) return;
+        if (!tile.IsClosedPin)
+        {
+            AppTile_Click(sender, e);
+            return;
+        }
+        if (string.IsNullOrEmpty(tile.LaunchPath)) return;
+        ExitPeek();
+        _settings.AddRecent(tile.LaunchPath);
+        SystemActions.Open(tile.LaunchPath);
+    }
+
+    /// <summary>Right-click an app in the hover tray or the Apps tab's open-app chips. The menu is made on the spot.</summary>
+    private void Tile_RightClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement element || element.DataContext is not AppTile tile || tile.IsDivider) return;
+        e.Handled = true;
+
+        MenuItem Item(string header, RoutedEventHandler click)
+        {
+            var item = new MenuItem { Header = header };
+            item.Click += click;
+            return item;
+        }
+
+        var menu = new ContextMenu { DataContext = tile };
+        menu.Opened += Menu_Opened;
+        menu.Closed += Menu_Closed;
+
+        if (tile.IsClosedPin) menu.Items.Add(Item("Open", (_, _) => DockTile_Click(element, new RoutedEventArgs())));
+        else menu.Items.Add(Item("New window", TileNewWindow_Click));
+
+        if (tile.LaunchPath is { } launch && !SettingsPages.IsSettingsTarget(launch))
+        {
+            bool pinned = _settings.IsTrayPinned(launch);
+            menu.Items.Add(Item(pinned ? "Unpin from tray" : "Pin to tray", (_, _) => ToggleTrayPin(launch)));
+            if (pinned)
+            {
+                int index = _settings.TrayPins.FindIndex(s => string.Equals(s, launch, StringComparison.OrdinalIgnoreCase));
+                if (index > 0) menu.Items.Add(Item("Move left", (_, _) => MoveTrayPin(launch, -1)));
+                if (index < _settings.TrayPins.Count - 1) menu.Items.Add(Item("Move right", (_, _) => MoveTrayPin(launch, +1)));
+            }
+        }
+
+        if (!tile.IsClosedPin)
+        {
+            menu.Items.Add(new Separator());
+            menu.Items.Add(Item("Close", TileClose_Click));
+        }
+
+        element.ContextMenu = menu; // attached to the icon, so it picks up the island's menu styling
+        menu.PlacementTarget = element;
+        menu.IsOpen = true;
+    }
+
+    private void ToggleTrayPin(string launchPath)
+    {
+        _settings.ToggleTrayPin(launchPath);
+        _settings.Save();
+        AfterTrayPinsChanged();
+    }
+
+    private void MoveTrayPin(string launchPath, int delta)
+    {
+        _settings.MoveTrayPin(launchPath, delta);
+        _settings.Save();
+        AfterTrayPinsChanged();
+    }
+
+    private void AfterTrayPinsChanged()
+    {
+        RefreshOpenApps();
+        RemeasurePeek();
+    }
+
+    /// <summary>Resizes the hover tray to fit what's in it now (if it's open).</summary>
+    private void RemeasurePeek()
+    {
+        if (!_peeking) return;
+        var size = MeasurePeek();
+        AnimateSize(size.Width, size.Height, 300, bouncy: false);
+    }
+
     // ---- Live previews when hovering an app in the tray ----
 
     /// <summary>
@@ -219,6 +362,7 @@ public partial class MainWindow
     {
         var active = _openApps.FirstOrDefault(t => t.IsActive);
         SyncTiles(_otherOpenApps, _openApps.Where(t => t != active).ToList());
+        UpdateDock();
 
         PeekActiveButton.DataContext = active;
         PeekActiveButton.IsHitTestVisible = active is not null;
@@ -231,7 +375,7 @@ public partial class MainWindow
             PeekActiveGlyph.Foreground = new SolidColorBrush(Color.FromArgb(0x99, 0xFF, 0xFF, 0xFF));
             PeekActiveGlyph.FontSize = 15;
             PeekActiveGlyph.Visibility = Visibility.Visible;
-            PeekActiveName.Text = _openApps.Count == 1 ? "1 app open" : $"{_openApps.Count} apps open";
+            PeekActiveName.Text = _openApps.Count switch { 0 => "No apps open", 1 => "1 app open", _ => $"{_openApps.Count} apps open" };
             PeekActiveTitle.Text = "";
             return;
         }
@@ -258,6 +402,12 @@ public partial class MainWindow
     private void Tile_MouseEnter(object sender, MouseEventArgs e)
     {
         if (sender is not FrameworkElement element || element.DataContext is not AppTile tile || _menuOpen) return;
+        if (tile.Windows.Count == 0) // a pinned app that isn't open: nothing to preview
+        {
+            _previewShowTimer.Stop();
+            if (_preview.IsVisible) RestartTimer(_previewHideTimer);
+            return;
+        }
         _hoverTile = tile;
         _hoverElement = element;
         _previewHideTimer.Stop();
@@ -358,6 +508,7 @@ public partial class MainWindow
             _installedAppsLoadedAt = DateTime.Now;
 
             ImportTaskbarPinsOnce();
+            if (_settings.TrayPins.Count > 0) RefreshOpenApps(); // pinned apps that aren't open can be shown now
             if (_currentTab == "Apps") RebuildAppList();
         }
         finally
@@ -875,6 +1026,8 @@ public partial class MainWindow
         menu.Closed += Menu_Closed;
         menu.Items.Add(Item("Open new window", AppRowNewWindow_Click));
         menu.Items.Add(Item("Star / unstar", AppRowStar_Click));
+        if (row.LaunchPath is { } launch && !SettingsPages.IsSettingsTarget(launch))
+            menu.Items.Add(Item(_settings.IsTrayPinned(launch) ? "Unpin from tray" : "Pin to tray", (_, _) => ToggleTrayPin(launch)));
         if (row.IsOpen) menu.Items.Add(Item("Close all its windows", AppRowClose_Click));
 
         element.ContextMenu = menu; // attached to the row, so it picks up the island's menu styling

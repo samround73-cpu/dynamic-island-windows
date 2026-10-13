@@ -22,6 +22,8 @@ public sealed class IslandSettings
     public List<string> Recent { get; set; } = new();
     /// <summary>Whether we've already copied the apps pinned to the old taskbar into Starred (done once).</summary>
     public bool ImportedTaskbarPins { get; set; }
+    /// <summary>Launch paths of apps pinned to the hover tray, in the order they're shown.</summary>
+    public List<string> TrayPins { get; set; } = new();
 
     // ---- Appearance and behaviour ----
     public string AccentColor { get; set; } = "#D6B46A";
@@ -50,6 +52,12 @@ public sealed class IslandSettings
 
     /// <summary>Put new screenshots and downloads on the Shelf, ready to drag somewhere.</summary>
     public bool CapturesToShelf { get; set; } = true;
+
+    /// <summary>A moving glow on the pill (and a row in the hover tray) while something is downloading.</summary>
+    public bool DownloadProgress { get; set; } = true;
+
+    /// <summary>Pop out when Caps Lock is turned on or off.</summary>
+    public bool CapsLockPopups { get; set; } = true;
 
     /// <summary>The order of the tabs along the top, and which ones are hidden.</summary>
     public List<string> TabOrder { get; set; } = new();
@@ -95,6 +103,23 @@ public sealed class IslandSettings
             File.WriteAllText(FilePath, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
         }
         catch { }
+    }
+
+    public bool IsTrayPinned(string launchPath) => TrayPins.Contains(launchPath, StringComparer.OrdinalIgnoreCase);
+
+    public void ToggleTrayPin(string launchPath)
+    {
+        if (IsTrayPinned(launchPath)) TrayPins.RemoveAll(s => string.Equals(s, launchPath, StringComparison.OrdinalIgnoreCase));
+        else TrayPins.Add(launchPath);
+    }
+
+    /// <summary>Moves a pinned app one place left (-1) or right (+1) in the tray.</summary>
+    public void MoveTrayPin(string launchPath, int delta)
+    {
+        int index = TrayPins.FindIndex(s => string.Equals(s, launchPath, StringComparison.OrdinalIgnoreCase));
+        int target = index + delta;
+        if (index < 0 || target < 0 || target >= TrayPins.Count) return;
+        (TrayPins[index], TrayPins[target]) = (TrayPins[target], TrayPins[index]);
     }
 
     public bool IsStarred(string launchPath) => Starred.Contains(launchPath, StringComparer.OrdinalIgnoreCase);

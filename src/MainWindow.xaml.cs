@@ -23,7 +23,7 @@ public partial class MainWindow : Window
     private const double CompactHeight = 38;
 
     /// <summary>The pill is a little wider when it's showing the battery.</summary>
-    private double CompactWidth => BatteryInPill ? 300 : 236;
+    private double CompactWidth => (BatteryInPill ? 300 : 236) + (DownloadShowing ? 30 : 0);
     private const double ActivityWidth = 340, ActivityHeight = 64;
     private const double ExpandedWidth = 660;
     private const double MinPeekWidth = 250;
@@ -275,6 +275,7 @@ public partial class MainWindow : Window
         App.Taskbar.Hide();
         App.Taskbar.StartWatching();
         StartCaptureWatcher();
+        StartCapsLockWatch();
 
         _preview.Owner = this;
 
@@ -780,7 +781,7 @@ public partial class MainWindow : Window
         if (!IslandHost.IsMouseOver) return;
 
         RefreshOpenApps();
-        if (_openApps.Count == 0) return; // nothing to show
+        if (_openApps.Count == 0 && _dock.Count == 0 && !DownloadShowing) return; // nothing to show
 
         _peeking = true;
         _activityTimer.Stop();
@@ -915,7 +916,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Briefly widens the pill to show something (like the iPhone does for a timer or AirPods).</summary>
-    private void ShowActivity(string? glyph, ImageSource? art, string title, string? subtitle, double? level)
+    private void ShowActivity(string? glyph, ImageSource? art, string title, string? subtitle, double? level, double seconds = 2.4)
     {
         _activityOpensTab = null;
         if (_expanded || _peeking || _presence == Presence.FullScreen) return;
@@ -924,6 +925,9 @@ public partial class MainWindow : Window
         if (_presence == Presence.AutoHidden && !_revealed) SlideBack();
 
         ActivityGlyph.Text = glyph ?? "";
+        ActivityGlyph.ClearValue(System.Windows.Controls.TextBlock.FontFamilyProperty); // back to the normal symbol font after a line-style icon
+        ActivityGlyph.ClearValue(System.Windows.Controls.TextBlock.ForegroundProperty);
+        ActivityGlyph.FontSize = 20;
         ActivityGlyph.Visibility = art is null ? Visibility.Visible : Visibility.Collapsed;
         ActivityArt.Visibility = art is null ? Visibility.Collapsed : Visibility.Visible;
         ActivityArt.Background = art is null ? null : new ImageBrush(art) { Stretch = Stretch.UniformToFill };
@@ -945,6 +949,7 @@ public partial class MainWindow : Window
             AnimateSize(ActivityWidth, ActivityHeight, 480, bouncy: true);
         }
 
+        _activityTimer.Interval = TimeSpan.FromSeconds(seconds);
         RestartTimer(_activityTimer);
     }
 

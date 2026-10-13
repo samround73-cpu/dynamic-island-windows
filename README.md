@@ -103,7 +103,10 @@ be switched off in Settings › Pop-ups.
 - **Clipboard:** your recent copies, with search, filters (text, images, links) and pinning.
   Copies from password managers are skipped.
 - **Shelf:** drop files onto the island to keep them handy, then drag them out into any folder, email or chat.
-- **More pop-ups:** volume changes, new songs, Bluetooth devices, USB drives and charging.
+- **Pinned apps:** right-click an app and choose **Pin to tray** to keep it in the hover tray, even when it's closed
+  (closed ones show as faded outlines; click to start them).
+- **Download progress:** a glow runs along the pill while something downloads, with the speed beside it.
+- **More pop-ups:** Caps Lock, volume changes, new songs, Bluetooth devices, USB drives and charging.
 - **Looks after itself:** updates install automatically, it reopens when you reconnect or unlock (great for
   Shadow and Remote Desktop), and if anything goes wrong it restarts itself quietly.
 

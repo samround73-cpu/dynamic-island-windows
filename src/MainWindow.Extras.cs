@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
@@ -837,6 +838,8 @@ public partial class MainWindow
         ScreenshotPopupsSwitch.IsChecked = _settings.ScreenshotPopups;
         DownloadPopupsSwitch.IsChecked = _settings.DownloadPopups;
         CapturesToShelfSwitch.IsChecked = _settings.CapturesToShelf;
+        DownloadProgressSwitch.IsChecked = _settings.DownloadProgress;
+        CapsLockPopupsSwitch.IsChecked = _settings.CapsLockPopups;
         ShowUpdateState();
         ShowHotkeyStatus();
         StartWithWindowsSwitch.IsChecked = _startupEnabled;
@@ -874,6 +877,8 @@ public partial class MainWindow
         _settings.ScreenshotPopups = ScreenshotPopupsSwitch.IsChecked == true;
         _settings.DownloadPopups = DownloadPopupsSwitch.IsChecked == true;
         _settings.CapturesToShelf = CapturesToShelfSwitch.IsChecked == true;
+        _settings.DownloadProgress = DownloadProgressSwitch.IsChecked == true;
+        _settings.CapsLockPopups = CapsLockPopupsSwitch.IsChecked == true;
         _settings.Fahrenheit = FahrenheitChip.IsChecked == true;
         _settings.Save();
 
@@ -885,6 +890,7 @@ public partial class MainWindow
         ShowHotkeyStatus();
         ApplyIslandStyle();
         if (batteryChanged) UpdatePillBatteryVisibility();
+        ApplyDownloadState();
         if (iconsChanged)
         {
             RefreshOpenApps();
@@ -910,7 +916,147 @@ public partial class MainWindow
     private void StartCaptureWatcher()
     {
         _captures.FileReady += (path, kind) => Dispatcher.BeginInvoke(new Action(() => OnCaptureReady(path, kind)));
+        _captures.DownloadsChanged += progress => Dispatcher.BeginInvoke(new Action(() => OnDownloadsChanged(progress)));
         _captures.Start();
+    }
+
+    // ---- Downloads in progress: a glow on the pill, and a row in the hover tray ----
+
+    private CaptureWatcher.DownloadProgress? _download;
+    private bool _downloadShown;
+
+    /// <summary>Something is downloading and the glow is turned on in Settings.</summary>
+    private bool DownloadShowing => _download is not null && _settings.DownloadProgress;
+
+    private void OnDownloadsChanged(CaptureWatcher.DownloadProgress? progress)
+    {
+        _download = progress;
+        if (progress is not null)
+        {
+            CompactDownloadText.Text = FormatSpeed(progress.BytesPerSecond);
+            PeekDownloadName.Text = progress.Count > 1 ? $"{progress.Name}  +{progress.Count - 1} more" : progress.Name;
+            PeekDownloadSub.Text = $"{FormatBytes(progress.Bytes)} so far · {FormatSpeed(progress.BytesPerSecond)}";
+        }
+        ApplyDownloadState();
+    }
+
+    /// <summary>Shows or hides the download glow, speed and tray row, and resizes the pill to fit.</summary>
+    private void ApplyDownloadState()
+    {
+        bool show = DownloadShowing;
+        if (show == _downloadShown) return;
+        _downloadShown = show;
+
+        var visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        CompactDownload.Visibility = visibility;
+        CompactDownloadGlow.Visibility = visibility;
+        PeekDownloadRow.Visibility = visibility;
+        EqBars.Opacity = show ? 0 : 1; // the speed sits where the music bars usually are
+
+        foreach (var (shift, width, distance) in new[] { (CompactDownloadGlowShift, 80.0, 360.0), (PeekDownloadGlowShift, 110.0, 440.0) })
+        {
+            shift.BeginAnimation(TranslateTransform.XProperty, show
+                ? new DoubleAnimation(-width, distance, TimeSpan.FromSeconds(1.8)) { RepeatBehavior = RepeatBehavior.Forever }
+                : null);
+        }
+
+        if (!_expanded && !_peeking && !_activityShowing)
+        {
+            IslandHost.BeginAnimation(WidthProperty, null);
+            AnimateSize(CompactWidth, CompactHeight, 300, bouncy: false);
+        }
+        RemeasurePeek();
+    }
+
+    private static string FormatSpeed(double bytesPerSecond)
+    {
+        double mb = bytesPerSecond / (1024 * 1024);
+        if (mb >= 100) return $"{mb:0} MB/s";
+        if (mb >= 1) return $"{mb:0.0} MB/s";
+        return $"{Math.Max(1, bytesPerSecond / 1024):0} KB/s";
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        double mb = bytes / (1024.0 * 1024);
+        if (mb >= 1024) return $"{mb / 1024:0.0} GB";
+        if (mb >= 10) return $"{mb:0} MB";
+        if (mb >= 1) return $"{mb:0.0} MB";
+        return $"{Math.Max(1, bytes / 1024)} KB";
+    }
+
+    private void OpenDownloads_Click(object sender, RoutedEventArgs e)
+    {
+        if (_captures.DownloadsFolder is not { } folder) return;
+        ExitPeek();
+        SystemActions.Open(folder);
+    }
+
+    // ---- Caps Lock pop-out ----
+
+    private bool? _capsLockOn;
+    private readonly DispatcherTimer _capsTimer = new() { Interval = TimeSpan.FromMilliseconds(150) };
+
+    private void StartCapsLockWatch()
+    {
+        _capsTimer.Tick += (_, _) => CheckCapsLock();
+        _capsTimer.Start();
+    }
+
+    private bool _capsKeyDown;
+    private bool _capsLastReading;
+    private DateTime? _capsPressedAt;
+
+    private void CheckCapsLock()
+    {
+        // Notice the key itself being pressed, in case Windows is slow to tell a background app the new state.
+        short key = Native.GetAsyncKeyState(Native.VK_CAPITAL);
+        bool down = (key & 0x8000) != 0;
+        if ((down || (key & 1) != 0) && !_capsKeyDown) _capsPressedAt = DateTime.Now;
+        _capsKeyDown = down;
+
+        bool reading = (Native.GetKeyState(Native.VK_CAPITAL) & 1) != 0;
+        if (_capsLockOn is not bool believed) // just started: no pop-out
+        {
+            _capsLockOn = _capsLastReading = reading;
+            _capsPressedAt = null;
+            return;
+        }
+
+        bool on;
+        if (reading != _capsLastReading)
+        {
+            _capsLastReading = reading;
+            _capsPressedAt = null;
+            if (reading == believed) return; // already shown (from the key press)
+            on = reading;
+        }
+        else
+        {
+            // Pressed, but Windows hasn't told us the new state after a moment: go by the key press.
+            if (_capsPressedAt is not { } pressed || DateTime.Now - pressed < TimeSpan.FromMilliseconds(400)) return;
+            _capsPressedAt = null;
+            on = !believed;
+        }
+        _capsLockOn = on;
+        if (!_settings.CapsLockPopups) return;
+
+        ShowActivity("\uE74A", null, on ? "Caps Lock on" : "Caps Lock off", on ? "Typing in CAPITALS" : "Back to normal", null, seconds: 1.5);
+        if (!_activityShowing) return; // the island is open or hidden for a full-screen app
+
+        // The line-style arrow, in the accent colour when on and grey when off.
+        var line = LineIcons.Named("arrow-big-up-line", on ? _settings.AccentColor : "#8CFFFFFF");
+        if (line is not null)
+        {
+            ActivityGlyph.FontFamily = LineIcons.FontOrDefault;
+            ActivityGlyph.Text = line.Glyph;
+            ActivityGlyph.FontSize = 24;
+            ActivityGlyph.Foreground = line.Brush;
+        }
+        else
+        {
+            ActivityGlyph.Foreground = on ? (Brush)FindResource("Accent") : new SolidColorBrush(Color.FromArgb(0x8C, 0xFF, 0xFF, 0xFF));
+        }
     }
 
     private void OnCaptureReady(string path, CaptureWatcher.Kind kind)

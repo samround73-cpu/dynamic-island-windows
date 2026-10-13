@@ -13,6 +13,19 @@ public sealed class AppTile : INotifyPropertyChanged
     public bool IsPinned { get; init; }
     public string? ShortcutPath { get; init; }
 
+    /// <summary>Not an app: the thin line between pinned apps and other open apps in the hover tray.</summary>
+    public bool IsDivider { get; init; }
+
+    /// <summary>How the installed app is started (from the Start menu list); null if it isn't in the Start menu.</summary>
+    public string? LaunchPath { get; set; }
+
+    private bool _isClosedPin;
+    /// <summary>A pinned app that isn't running: drawn faded, and clicking it starts the app.</summary>
+    public bool IsClosedPin { get => _isClosedPin; set { if (Set(ref _isClosedPin, value)) OnPropertyChanged(nameof(DockTip)); } }
+
+    /// <summary>Tooltip in the hover tray's dock row.</summary>
+    public string DockTip => IsClosedPin ? $"{Name} · not open, click to start" : Name;
+
     /// <summary>The app's .exe, used to open a new window on middle-click (empty for Store apps).</summary>
     public string ExePath { get; init; } = "";
 
@@ -23,7 +36,16 @@ public sealed class AppTile : INotifyPropertyChanged
     public IntPtr MostRecent { get; set; }
 
     private string _name = "";
-    public string Name { get => _name; set { if (Set(ref _name, value)) OnPropertyChanged(nameof(ShortName)); } }
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (!Set(ref _name, value)) return;
+            OnPropertyChanged(nameof(ShortName));
+            OnPropertyChanged(nameof(DockTip));
+        }
+    }
 
     /// <summary>A shorter name for chips: "Microsoft Edge" → "Edge", "File Explorer" → "Explorer".</summary>
     public string ShortName
