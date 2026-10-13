@@ -1,6 +1,6 @@
 # User guide
 
-Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.32.)
+Everything Dynamic Island for Windows can do, and how to use it. (Written for version 0.33.)
 
 An iPhone-style "Dynamic Island" that replaces the Windows taskbar.
 
@@ -74,6 +74,7 @@ To remove it all, use **Settings › About › Remove from this PC…**, then de
 
 **Searching for apps:** press **Ctrl+Space** anywhere (press it again to close), or with the island open just start typing — it jumps to the Apps tab and searches as you type. The shortcut can be turned off in Settings › Behaviour.
 Use **↑ ↓** to choose, **Enter** to open, **Esc** to clear the search. Initials work too ("vsc" finds Visual Studio Code).
+Windows Settings pages show up too: type "bluetooth", "display", "startup apps", "wallpaper"… to jump straight there.
 
 Other things you can do:
 
@@ -87,12 +88,16 @@ Other things you can do:
 
 **Settings** — the gear at the top-left of the open island. Pick a section on the left:
 - **Appearance:** accent colour, island style (Black; Glass — real frosted blur of what's behind, as a panel hanging from the top edge; Glow — an accent halo; or Outline), line icons, battery on the island, music bars.
-- **Behaviour:** the hover tray and its delay, tucking away over maximised apps, device pop-ups, the Ctrl+Space shortcut, and Start with Windows (it tells you if Windows has switched it off, with a button to fix it).
+- **Behaviour:** the hover tray and its delay, tucking away over maximised apps, the Ctrl+Space shortcut, and Start with Windows (it tells you if Windows has switched it off, with a button to fix it).
+- **Pop-ups:** screenshots, finished downloads, whether those go onto the Shelf, and device pop-ups.
+- **Tabs:** show or hide each tab and change their order.
 - **Weather:** your town (or leave it empty to use Windows' location) and °C or °F.
 - **About:** the version, the error-log folder, the project page, and Quit.
 
-**Pop-ups** also appear for Bluetooth devices connecting/disconnecting, USB drives being plugged in or removed,
-and sound switching to different speakers or headphones.
+**Pop-ups** also appear when you take a screenshot (with a preview) or a download finishes, and both are put on the
+Shelf ready to drag into an email or chat (click the pop-out to open the Shelf). They also appear for Bluetooth
+devices connecting/disconnecting, USB drives being plugged in or removed, and sound switching to different speakers
+or headphones. Each kind can be turned off in Settings › Pop-ups.
 
 **If something goes wrong**, the details are saved to `%AppData%\DynamicIsland\errors.log` (Settings › About › Open error log folder) — include that file when you report a problem.
 

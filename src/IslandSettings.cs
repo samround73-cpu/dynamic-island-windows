@@ -42,6 +42,19 @@ public sealed class IslandSettings
     /// <summary>Download and install new versions from GitHub by itself (otherwise it just tells you).</summary>
     public bool AutoUpdate { get; set; } = true;
 
+    /// <summary>Pop out when a screenshot is taken (Win+Shift+S / Print Screen).</summary>
+    public bool ScreenshotPopups { get; set; } = true;
+
+    /// <summary>Pop out when a download finishes.</summary>
+    public bool DownloadPopups { get; set; } = true;
+
+    /// <summary>Put new screenshots and downloads on the Shelf, ready to drag somewhere.</summary>
+    public bool CapturesToShelf { get; set; } = true;
+
+    /// <summary>The order of the tabs along the top, and which ones are hidden.</summary>
+    public List<string> TabOrder { get; set; } = new();
+    public List<string> HiddenTabs { get; set; } = new();
+
     // ---- Weather ----
     /// <summary>The town you typed in Settings; empty means "use Windows' location".</summary>
     public string WeatherPlace { get; set; } = "";

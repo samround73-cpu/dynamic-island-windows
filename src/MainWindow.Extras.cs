@@ -834,6 +834,9 @@ public partial class MainWindow
         DevicePopOutsSwitch.IsChecked = _settings.DevicePopOuts;
         SearchHotkeySwitch.IsChecked = _settings.SearchHotkey;
         AutoUpdateSwitch.IsChecked = _settings.AutoUpdate;
+        ScreenshotPopupsSwitch.IsChecked = _settings.ScreenshotPopups;
+        DownloadPopupsSwitch.IsChecked = _settings.DownloadPopups;
+        CapturesToShelfSwitch.IsChecked = _settings.CapturesToShelf;
         ShowUpdateState();
         ShowHotkeyStatus();
         StartWithWindowsSwitch.IsChecked = _startupEnabled;
@@ -868,6 +871,9 @@ public partial class MainWindow
         _settings.SearchHotkey = SearchHotkeySwitch.IsChecked == true;
         bool autoUpdateTurnedOn = !_settings.AutoUpdate && AutoUpdateSwitch.IsChecked == true;
         _settings.AutoUpdate = AutoUpdateSwitch.IsChecked == true;
+        _settings.ScreenshotPopups = ScreenshotPopupsSwitch.IsChecked == true;
+        _settings.DownloadPopups = DownloadPopupsSwitch.IsChecked == true;
+        _settings.CapturesToShelf = CapturesToShelfSwitch.IsChecked == true;
         _settings.Fahrenheit = FahrenheitChip.IsChecked == true;
         _settings.Save();
 
@@ -894,6 +900,159 @@ public partial class MainWindow
             ? "Another app is already using Ctrl+Space, so this can't be used right now"
             : "From anywhere: type an app's name and press Enter. Press it again to close";
         SearchHotkeyStatusText.Foreground = taken ? new SolidColorBrush(Color.FromRgb(0xFF, 0x9A, 0x94)) : (Brush)FindResource("SubtleText");
+    }
+
+    // ---- Screenshots and downloads ----
+
+    private readonly CaptureWatcher _captures = new();
+    private string? _activityOpensTab; // clicking the current pop-out opens this tab
+
+    private void StartCaptureWatcher()
+    {
+        _captures.FileReady += (path, kind) => Dispatcher.BeginInvoke(new Action(() => OnCaptureReady(path, kind)));
+        _captures.Start();
+    }
+
+    private void OnCaptureReady(string path, CaptureWatcher.Kind kind)
+    {
+        bool screenshot = kind == CaptureWatcher.Kind.Screenshot;
+        if (screenshot ? !_settings.ScreenshotPopups : !_settings.DownloadPopups) return;
+
+        bool onShelf = _settings.CapturesToShelf && _shelf.Add(new[] { path }) > 0;
+        ImageSource? art = screenshot ? LoadThumbnail(path) : AppCatalog.GetShellImage(path, 96);
+        string name = Path.GetFileName(path);
+
+        if (screenshot)
+            ShowActivity("\uE722", art, "Screenshot", onShelf ? "On your Shelf · click to open" : "Saved to Screenshots", null);
+        else
+            ShowActivity("\uE896", art, "Download finished", onShelf ? $"{name} · on your Shelf" : name, null);
+        if (onShelf && _activityShowing) _activityOpensTab = "Shelf";
+    }
+
+    /// <summary>A small preview of an image file (read once, so the file isn't kept open).</summary>
+    private static ImageSource? LoadThumbnail(string path)
+    {
+        try
+        {
+            var image = new System.Windows.Media.Imaging.BitmapImage();
+            image.BeginInit();
+            image.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            image.DecodePixelWidth = 160;
+            image.UriSource = new Uri(path);
+            image.EndInit();
+            image.Freeze();
+            return image;
+        }
+        catch { return null; }
+    }
+
+    // ---- Tabs: which ones show, and in what order ----
+
+    private static readonly string[] DefaultTabOrder = { "Today", "Controls", "Apps", "Clipboard", "Shelf", "Media", "Stats", "Power" };
+
+    private RadioButton TabButtonFor(string tab) => tab switch
+    {
+        "Today" => TodayTabButton, "Controls" => ControlsTabButton, "Apps" => AppsTabButton, "Clipboard" => ClipboardTabButton,
+        "Shelf" => ShelfTabButton, "Media" => MediaTabButton, "Stats" => StatsTabButton, _ => PowerTabButton,
+    };
+
+    /// <summary>The saved order, tidied: unknown names dropped and any missing tabs added at the end.</summary>
+    private List<string> TabOrder()
+    {
+        var order = _settings.TabOrder.Where(t => DefaultTabOrder.Contains(t)).Distinct().ToList();
+        order.AddRange(DefaultTabOrder.Where(t => !order.Contains(t)));
+        return order;
+    }
+
+    private bool IsTabHidden(string tab) => _settings.HiddenTabs.Contains(tab);
+
+    private string FirstVisibleTab() => TabOrder().FirstOrDefault(t => !IsTabHidden(t)) ?? "Today";
+
+    /// <summary>Puts the tab buttons along the top in the chosen order and hides the hidden ones.</summary>
+    private void ApplyTabLayout()
+    {
+        TabBar.Children.Clear();
+        foreach (var tab in TabOrder())
+        {
+            var button = TabButtonFor(tab);
+            button.Visibility = IsTabHidden(tab) ? Visibility.Collapsed : Visibility.Visible;
+            TabBar.Children.Add(button);
+        }
+    }
+
+    /// <summary>Settings › Tabs: one row per tab, with up/down arrows and a show switch.</summary>
+    private void BuildTabsList()
+    {
+        TabsList.Children.Clear();
+        var order = TabOrder();
+        int visibleCount = order.Count(t => !IsTabHidden(t));
+        for (int i = 0; i < order.Count; i++)
+        {
+            string tab = order[i];
+            int index = i;
+            var row = new DockPanel { Margin = new Thickness(0, 2, 0, 2) };
+
+            var show = new CheckBox
+            {
+                Style = (Style)FindResource("Switch"),
+                IsChecked = !IsTabHidden(tab),
+                VerticalAlignment = VerticalAlignment.Center,
+                // The last visible tab can't be hidden.
+                IsEnabled = IsTabHidden(tab) || visibleCount > 1,
+                ToolTip = "Show this tab",
+            };
+            show.Click += (_, _) =>
+            {
+                if (show.IsChecked == true) _settings.HiddenTabs.Remove(tab);
+                else if (!_settings.HiddenTabs.Contains(tab)) _settings.HiddenTabs.Add(tab);
+                SaveTabLayout();
+            };
+            DockPanel.SetDock(show, Dock.Right);
+            row.Children.Add(show);
+
+            Button Arrow(string glyph, string tip, int move, bool enabled)
+            {
+                var b = new Button
+                {
+                    Style = (Style)FindResource("IslandButton"),
+                    Width = 28, Height = 28, Margin = new Thickness(0, 0, 2, 0),
+                    IsEnabled = enabled, Opacity = enabled ? 1 : 0.25, ToolTip = tip,
+                    Content = new TextBlock { Style = (Style)FindResource("Glyph"), FontSize = 11, Text = glyph },
+                };
+                b.Click += (_, _) =>
+                {
+                    var list = TabOrder();
+                    (list[index], list[index + move]) = (list[index + move], list[index]);
+                    _settings.TabOrder = list;
+                    SaveTabLayout();
+                };
+                DockPanel.SetDock(b, Dock.Right);
+                return b;
+            }
+            var arrows = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 10, 0) };
+            arrows.Children.Add(Arrow("\uE70E", "Move earlier (further left)", -1, i > 0));
+            arrows.Children.Add(Arrow("\uE70D", "Move later (further right)", +1, i < order.Count - 1));
+            DockPanel.SetDock(arrows, Dock.Right);
+            row.Children.Add(arrows);
+
+            row.Children.Add(new TextBlock
+            {
+                Text = tab,
+                FontSize = 12.5,
+                FontWeight = FontWeights.SemiBold,
+                VerticalAlignment = VerticalAlignment.Center,
+                Opacity = IsTabHidden(tab) ? 0.45 : 1,
+            });
+            TabsList.Children.Add(row);
+        }
+    }
+
+    private void SaveTabLayout()
+    {
+        _settings.Save();
+        ApplyTabLayout();
+        BuildTabsList();
+        ResizeExpandedIfNeeded();
     }
 
     // ---- Updates from GitHub ----
@@ -1044,10 +1203,12 @@ public partial class MainWindow
 
     private void SettingsSection_Checked(object sender, RoutedEventArgs e)
     {
-        if (SettingsAppearance is null) return; // still being built
+        if (SettingsAppearance is null || SettingsTabs is null) return; // still being built
+        if (sender == SettingsNavTabs) BuildTabsList();
         foreach (var (nav, panel) in new (RadioButton, FrameworkElement)[]
                  {
                      (SettingsNavAppearance, SettingsAppearance), (SettingsNavBehaviour, SettingsBehaviour),
+                     (SettingsNavPopups, SettingsPopups), (SettingsNavTabs, SettingsTabs),
                      (SettingsNavWeather, SettingsWeather), (SettingsNavAbout, SettingsAbout),
                  })
             panel.Visibility = nav.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;

@@ -40,7 +40,8 @@ its window title, and below that are the song controls.
 ### Apps
 
 Every installed app in one list, with **Starred**, **Recent** and **Applications** sections. Press **Ctrl+Space**
-from anywhere, type a name and press Enter (initials work too: "vsc" finds Visual Studio Code). Apps that are already open are marked,
+from anywhere, type a name and press Enter (initials work too: "vsc" finds Visual Studio Code). Windows Settings
+pages come up too, so "bluetooth" or "display" jumps straight there. Apps that are already open are marked,
 and clicking them brings back the window you already have instead of starting a new copy.
 
 <img src="docs/images/apps.png" alt="The Apps tab with search, open-app chips and the app list" width="880">
@@ -80,11 +81,12 @@ If Windows has updates waiting, they're installed on the way, just like the Star
 - **Clipboard:** your recent copies, with search, filters (text, images, links) and pinning.
   Copies from password managers are skipped.
 - **Shelf:** drop files onto the island to keep them handy, then drag them out into any folder, email or chat.
-- **Pop-ups:** the island briefly pops out for volume changes, new songs, Bluetooth devices, USB drives and charging.
+- **Pop-ups:** the island briefly pops out for screenshots (with a preview), finished downloads, volume changes,
+  new songs, Bluetooth devices, USB drives and charging. New screenshots and downloads also land on the Shelf.
 
 ### Make it yours
 
-Choose from four island styles and any accent colour.
+Choose from four island styles and any accent colour, and show, hide or reorder the tabs.
 
 <img src="docs/images/styles.png" alt="The four island styles: Black, Glass, Glow and Outline" width="880">
 

@@ -952,7 +952,7 @@
                                 </Button>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <StackPanel x:Name="TabBar" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <RadioButton x:Name="TodayTabButton" Style="{StaticResource TabButton}" Content="Today" Tag="Today" Checked="Tab_Checked" />
                                 <RadioButton x:Name="ControlsTabButton" Style="{StaticResource TabButton}" Content="Controls" Tag="Controls" Checked="Tab_Checked" />
                                 <RadioButton x:Name="AppsTabButton" Style="{StaticResource TabButton}" Content="Apps" Tag="Apps" Checked="Tab_Checked" />
@@ -1368,6 +1368,18 @@
                                                 <TextBlock Text="Behaviour" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
                                             </StackPanel>
                                         </RadioButton>
+                                        <RadioButton x:Name="SettingsNavPopups" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE8BD;" VerticalAlignment="Center" />
+                                                <TextBlock Text="Pop-ups" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </RadioButton>
+                                        <RadioButton x:Name="SettingsNavTabs" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE8A9;" VerticalAlignment="Center" />
+                                                <TextBlock Text="Tabs" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </RadioButton>
                                         <RadioButton x:Name="SettingsNavWeather" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE753;" VerticalAlignment="Center" />
@@ -1453,13 +1465,6 @@
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
-                                                <CheckBox x:Name="DevicePopOutsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
-                                                <StackPanel Margin="0,0,12,0">
-                                                    <TextBlock Text="Device pop-ups" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Bluetooth devices, USB drives and headphones connecting" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                            </DockPanel>
-                                            <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="SearchHotkeySwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Ctrl+Space opens app search" FontSize="12.5" FontWeight="SemiBold" />
@@ -1505,6 +1510,41 @@
                                                     <TextBlock Text="Celsius or Fahrenheit" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
+                                        </StackPanel>
+                                        <StackPanel x:Name="SettingsPopups" Visibility="Collapsed">
+                                            <DockPanel Margin="0,2,0,6">
+                                                <CheckBox x:Name="ScreenshotPopupsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Screenshots" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Pops out with a preview when you take one (Win+Shift+S or Print Screen)" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <CheckBox x:Name="DownloadPopupsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Downloads" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Pops out when a download finishes in your Downloads folder" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <CheckBox x:Name="CapturesToShelfSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Put them on the Shelf" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="New screenshots and downloads wait on the Shelf, ready to drag into an email or chat. Click the pop-out to open it" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,2,0,6">
+                                                <CheckBox x:Name="DevicePopOutsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Device pop-ups" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Bluetooth devices, USB drives and headphones connecting" FontSize="10.5" Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </StackPanel>
+                                        <StackPanel x:Name="SettingsTabs" Visibility="Collapsed">
+                                            <TextBlock Text="Tabs" FontSize="12.5" FontWeight="SemiBold" Margin="0,2,0,0" />
+                                            <TextBlock Text="Choose which tabs show along the top, and their order" FontSize="10.5" Foreground="{StaticResource SubtleText}" Margin="0,0,0,6" />
+                                            <StackPanel x:Name="TabsList" />
                                         </StackPanel>
                                         <StackPanel x:Name="SettingsAbout" Visibility="Collapsed">
                                             <TextBlock Text="Dynamic Island for Windows" FontSize="14" FontWeight="SemiBold" Margin="0,2,0,0" />

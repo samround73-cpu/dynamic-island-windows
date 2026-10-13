@@ -110,6 +110,18 @@ public static class LineIcons
         }
     }
 
+    /// <summary>A specific icon from the set by name (e.g. "bluetooth"), in the given colour; null if unavailable.</summary>
+    public static LineIcon? Named(string iconName, string color)
+    {
+        if (!Available) return null;
+        string key = "named|" + iconName + "|" + color;
+        if (Cache.TryGetValue(key, out var cached)) return cached;
+        if (!Glyphs.TryGetValue(iconName, out var glyph) && !Glyphs.TryGetValue("settings", out glyph)) return null;
+        var icon = new LineIcon(glyph, Solid((Color)ColorConverter.ConvertFromString(color)));
+        Cache[key] = icon;
+        return icon;
+    }
+
     /// <summary>The line icon for an app (by its name and .exe), or null if the icon font isn't available.</summary>
     public static LineIcon? For(string appName, string exePath, ImageSource? realIcon)
     {

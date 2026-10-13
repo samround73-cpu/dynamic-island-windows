@@ -126,6 +126,7 @@ public partial class MainWindow : Window
         ApplyIslandStyle();
         ApplyBehaviourSettings();
         LoadSettingsIntoUi();
+        ApplyTabLayout();
         _clipboard.Changed += RefreshClipboardList;
         _shelf.Changed += RefreshShelf;
         _dropLeaveTimer.Tick += (_, _) => OnDropLeave();
@@ -268,6 +269,7 @@ public partial class MainWindow : Window
     {
         App.Taskbar.Hide();
         App.Taskbar.StartWatching();
+        StartCaptureWatcher();
 
         _preview.Owner = this;
 
@@ -326,6 +328,7 @@ public partial class MainWindow : Window
         SystemEvents.DisplaySettingsChanged -= OnDisplayChanged;
         SystemEvents.PowerModeChanged -= OnPowerModeChanged;
         SystemEvents.SessionSwitch -= OnSessionSwitch;
+        _captures.Dispose();
 
         if (_foregroundHook != IntPtr.Zero) Native.UnhookWinEvent(_foregroundHook);
         if (_hwnd != IntPtr.Zero) Native.RemoveClipboardFormatListener(_hwnd);
@@ -702,7 +705,15 @@ public partial class MainWindow : Window
     {
         // The click that just closed the island (e.g. opening an app) mustn't open it again.
         if (DateTime.Now - _lastCollapsedAt < TimeSpan.FromMilliseconds(450)) return;
+        // Clicking a pop-out that goes somewhere (e.g. "Screenshot · on your Shelf") opens that tab.
+        string? openTab = _activityShowing ? _activityOpensTab : null;
         if (!_expanded) Expand();
+        if (openTab is not null && _expanded)
+        {
+            var button = TabButtonFor(openTab);
+            if (button.IsChecked == true) ShowTab(openTab, animate: true);
+            else button.IsChecked = true;
+        }
     }
 
     private DateTime _lastCollapsedAt = DateTime.MinValue;
@@ -831,6 +842,12 @@ public partial class MainWindow : Window
         FadeOut(ActivityContent);
         if (wasPeeking) FadeOut(PeekContent, 90);
         ExpandedContent.Visibility = Visibility.Visible;
+        // If the last tab used has since been hidden, open on the first one that's showing.
+        if (_currentTab != "Settings" && IsTabHidden(_currentTab))
+        {
+            _currentTab = FirstVisibleTab();
+            TabButtonFor(_currentTab).IsChecked = true;
+        }
         ShowTab(_currentTab, animate: false);
         UpdateMediaProgress();
         AnimateSize(ExpandedWidth, MeasureExpandedHeight(), 520, bouncy: true);
@@ -895,6 +912,7 @@ public partial class MainWindow : Window
     /// <summary>Briefly widens the pill to show something (like the iPhone does for a timer or AirPods).</summary>
     private void ShowActivity(string? glyph, ImageSource? art, string title, string? subtitle, double? level)
     {
+        _activityOpensTab = null;
         if (_expanded || _peeking || _presence == Presence.FullScreen) return;
 
         // Over a maximised app, peek out for the pop-out, then tuck away again afterwards.

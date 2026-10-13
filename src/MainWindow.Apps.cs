@@ -465,7 +465,14 @@ public partial class MainWindow
         return 0;
     }
 
-    /// <summary>Rebuilds the list (sections, rows) and plays the cascade animation.</summary>
+    /// <summary>Matches a Settings page by its extra keywords (only whole-word starts, and at least 3 letters typed).</summary>
+    private static int KeywordScore(string keywords, string query)
+    {
+        if (query.Length < 3) return 0;
+        return keywords.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Any(k => k.StartsWith(query, StringComparison.CurrentCultureIgnoreCase)) ? 50 : 0;
+    }
+
     // ---- Opening the Apps tab quickly ----
 
     private string _appListStamp = "";
@@ -555,6 +562,21 @@ public partial class MainWindow
                 .ThenBy(x => x.Row.Name, StringComparer.CurrentCultureIgnoreCase)
                 .Select(x => x.Row);
             Section("RESULTS", results);
+
+            // Windows Settings pages ("bluetooth", "display", "startup apps"...).
+            var pages = SettingsPages.All
+                .Select(page => (Page: page, Score: Math.Max(SearchScore(page.Name, query), KeywordScore(page.Keywords, query))))
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .Take(4)
+                .Select(x => new AppRow
+                {
+                    Key = "settings:" + x.Page.Uri,
+                    Name = x.Page.Name,
+                    LaunchPath = x.Page.Uri,
+                    Line = LineIcons.Named(x.Page.Icon, "#9DB4CC"),
+                });
+            Section("SETTINGS", pages);
         }
         else
         {
@@ -816,7 +838,7 @@ public partial class MainWindow
 
         string? target = row.LaunchPath ?? row.ExePath;
         if (string.IsNullOrEmpty(target)) return;
-        if (row.LaunchPath is not null) _settings.AddRecent(row.LaunchPath);
+        if (row.LaunchPath is not null && !SettingsPages.IsSettingsTarget(row.LaunchPath)) _settings.AddRecent(row.LaunchPath);
         SearchBox.Clear();
         OpenAndCollapse(target);
     }
@@ -828,7 +850,7 @@ public partial class MainWindow
 
     private void ToggleStar(AppRow row)
     {
-        if (row.LaunchPath is null) return;
+        if (row.LaunchPath is null || SettingsPages.IsSettingsTarget(row.LaunchPath)) return;
         _settings.ToggleStar(row.LaunchPath);
         bool starred = _settings.IsStarred(row.LaunchPath);
         // The same app can appear in several sections; update them all.
