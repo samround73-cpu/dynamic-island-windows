@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dynamic Island for Windows</title>
+<meta name="description" content="An iPhone-style Dynamic Island that replaces the Windows 11 taskbar: apps, music, clipboard, stats and power controls in one small pill at the top of your screen.">
+<meta property="og:title" content="Dynamic Island for Windows">
+<meta property="og:description" content="An iPhone-style Dynamic Island that replaces the Windows 11 taskbar.">
+<meta property="og:image" content="images/hero.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#07080d;--panel:#11131b;--line:rgba(255,255,255,.08);--text:#f4f5f8;--muted:rgba(244,245,248,.62);--accent:#5AA9F0}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:Inter,"Segoe UI",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* The page's own "island" navigation */
+  .navpill{position:sticky;top:0;z-index:5;display:flex;justify-content:center}
+  .navpill nav{display:flex;align-items:center;gap:18px;background:#000;border-radius:0 0 22px 22px;padding:9px 22px;font-size:13.5px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  .navpill a{text-decoration:none;color:var(--muted)}
+  .navpill a:hover{color:var(--text)}
+  .navpill b{font-weight:600}
+
+  header.hero{position:relative;text-align:center;padding:72px 0 30px;overflow:hidden}
+  header.hero::before{content:"";position:absolute;inset:-20% -10% auto;height:620px;z-index:-1;
+    background:radial-gradient(600px 300px at 30% 30%,rgba(90,169,240,.22),transparent 70%),radial-gradient(500px 280px at 75% 20%,rgba(127,214,200,.16),transparent 70%)}
+  h1{font-size:clamp(34px,6vw,58px);line-height:1.05;letter-spacing:-.02em;font-weight:700}
+  h1 span{color:var(--accent)}
+  .lead{max-width:640px;margin:18px auto 0;font-size:clamp(16px,2.2vw,19px);color:var(--muted)}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:28px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;border:1px solid var(--line)}
+  .btn.primary{background:var(--accent);color:#06192b;border-color:transparent}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn.ghost:hover{background:rgba(255,255,255,.06)}
+  .shot{display:block;width:100%;height:auto;border-radius:18px;border:1px solid var(--line)}
+  .hero .shot{margin-top:44px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+
+  section{padding:64px 0;border-top:1px solid var(--line)}
+  h2{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.01em;font-weight:700}
+  .kicker{color:var(--accent);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+  .intro{color:var(--muted);max-width:620px;margin-top:10px}
+
+  .why{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;margin-top:28px}
+  .why div{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .why h3{font-size:16px;margin-bottom:6px}
+  .why p{color:var(--muted);font-size:14.5px}
+
+  .feature{margin-top:56px}
+  .feature .copy{max-width:640px;margin-bottom:18px}
+  .feature h3{font-size:22px;margin-bottom:8px}
+  .feature p{color:var(--muted)}
+
+  .more{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px;margin-top:28px}
+  .more div{border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .more b{display:block;margin-bottom:4px}
+  .more span{color:var(--muted);font-size:14px}
+
+  ol.steps{list-style:none;counter-reset:s;margin-top:26px;display:grid;gap:12px}
+  ol.steps li{counter-increment:s;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px 16px 62px;color:var(--muted)}
+  ol.steps li b{color:var(--text)}
+  ol.steps li::before{content:counter(s);position:absolute;left:18px;top:15px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#06192b;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+  code{font-family:ui-monospace,Consolas,monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:6px;font-size:.92em;color:var(--text)}
+  .note{margin-top:18px;color:var(--muted);font-size:14.5px}
+
+  footer{border-top:1px solid var(--line);padding:30px 0 50px;color:var(--muted);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="navpill"><nav><b>Dynamic Island</b><a href="#tour">Tour</a><a href="#start">Get it</a><a class="repo-link" href="#">GitHub</a></nav></div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>The Dynamic Island,<br><span>for Windows.</span></h1>
+    <p class="lead">A small black pill that replaces the Windows 11 taskbar. It shows the time and what's playing, steps out of the way when you're working, and opens into a full control centre when you click it.</p>
+    <div class="cta">
+      <a class="btn primary zip-link" href="#start">Download</a>
+      <a class="btn ghost repo-link" href="#">View on GitHub</a>
+    </div>
+    <img class="shot" src="images/hero.png" alt="The island opened on the Media tab, glowing with a colour from the album artwork">
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Why</p>
+    <h2>Less taskbar, more screen.</h2>
+    <div class="why">
+      <div><h3>Small</h3><p>Most of the time it's a tidy pill showing the time and date, plus little music bars when something's playing.</p></div>
+      <div><h3>Moves aside for your work</h3><p>When the app underneath is maximised, it slides out of sight. Rest the mouse at the top edge to bring it back.</p></div>
+      <div><h3>All in one place</h3><p>Apps, music, Wi-Fi and Bluetooth, clipboard, a file shelf, system stats and power options, one click away.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tour">
+  <div class="wrap">
+    <p class="kicker">Tour</p>
+    <h2>What's inside</h2>
+
+    <div class="feature">
+      <div class="copy"><h3>The pill and the hover tray</h3><p>Rest your mouse on the pill and it grows into a tray of your open apps. The one you're using sits at the top with its window title, with the song controls underneath.</p></div>
+      <img class="shot" src="images/pill-and-tray.png" alt="The compact pill and the hover tray" loading="lazy">
+    </div>
+
+    <div class="feature">
+      <div class="copy"><h3>Apps</h3><p>Every installed app with Starred, Recent and Applications sections. Start typing anywhere to search; initials work too. Open apps are marked, and clicking them brings back the window you already have.</p></div>
+      <img class="shot" src="images/apps.png" alt="The Apps tab" loading="lazy">
+    </div>
+
+    <div class="feature">
+      <div class="copy"><h3>Controls</h3><p>Switches for Wi-Fi, Bluetooth, sound, microphone and dark mode, with a compact player, volume and shortcuts to Windows Settings, Quick settings, notifications and tray icons.</p></div>
+      <img class="shot" src="images/controls.png" alt="The Controls tab" loading="lazy">
+    </div>
+
+    <div class="feature">
+      <div class="copy"><h3>Media</h3><p>A full player that picks up the colour of the album artwork. It works with Spotify, browsers, Media Player and anything else in Windows' own media controls.</p></div>
+      <img class="shot" src="images/media.png" alt="The Media tab" loading="lazy">
+    </div>
+
+    <div class="feature">
+      <div class="copy"><h3>Stats</h3><p>Live rings for CPU, memory, disk and network, plus the five open apps working your PC the hardest.</p></div>
+      <img class="shot" src="images/stats.png" alt="The Stats tab" loading="lazy">
+    </div>
+
+    <div class="feature">
+      <div class="copy"><h3>Power</h3><p>Up time, Windows Update status and more at a glance. Restart and shut down use slide-to-confirm, so they never happen by accident, and they install waiting updates on the way.</p></div>
+      <img class="shot" src="images/power.png" alt="The Power tab" loading="lazy">
+    </div>
+
+    <div class="more">
+      <div><b>Today</b><span>Weather, the next few hours and a month calendar.</span></div>
+      <div><b>Clipboard</b><span>Recent copies with search, filters and pinning. Password managers are skipped.</span></div>
+      <div><b>Shelf</b><span>Drop files on the island, then drag them out wherever you need them.</span></div>
+      <div><b>Pop-ups</b><span>Volume, new songs, Bluetooth, USB drives and charging.</span></div>
+    </div>
+
+    <div class="feature">
+      <div class="copy"><h3>Make it yours</h3><p>Four island styles (Black, Glass, Glow and Outline) and any accent colour.</p></div>
+      <img class="shot" src="images/styles.png" alt="The four island styles" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap">
+    <p class="kicker">Get it</p>
+    <h2>Up and running in a few minutes</h2>
+    <p class="intro">You'll need Windows 11 and Microsoft's free .NET 8 SDK.</p>
+    <ol class="steps">
+      <li><b>Download the project</b> as a ZIP (<a class="zip-link" href="#">direct link</a>, or the green Code button on GitHub) and unzip it anywhere.</li>
+      <li><b>Install the .NET 8 SDK</b> if you don't have it. <code>Build.cmd</code> opens the download page for you if it's missing (choose SDK 8.0 → Windows → x64).</li>
+      <li><b>Double-click <code>Build.cmd</code>.</b> It builds the app into an <code>App</code> folder and offers to start it.</li>
+      <li><b>First run:</b> if Windows shows "Windows protected your PC", click More info → Run anyway. The app just isn't signed by a publisher.</li>
+    </ol>
+    <p class="note">To quit, right-click the pill → <b>Exit</b> and your normal taskbar comes straight back. If the app is ever force-closed, double-click <code>Restore taskbar (emergency).cmd</code>.</p>
+    <p class="note">Privacy: nothing is collected. The only things fetched from the internet are the weather (Open-Meteo) and your town name (BigDataCloud), using your approximate location.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Inspired by the iPhone's Dynamic Island. An independent project, not affiliated with or endorsed by Apple or Microsoft.</div>
+</footer>
+
+<script>
+  // On GitHub Pages the address is https://USER.github.io/REPO/, so work out the repository's links from it.
+  (function () {
+    var host = location.hostname, parts = location.pathname.split('/').filter(Boolean);
+    if (!/\.github\.io$/.test(host)) return;
+    var user = host.split('.')[0], repo = parts[0] || (user + '.github.io');
+    var base = 'https://github.com/' + user + '/' + repo;
+    document.querySelectorAll('.repo-link').forEach(function (a) { a.href = base; });
+    document.querySelectorAll('.zip-link').forEach(function (a) { a.href = base + '/archive/refs/heads/main.zip'; });
+  })();
+</script>
+</body>
+</html>

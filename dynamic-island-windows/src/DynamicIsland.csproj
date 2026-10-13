@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- The Windows 10/11 SDK version gives us access to the "now playing" media APIs -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>DynamicIsland</AssemblyName>
+    <RootNamespace>DynamicIsland</RootNamespace>
+    <Product>Dynamic Island</Product>
+    <Version>0.27.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Tabler Icons (MIT licence), downloaded by Build.cmd; the island works without them. -->
+    <Resource Include="Assets\tabler-icons.ttf" Condition="Exists('Assets\tabler-icons.ttf')" />
+    <Resource Include="Assets\tabler-icons.css" Condition="Exists('Assets\tabler-icons.css')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reads and changes the system volume -->
+    <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+  </ItemGroup>
+
+</Project>
