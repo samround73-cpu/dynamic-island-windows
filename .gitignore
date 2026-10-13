@@ -1,0 +1,9 @@
+# Build output
+App/
+src/bin/
+src/obj/
+*.user
+
+# Downloaded on first build by Build.cmd
+src/Assets/tabler-icons.ttf
+src/Assets/tabler-icons.css
