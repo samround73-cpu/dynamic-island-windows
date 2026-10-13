@@ -8,7 +8,7 @@ name: Build and release
 
 on:
   push:
-    tags: ['v*']
+    tags: ['v*', '[0-9]*']   # v0.37.1, or 0.37.1 without the v
   workflow_dispatch:
 
 permissions:
