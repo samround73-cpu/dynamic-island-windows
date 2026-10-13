@@ -105,7 +105,9 @@ It adds itself to the Start menu the first time it runs. To have it start automa
 choose **Start with Windows**. It then opens when you sign in, and again when you reconnect to the PC (handy for
 Shadow or Remote Desktop) or unlock it.
 
-**To update**, right-click the island → **Exit**, replace `DynamicIsland.exe` with the new one and start it again.
+**Updates install themselves.** The island checks this page for new releases and, when you're not using it,
+swaps in the new version and restarts in a second or two. You can turn that off, or check by hand, in
+Settings › About.
 
 <details>
 <summary><b>Building it yourself from the source code</b></summary>
@@ -127,14 +129,15 @@ New versions are built automatically by GitHub: pushing a tag like `v0.30.0` bui
 
 ## Good to know
 
-- **Privacy.** Nothing is collected or sent anywhere, with one exception: the weather on the Today tab.
-  It's fetched from [Open-Meteo](https://open-meteo.com), and your town name is looked up with
+- **Privacy.** Nothing is collected or sent anywhere. The only things fetched from the internet are new versions
+  (from this repository's releases) and the weather on the Today tab.
+  The weather comes from [Open-Meteo](https://open-meteo.com), and your town name is looked up with
   [BigDataCloud](https://www.bigdatacloud.com), using only your approximate location.
   Settings and pinned items are kept on your PC in `%AppData%\DynamicIsland`.
 - **Limitations.** It works on the main monitor only. Some apps don't allow other programs to jump around in a song
   (Spotify, for one), so scrubbing may not work with them. The battery only shows on PCs that have one.
-- **Updating and removing.** There's no installer: updating means replacing `DynamicIsland.exe` (right-click the
-  island → Exit first). Settings › About shows the version and has **Remove from this PC…**, which clears the startup
+- **Updating and removing.** There's no installer, and updates install themselves from the releases here
+  (Settings › About › Updates). Settings › About shows the version and has **Remove from this PC…**, which clears the startup
   entry, Start menu shortcut and settings. The [user guide](docs/USER-GUIDE.md#what-it-puts-on-your-pc) lists every file it creates.
 - **Apps running as administrator** (like Task Manager) can be switched to, but Windows doesn't let normal apps
   close them. The island tells you when that happens.

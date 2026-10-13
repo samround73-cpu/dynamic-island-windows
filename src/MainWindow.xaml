@@ -1510,6 +1510,29 @@
                                             <TextBlock Text="Dynamic Island for Windows" FontSize="14" FontWeight="SemiBold" Margin="0,2,0,0" />
                                             <TextBlock x:Name="AboutVersionText" FontSize="11" Foreground="{StaticResource SubtleText}" />
                                             <TextBlock Text="An iPhone-style island that replaces the Windows taskbar." FontSize="11" Foreground="{StaticResource SubtleText}" Margin="0,8,0,0" TextWrapping="Wrap" />
+
+                                            <!-- Updates -->
+                                            <Border Background="#14FFFFFF" CornerRadius="12" Padding="12,10" Margin="0,12,0,0">
+                                                <StackPanel>
+                                                    <DockPanel>
+                                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <Button x:Name="CheckUpdatesButton" Style="{StaticResource CardButton}" Padding="12,6" Margin="0" Click="CheckUpdates_Click">
+                                                                <TextBlock x:Name="CheckUpdatesText" Text="Check now" FontSize="11.5" />
+                                                            </Button>
+                                                        </StackPanel>
+                                                        <StackPanel Margin="0,0,10,0">
+                                                            <TextBlock Text="Updates" FontSize="12.5" FontWeight="SemiBold" />
+                                                            <TextBlock x:Name="UpdateStatusText" Text="Checks GitHub for new versions" FontSize="10.5"
+                                                                       Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" />
+                                                        </StackPanel>
+                                                    </DockPanel>
+                                                    <DockPanel Margin="0,10,0,0">
+                                                        <CheckBox x:Name="AutoUpdateSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                        <TextBlock Text="Install updates automatically (when you're not using the island)" FontSize="11"
+                                                                   Foreground="{StaticResource SubtleText}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                                    </DockPanel>
+                                                </StackPanel>
+                                            </Border>
                                             <WrapPanel Margin="-4,12,0,0">
                                                 <Button Style="{StaticResource CardButton}" Padding="12,7" Click="OpenLogFolder_Click">
                                                     <TextBlock Text="Open error log folder" FontSize="11.5" />

@@ -39,6 +39,9 @@ public sealed class IslandSettings
     /// <summary>Ctrl+Space opens the island straight to app search, from anywhere.</summary>
     public bool SearchHotkey { get; set; } = true;
 
+    /// <summary>Download and install new versions from GitHub by itself (otherwise it just tells you).</summary>
+    public bool AutoUpdate { get; set; } = true;
+
     // ---- Weather ----
     /// <summary>The town you typed in Settings; empty means "use Windows' location".</summary>
     public string WeatherPlace { get; set; } = "";

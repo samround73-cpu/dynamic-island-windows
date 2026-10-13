@@ -14,7 +14,10 @@ It adds itself to the Start menu the first time it runs.
 Windows may show a blue "Windows protected your PC" box the first time, because the app isn't signed by a
 publisher. Click **More info → Run anyway**.
 
-To update: right-click the island → **Exit**, replace `DynamicIsland.exe` with the new one, and start it again.
+**Updates are automatic:** the island checks GitHub for a new version a minute after it starts and then every few
+hours. When there is one, it downloads it, checks it arrived intact, and swaps it in the next time you're not using the
+island (it restarts in a second or two and pops up "Updated to …"). You can turn this off, or check by hand, in
+**Settings › About › Updates**; with it off, it just tells you when a new version is out.
 
 **Building it yourself** (from the source code):
 1. Install the free **.NET 8 SDK** from Microsoft. `Build.cmd` opens the download page for you if it's missing
@@ -23,8 +26,8 @@ To update: right-click the island → **Exit**, replace `DynamicIsland.exe` with
 
 ## What it puts on your PC
 
-There's no installer: the app is just `DynamicIsland.exe`, wherever you saved it. Updating means replacing that one
-file (right-click the island → **Exit** first). Starting a copy doesn't install or uninstall anything, and
+There's no installer: the app is just `DynamicIsland.exe`, wherever you saved it. It updates itself by replacing
+that file (the previous version is briefly kept as `DynamicIsland.old.exe` and deleted on the next start). Starting a copy doesn't install or uninstall anything, and
 **Settings › About** shows which version is running.
 
 While it runs, it creates:

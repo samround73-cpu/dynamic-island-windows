@@ -216,6 +216,7 @@ public partial class MainWindow : Window
 
         PositionWindow();
         UpdateSearchHotkey();
+        StartUpdateChecks();
     }
 
     // ---- Ctrl+Space: open app search from anywhere ----

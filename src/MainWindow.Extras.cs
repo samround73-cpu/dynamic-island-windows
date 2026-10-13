@@ -833,6 +833,8 @@ public partial class MainWindow
         HideMaximizedSwitch.IsChecked = _settings.HideOverMaximized;
         DevicePopOutsSwitch.IsChecked = _settings.DevicePopOuts;
         SearchHotkeySwitch.IsChecked = _settings.SearchHotkey;
+        AutoUpdateSwitch.IsChecked = _settings.AutoUpdate;
+        ShowUpdateState();
         ShowHotkeyStatus();
         StartWithWindowsSwitch.IsChecked = _startupEnabled;
         AboutVersionText.Text = $"Version {typeof(App).Assembly.GetName().Version?.ToString(2)}";
@@ -864,11 +866,14 @@ public partial class MainWindow
         _settings.HideOverMaximized = HideMaximizedSwitch.IsChecked == true;
         _settings.DevicePopOuts = DevicePopOutsSwitch.IsChecked == true;
         _settings.SearchHotkey = SearchHotkeySwitch.IsChecked == true;
+        bool autoUpdateTurnedOn = !_settings.AutoUpdate && AutoUpdateSwitch.IsChecked == true;
+        _settings.AutoUpdate = AutoUpdateSwitch.IsChecked == true;
         _settings.Fahrenheit = FahrenheitChip.IsChecked == true;
         _settings.Save();
 
         if (sender == StartWithWindowsSwitch) SetStartup(StartWithWindowsSwitch.IsChecked == true);
 
+        if (autoUpdateTurnedOn && _availableUpdate is not null) InstallUpdate(_availableUpdate, automatic: true);
         ApplyBehaviourSettings();
         UpdateSearchHotkey();
         ShowHotkeyStatus();
@@ -889,6 +894,150 @@ public partial class MainWindow
             ? "Another app is already using Ctrl+Space, so this can't be used right now"
             : "From anywhere: type an app's name and press Enter. Press it again to close";
         SearchHotkeyStatusText.Foreground = taken ? new SolidColorBrush(Color.FromRgb(0xFF, 0x9A, 0x94)) : (Brush)FindResource("SubtleText");
+    }
+
+    // ---- Updates from GitHub ----
+
+    private readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromHours(6) };
+    private UpdateInfo? _availableUpdate;
+    private string? _downloadedUpdate;
+    private bool _updateBusy;
+    private bool _toldAboutUpdate;
+    private string _updateMessage = "Checks GitHub for new versions";
+
+    /// <summary>Starts the regular checks: the first a minute after starting, then every 6 hours.</summary>
+    private void StartUpdateChecks()
+    {
+        // Finish off a previous update: remove the old copy, and say so if we've just been updated.
+        _ = Task.Run(async () => { await Task.Delay(TimeSpan.FromSeconds(10)); UpdateService.CleanUpOldVersion(); });
+        if (Array.Exists(Environment.GetCommandLineArgs(), a => a == UpdateService.UpdatedArgument))
+        {
+            var justUpdated = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+            justUpdated.Tick += (_, _) =>
+            {
+                justUpdated.Stop();
+                ShowActivity("\uE895", null, $"Updated to {UpdateService.Current.ToString(3)}", "Dynamic Island is up to date", null);
+            };
+            justUpdated.Start();
+        }
+
+        _updateTimer.Tick += (_, _) => CheckForUpdate(manual: false);
+        _updateTimer.Start();
+        var first = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+        first.Tick += (_, _) => { first.Stop(); CheckForUpdate(manual: false); };
+        first.Start();
+    }
+
+    private async void CheckForUpdate(bool manual)
+    {
+        if (_updateBusy) return;
+        _updateBusy = true;
+        SetUpdateMessage("Checking for updates…");
+        try
+        {
+            var update = await UpdateService.CheckAsync();
+            _availableUpdate = update;
+            if (update is null)
+            {
+                SetUpdateMessage($"You're on the latest version ({UpdateService.Current.ToString(3)}). Last checked {DateTime.Now:t}");
+            }
+            else if (_settings.AutoUpdate && UpdateService.CanUpdateInPlace)
+            {
+                _updateBusy = false;
+                InstallUpdate(update, automatic: true);
+                return;
+            }
+            else
+            {
+                SetUpdateMessage(UpdateService.CanUpdateInPlace
+                    ? $"Version {update.Version.ToString(3)} is available"
+                    : $"Version {update.Version.ToString(3)} is available. This folder can't be written to, so download it from the project page");
+                if (!_toldAboutUpdate && !manual)
+                {
+                    _toldAboutUpdate = true;
+                    ShowActivity("\uE896", null, $"Version {update.Version.ToString(3)} is available", "Settings › About to update", null);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            SetUpdateMessage(manual ? "Couldn't reach GitHub just now. Try again later" : _updateMessage);
+            App.LogNote($"update check failed: {ex.Message}");
+        }
+        finally
+        {
+            _updateBusy = false;
+            ShowUpdateState();
+        }
+    }
+
+    /// <summary>Downloads the update, then installs it (restarting the island) as soon as you're not using it.</summary>
+    private async void InstallUpdate(UpdateInfo update, bool automatic)
+    {
+        if (_updateBusy) return;
+        if (!UpdateService.CanUpdateInPlace)
+        {
+            SystemActions.Open(update.PageUrl);
+            return;
+        }
+        _updateBusy = true;
+        try
+        {
+            if (_downloadedUpdate is null || !File.Exists(_downloadedUpdate))
+            {
+                SetUpdateMessage($"Downloading version {update.Version.ToString(3)}…");
+                _downloadedUpdate = await UpdateService.DownloadAsync(update);
+            }
+            SetUpdateMessage($"Version {update.Version.ToString(3)} is ready; installing when the island is closed");
+
+            // Wait until the island isn't being used (closed, no menu), then swap and restart.
+            while (_expanded || _menuOpen || _peeking)
+                await Task.Delay(TimeSpan.FromSeconds(automatic ? 5 : 1));
+            if (!UpdateService.ApplyAndRestart(_downloadedUpdate, update.Version))
+            {
+                _downloadedUpdate = null;
+                SetUpdateMessage("The update couldn't be installed. Details are in the error log");
+            }
+        }
+        catch (Exception ex)
+        {
+            _downloadedUpdate = null;
+            App.LogNote($"update download failed: {ex.Message}");
+            SetUpdateMessage("The update couldn't be downloaded. It'll try again later");
+        }
+        finally
+        {
+            _updateBusy = false;
+            ShowUpdateState();
+        }
+    }
+
+    private void CheckUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        if (_availableUpdate is not null)
+        {
+            Collapse(); // it installs as soon as the island is closed
+            InstallUpdate(_availableUpdate, automatic: false);
+        }
+        else
+        {
+            CheckForUpdate(manual: true);
+        }
+    }
+
+    private void SetUpdateMessage(string message)
+    {
+        _updateMessage = message;
+        ShowUpdateState();
+    }
+
+    private void ShowUpdateState()
+    {
+        UpdateStatusText.Text = _updateMessage;
+        CheckUpdatesText.Text = _availableUpdate is not null
+            ? (UpdateService.CanUpdateInPlace ? "Update now" : "Open download page")
+            : "Check now";
+        CheckUpdatesButton.IsEnabled = !_updateBusy;
     }
 
     // ---- Settings sections and the About page ----

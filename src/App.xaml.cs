@@ -149,17 +149,29 @@ public partial class App : Application
         string? exe = Environment.ProcessPath;
         if (exe is null) return;
         LogNote($"restarting the island: {reason}");
+        StartReplacement(exe, RestartArgument);
+    }
+
+    /// <summary>
+    /// Starts a new copy of the island (which waits for this one to close) and then closes this one, putting the
+    /// taskbar back as usual; the new copy hides it again a moment later. Returns false if the new copy couldn't start,
+    /// in which case this one carries on.
+    /// </summary>
+    public static bool StartReplacement(string exe, string arguments)
+    {
+        if (Current is not App app || app._shuttingDown) return false;
         try
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, RestartArgument) { UseShellExecute = false });
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, arguments) { UseShellExecute = false });
         }
         catch (Exception ex)
         {
-            LogNote($"couldn't restart: {ex.Message}");
-            return; // carry on as we are rather than closing with nothing to replace us
+            LogNote($"couldn't start a new copy: {ex.Message}");
+            return false;
         }
         app._shuttingDown = true;
-        app.Shutdown();
+        app.Dispatcher.BeginInvoke(new Action(app.Shutdown));
+        return true;
     }
 
     /// <summary>A short note in errors.log for things that went wrong without crashing (helps with bug reports).</summary>
