@@ -31,11 +31,14 @@ Dynamic Island replaces it with something that stays out of the way until you ne
 
 ### The pill and the hover tray
 
-The pill shows the time, the date, your battery (on laptops) and little music bars when something's playing.
-Rest your mouse on it and it grows into a tray of your open apps. The app you're using is shown at the top with
-its window title, and below that are the song controls.
+The pill shows the time and date. When there's something to show, your battery (on laptops), little music bars or
+the download speed join the same centred line, and a glow runs along the bottom while something downloads.
 
-<img src="docs/images/pill-and-tray.png" alt="The compact pill, and the hover tray with open apps and music controls" width="880">
+Rest your mouse on it and it grows into a tray: the song and any download share one card, and underneath is a row of
+your apps. The one you're using has a ring around it. Right-click any app and choose **Pin to tray** to keep it there
+even when it's closed (closed ones show as faded outlines; click to start them).
+
+<img src="docs/images/pill-and-tray.png" alt="The pill in different situations, and the hover tray with the song, a download and your apps" width="880">
 
 ### Apps
 
@@ -103,9 +106,6 @@ be switched off in Settings › Pop-ups.
 - **Clipboard:** your recent copies, with search, filters (text, images, links) and pinning.
   Copies from password managers are skipped.
 - **Shelf:** drop files onto the island to keep them handy, then drag them out into any folder, email or chat.
-- **Pinned apps:** right-click an app and choose **Pin to tray** to keep it in the hover tray, even when it's closed
-  (closed ones show as faded outlines; click to start them).
-- **Download progress:** a glow runs along the pill while something downloads, with the speed beside it.
 - **More pop-ups:** Caps Lock, volume changes, new songs, Bluetooth devices, USB drives and charging.
 - **Looks after itself:** updates install automatically, it reopens when you reconnect or unlock (great for
   Shadow and Remote Desktop), and if anything goes wrong it restarts itself quietly.
@@ -115,6 +115,11 @@ be switched off in Settings › Pop-ups.
 Choose from four island styles (Black, Light, Glow and Outline), or **Auto** to switch between Black and Light with Windows' own light/dark mode, plus any accent colour.
 
 <img src="docs/images/styles.png" alt="The four island styles: Black, Light, Glow and Outline" width="880">
+
+**Light** is a soft light island with crisp white cards and dark text. It switches instantly, and there's an optional
+frosted blur too.
+
+<img src="docs/images/light.png" alt="The Light style: the pill, the hover tray and the Today tab" width="880">
 
 Settings are grouped into **Appearance, Behaviour, Pop-ups, Tabs, Weather and About**. Under **Tabs** you can
 hide the ones you don't use and put the rest in whatever order you like.
@@ -177,7 +182,8 @@ New versions are built automatically by GitHub: pushing a tag like `v0.30.0` bui
 - **Problems?** Details are saved to `%AppData%\DynamicIsland\errors.log` (Settings › About › Open error log folder).
   Attach that file if you [open an issue](../../issues).
 
-The full **[user guide](docs/USER-GUIDE.md)** covers every tab, setting and keyboard shortcut.
+The full **[user guide](docs/USER-GUIDE.md)** covers every tab, setting and keyboard shortcut, and
+**[what's new](CHANGELOG.md)** lists the changes in each version.
 
 ## Built with
 
