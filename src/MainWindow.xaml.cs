@@ -38,8 +38,8 @@ public partial class MainWindow : Window
     private const double GlassCornerRadius = 8;
 
     /// <summary>Glass style with a working blur: the island takes the shape Windows can blur behind.</summary>
-    /// <summary>The light frosted style, with Windows' blur available (the island is then a panel shape over the blur).</summary>
-    private bool IsGlass => Theme.Light && _glass.Supported;
+    /// <summary>Light style with the frosted blur turned on (the island is then a plain panel over Windows' blur).</summary>
+    private bool IsGlass => Theme.Light && _settings.LightFrosted && _glass.Supported;
 
     /// <summary>How long the mouse has to rest at the top edge to pull the island down over a maximised app.</summary>
     private static readonly TimeSpan RevealDelay = TimeSpan.FromMilliseconds(300);
@@ -1165,8 +1165,7 @@ public partial class MainWindow : Window
         if (e.Category != UserPreferenceCategory.General) return;
         Dispatcher.BeginInvoke(new Action(() =>
         {
-            if (_settings.IslandStyle != "Auto" || Theme.WindowsUsesLight() == Theme.Light) return;
-            App.RestartIsland("Windows switched between light and dark mode", counted: false);
+            if (_settings.IslandStyle == "Auto") SwitchTheme(Theme.WindowsUsesLight());
         }));
     }
 

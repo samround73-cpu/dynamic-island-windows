@@ -6,16 +6,22 @@ using Microsoft.Win32;
 namespace DynamicIsland;
 
 /// <summary>
-/// Light or dark: decided once when the island starts (from the island style in Settings, or from Windows'
-/// own light/dark mode when the style is Automatic). Switching restarts the island, so everything is drawn
-/// in the right colours from the start.
+/// Light or dark: from the island style in Settings, or from Windows' own light/dark mode when the style is
+/// Auto. It can change while the island is running (see MainWindow.SwitchTheme).
 ///
 /// "Ink" is the colour of text and fine lines: white on the dark island, near-black on the light one.
 /// Ink(0x80) is half-strength ink, and so on.
 /// </summary>
 public static class Theme
 {
-    public static bool Light { get; } = Decide(SafeStyle());
+    public static bool Light { get; private set; } = Decide(SafeStyle());
+
+    /// <summary>Switches light/dark. Brushes handed out before keep their old colour, so callers redraw afterwards.</summary>
+    public static void Set(bool light)
+    {
+        Light = light;
+        InkCache.Clear();
+    }
 
     /// <summary>Near-black used for text on the light island.</summary>
     public static readonly Color DarkInk = Color.FromRgb(0x1C, 0x1C, 0x1E);

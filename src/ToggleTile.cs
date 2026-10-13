@@ -29,7 +29,7 @@ public sealed class ToggleTile : Border
         foreach (var tile in AllTiles) tile.Apply(animate: false);
     }
 
-    private static Brush OffBackground = Theme.Light ? Frozen(Color.FromArgb(0x14, 0x00, 0x00, 0x00)) : Frozen(Color.FromRgb(0x26, 0x26, 0x26));
+    private static Brush OffBackground = Frozen(Color.FromRgb(0x26, 0x26, 0x26));
 
     /// <summary>The colour of the icon circle when a row is off (translucent in the Glass style).</summary>
     public static void SetOffBackground(Color color)
@@ -38,10 +38,12 @@ public sealed class ToggleTile : Border
         foreach (var tile in AllTiles) tile.Apply(animate: false);
     }
 
-    private static readonly Brush Subtle = Theme.Ink(0x99);
-    private static readonly Brush TrackOff = Theme.Light ? Frozen(Color.FromRgb(0xD1, 0xD1, 0xD6)) : Frozen(Color.FromArgb(0x38, 0xFF, 0xFF, 0xFF));
-    private static readonly Brush Hover = Theme.Ink(0x12);
-    private static readonly Brush MoreHover = Theme.Ink(0x1C);
+    // Light/dark colours, read each time so they follow a theme switch.
+    private static Brush Subtle => Theme.Ink(0x99);
+    private static Brush TrackOff => Theme.Light ? LightTrack : Theme.Ink(0x38);
+    private static readonly Brush LightTrack = Frozen(Color.FromRgb(0xD1, 0xD1, 0xD6));
+    private static Brush Hover => Theme.Ink(0x12);
+    private static Brush MoreHover => Theme.Ink(0x1C);
     private static readonly FontFamily IconFont = new("Segoe Fluent Icons, Segoe MDL2 Assets");
 
     private const double TrackWidth = 36, TrackHeight = 20, KnobSize = 14, KnobInset = 3;
@@ -90,8 +92,10 @@ public sealed class ToggleTile : Border
 
         // ---- Title and subtitle ----
         var texts = new StackPanel { Margin = new Thickness(11, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
-        _title = new TextBlock { Text = title, FontSize = 12.5, FontWeight = FontWeights.SemiBold, Foreground = Theme.Ink(), TextTrimming = TextTrimming.CharacterEllipsis };
-        _subtitle = new TextBlock { FontSize = 10.5, Foreground = Subtle, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 1, 0, 0) };
+        _title = new TextBlock { Text = title, FontSize = 12.5, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis };
+        _title.SetResourceReference(TextBlock.ForegroundProperty, "Ink");
+        _subtitle = new TextBlock { FontSize = 10.5, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 1, 0, 0) };
+        _subtitle.SetResourceReference(TextBlock.ForegroundProperty, "Ink99");
         texts.Children.Add(_title);
         texts.Children.Add(_subtitle);
         Grid.SetColumn(texts, 1);
@@ -125,10 +129,10 @@ public sealed class ToggleTile : Border
             Text = "", // chevron right
             FontFamily = IconFont,
             FontSize = 9,
-            Foreground = Subtle,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        chevron.SetResourceReference(TextBlock.ForegroundProperty, "Ink99");
         var more = new Grid { Background = Brushes.Transparent, Width = 30, ToolTip = "More options", Margin = new Thickness(4, 0, 0, 0) };
         more.Children.Add(moreBg);
         more.Children.Add(chevron);

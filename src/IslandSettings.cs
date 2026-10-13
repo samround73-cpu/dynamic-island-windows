@@ -31,6 +31,9 @@ public sealed class IslandSettings
     /// <summary>"Black", "Light" (frosted), "Glow", "Outline" or "Auto" (Black or Light, following Windows).</summary>
     public string IslandStyle { get; set; } = "Black";
     public bool ShowBatteryInPill { get; set; } = true;
+    /// <summary>Light style only: real frosted blur behind the island (Windows can only blur a plain rounded panel,
+    /// so the island loses its curved shoulders).</summary>
+    public bool LightFrosted { get; set; }
     /// <summary>Line-style app icons (Tabler) instead of each app's own icon.</summary>
     public bool UseLineIcons { get; set; } = true;
     public bool PeekOnHover { get; set; } = true;

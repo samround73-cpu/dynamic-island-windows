@@ -65,13 +65,13 @@ public sealed class SlideToConfirm : Border
         _label = new TextBlock
         {
             FontSize = 12.5,
-            Foreground = Theme.Ink(0x99),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(KnobSize + Inset, 0, 8, 0),
             TextTrimming = TextTrimming.CharacterEllipsis,
             IsHitTestVisible = false,
         };
+        _label.SetResourceReference(TextBlock.ForegroundProperty, "Ink99");
 
         var grid = new Grid { ClipToBounds = true };
         grid.Children.Add(_trail);

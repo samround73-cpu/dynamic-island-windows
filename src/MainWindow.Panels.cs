@@ -118,14 +118,15 @@ public partial class MainWindow
         var names = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortestDayNames;
         for (int i = 0; i < 7; i++)
         {
-            WeekdayHeader.Children.Add(new TextBlock
+            var day = new TextBlock
             {
                 Text = names[((int)FirstDayOfWeek + i) % 7],
                 FontSize = 10,
                 FontWeight = FontWeights.SemiBold,
-                Foreground = Theme.Ink(0x80),
                 HorizontalAlignment = HorizontalAlignment.Center,
-            });
+            };
+            day.SetResourceReference(TextBlock.ForegroundProperty, "Ink80");
+            WeekdayHeader.Children.Add(day);
         }
     }
 

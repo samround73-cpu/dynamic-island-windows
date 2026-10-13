@@ -110,6 +110,9 @@ public static class LineIcons
         }
     }
 
+    /// <summary>Forgets the icon colours worked out so far (they're adjusted for the light island).</summary>
+    public static void ClearCache() => Cache.Clear();
+
     /// <summary>A specific icon from the set by name (e.g. "bluetooth"), in the given colour; null if unavailable.</summary>
     public static LineIcon? Named(string iconName, string color)
     {

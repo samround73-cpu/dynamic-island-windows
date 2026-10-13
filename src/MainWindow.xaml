@@ -569,7 +569,7 @@
                 <DataTrigger Binding="{Binding IsClosedPin}" Value="True">
                     <Setter TargetName="TileBg" Property="Background" Value="Transparent" />
                     <Setter TargetName="TileBg" Property="BorderBrush" Value="{DynamicResource Ink26}" />
-                    <Setter TargetName="IconHolder" Property="Opacity" Value="0.38" />
+                    <Setter TargetName="IconHolder" Property="Opacity" Value="{DynamicResource ClosedPinOpacity}" />
                 </DataTrigger>
                 <Trigger SourceName="DockButton" Property="IsMouseOver" Value="True">
                     <Setter TargetName="TileBg" Property="Background" Value="{DynamicResource TileHoverBrush}" />
@@ -1542,7 +1542,14 @@
                                                 </StackPanel>
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Island style" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Black, light frosted, a soft glow, a thin outline, or Auto (follows Windows' light/dark mode)" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Black, light, a soft glow, a thin outline, or Auto (Black or Light, following Windows' light/dark mode)" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <CheckBox x:Name="LightFrostedSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Frosted blur (Light style)" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="See-through frosted glass. Windows can only blur a plain rounded panel, so the island loses its curved shoulders" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">

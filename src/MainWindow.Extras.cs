@@ -614,6 +614,27 @@ public partial class MainWindow
     }
 
     /// <summary>
+    /// Switches the whole island between light and dark while it's running: the colour resources update by
+    /// themselves, and the few things drawn in code are redrawn.
+    /// </summary>
+    private void SwitchTheme(bool light)
+    {
+        if (light == Theme.Light) return;
+        Theme.Set(light);
+        LineIcons.ClearCache();
+        ApplyThemeResources();
+        ApplyAccent(); // the deepened accent, island style, calendar, battery, media colours, power sliders
+        BuildAccentSwatches();
+        ShowHotkeyStatus();
+        RefreshStartupStatus();
+        OnMediaChanged();
+        RefreshOpenApps();
+        _rows.Clear(); // the Apps list rebuilds with the adjusted icon colours
+        if (_currentTab == "Apps") RebuildAppList();
+        App.LogNote($"switched to the {(light ? "light" : "dark")} island");
+    }
+
+    /// <summary>
     /// Text and fine-line colours for the light or dark island (see Theme). The XAML refers to these as
     /// Ink, Ink80 (half-strength) and so on, plus a few solid surfaces.
     /// </summary>
@@ -629,7 +650,8 @@ public partial class MainWindow
         Resources["TrackOffBrush"] = Frozen(light ? Color.FromRgb(0xD1, 0xD1, 0xD6) : Color.FromRgb(0x33, 0x33, 0x33));
         Resources["TileOffBrush"] = Frozen(light ? Color.FromArgb(0x14, 0x00, 0x00, 0x00) : Color.FromRgb(0x26, 0x26, 0x26));
         Resources["BadgeBrush"] = Frozen(light ? Color.FromRgb(0xD8, 0xD8, 0xDD) : Color.FromRgb(0x3A, 0x3A, 0x3C));
-        Resources["BadgeRing"] = Frozen(light ? Color.FromRgb(0xF4, 0xF4, 0xF6) : Color.FromRgb(0x15, 0x15, 0x15));
+        Resources["BadgeRing"] = Frozen(light ? Color.FromRgb(0xEE, 0xEE, 0xF1) : Color.FromRgb(0x15, 0x15, 0x15));
+        Resources["ClosedPinOpacity"] = light ? 0.55 : 0.38; // faded pinned apps need a little more strength on light
     }
 
     /// <summary>Recolours everything gold-coloured to the chosen accent.</summary>
@@ -692,19 +714,21 @@ public partial class MainWindow
                 // Light frosted: Windows blurs whatever is behind (see AcrylicBackdrop, set to its light frost);
                 // the island adds a soft white wash on top so it reads as light over any wallpaper, a fine edge,
                 // and white see-through cards. Without the blur it's simply a near-solid soft white.
+                // A soft light grey island (same shape as the others) with crisp white cards on it, so there's
+                // clear contrast. With "Frosted blur" on, it's a see-through grey wash over Windows' blur instead.
                 var wash = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
-                wash.GradientStops.Add(new GradientStop(_glass.Supported ? Color.FromArgb(0xB8, 0xF8, 0xF8, 0xFA) : Color.FromArgb(0xF4, 0xF6, 0xF6, 0xF8), 0));
-                wash.GradientStops.Add(new GradientStop(_glass.Supported ? Color.FromArgb(0xA8, 0xF2, 0xF2, 0xF4) : Color.FromArgb(0xF4, 0xF1, 0xF1, 0xF3), 1));
+                wash.GradientStops.Add(new GradientStop(IsGlass ? Color.FromArgb(0xC8, 0xEC, 0xEC, 0xEF) : Color.FromRgb(0xEE, 0xEE, 0xF1), 0));
+                wash.GradientStops.Add(new GradientStop(IsGlass ? Color.FromArgb(0xC0, 0xE6, 0xE6, 0xEA) : Color.FromRgb(0xE8, 0xE8, 0xEC), 1));
                 wash.Freeze();
                 IslandShape.Fill = wash;
-                IslandShape.Stroke = new SolidColorBrush(Color.FromArgb(0x24, 0x00, 0x00, 0x00));
+                IslandShape.Stroke = new SolidColorBrush(Color.FromArgb(0x1C, 0x00, 0x00, 0x00));
                 IslandShape.StrokeThickness = 1;
-                card = Color.FromArgb(0x9C, 0xFF, 0xFF, 0xFF);
-                field = Color.FromArgb(0x0F, 0x00, 0x00, 0x00);
-                tileOff = Color.FromArgb(0x14, 0x00, 0x00, 0x00);
-                cardBorder = Color.FromArgb(0x10, 0x00, 0x00, 0x00);
-                tile = Color.FromArgb(0x0F, 0x00, 0x00, 0x00);
-                tileHover = Color.FromArgb(0x1F, 0x00, 0x00, 0x00);
+                card = IsGlass ? Color.FromArgb(0xD0, 0xFF, 0xFF, 0xFF) : Colors.White;
+                field = Color.FromArgb(0x10, 0x00, 0x00, 0x00);
+                tileOff = Color.FromArgb(0x16, 0x00, 0x00, 0x00);
+                cardBorder = Color.FromArgb(0x14, 0x00, 0x00, 0x00);
+                tile = Color.FromArgb(0x10, 0x00, 0x00, 0x00);
+                tileHover = Color.FromArgb(0x22, 0x00, 0x00, 0x00);
                 break;
 
             case "Glow":
@@ -747,7 +771,7 @@ public partial class MainWindow
         (byte)(a.B * amountOfA + b.B * (1 - amountOfA)));
 
     /// <summary>The island's own colour, which list edges fade into.</summary>
-    private static Color IslandEdge => Theme.Light ? Color.FromRgb(0xF4, 0xF4, 0xF6) : Colors.Black;
+    private static Color IslandEdge => Theme.Light ? Color.FromRgb(0xEB, 0xEB, 0xEF) : Colors.Black;
 
     private static Brush FadeBrush(bool toBottom) => FadeBrush(toBottom, IslandEdge);
 
@@ -841,6 +865,7 @@ public partial class MainWindow
         StyleBlack.IsChecked = _settings.IslandStyle is not ("Light" or "Glow" or "Outline" or "Auto");
         StyleLight.IsChecked = _settings.IslandStyle == "Light";
         StyleAuto.IsChecked = _settings.IslandStyle == "Auto";
+        LightFrostedSwitch.IsChecked = _settings.LightFrosted;
         StyleGlow.IsChecked = _settings.IslandStyle == "Glow";
         StyleOutline.IsChecked = _settings.IslandStyle == "Outline";
         PeekSwitch.IsChecked = _settings.PeekOnHover;
@@ -879,6 +904,7 @@ public partial class MainWindow
         bool iconsChanged = LineIcons.Available && _settings.UseLineIcons != (LineIconsSwitch.IsChecked == true);
         if (LineIcons.Available) _settings.UseLineIcons = LineIconsSwitch.IsChecked == true;
         _settings.ShowBatteryInPill = BatterySwitch.IsChecked == true;
+        _settings.LightFrosted = LightFrostedSwitch.IsChecked == true;
         _settings.IslandStyle = StyleLight.IsChecked == true ? "Light"
             : StyleAuto.IsChecked == true ? "Auto"
             : StyleGlow.IsChecked == true ? "Glow"
@@ -901,12 +927,7 @@ public partial class MainWindow
 
         if (sender == StartWithWindowsSwitch) SetStartup(StartWithWindowsSwitch.IsChecked == true);
 
-        // Light and dark are set up when the island starts, so switching between them restarts it.
-        if (Theme.Decide(_settings.IslandStyle) != Theme.Light)
-        {
-            App.RestartIsland("light/dark style changed", counted: false);
-            return;
-        }
+        SwitchTheme(Theme.Decide(_settings.IslandStyle));
 
         if (autoUpdateTurnedOn && _availableUpdate is not null) InstallUpdate(_availableUpdate, automatic: true);
         ApplyBehaviourSettings();

@@ -125,7 +125,7 @@ hide the ones you don't use and put the rest in whatever order you like.
 
 ## Getting started
 
-> **Requirements:** Windows 11. The frosted blur in the Light style needs Windows 11 22H2 or later (otherwise it's solid soft white).
+> **Requirements:** Windows 11. The optional frosted blur for the Light style needs Windows 11 22H2 or later.
 > Windows 10 (version 2004 or later) may work but hasn't been tested.
 
 1. **Download [`DynamicIsland.exe`](https://github.com/samround73-cpu/dynamic-island-windows/releases/latest/download/DynamicIsland.exe)** from the [latest release](../../releases/latest).
