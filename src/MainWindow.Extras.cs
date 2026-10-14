@@ -1399,26 +1399,11 @@ public partial class MainWindow
         if (_snipPending || (!_settings.ScreenshotPopups && !_settings.CapturesToShelf)) return;
         try
         {
-            if (!Clipboard.ContainsImage() || Clipboard.ContainsFileDropList()) return;
+            if (!LooksLikeSnip(out string owner)) return;
+            App.LogNote($"picture copied by '{owner}' - treating it as a snip");
 
-            string owner = "";
-            IntPtr ownerWindow = Native.GetClipboardOwner();
-            if (ownerWindow != IntPtr.Zero) owner = Path.GetFileNameWithoutExtension(WindowTracker.GetExePath(ownerWindow));
-            bool fromCaptureTool = owner.Length == 0 || WindowTracker.ScreenCaptureTools.Contains(owner)
-                || owner.Equals("explorer", StringComparison.OrdinalIgnoreCase); // Print Screen without Snipping Tool
-            App.LogNote($"picture copied by '{(owner.Length == 0 ? "unknown" : owner)}'{(fromCaptureTool ? " - treating it as a snip" : "")}");
-            if (!fromCaptureTool) return;
-
-            // Prefer the PNG copy many tools include: Windows' own bitmap copy can come back see-through.
-            BitmapSource? image = null;
-            if (Clipboard.GetData("PNG") is MemoryStream png)
-            {
-                try { image = BitmapFrame.Create(png, BitmapCreateOptions.None, BitmapCacheOption.OnLoad); } catch { }
-            }
-            image ??= Clipboard.GetImage();
-            if (image is null || image.PixelWidth < 8 || image.PixelHeight < 8) return;
-            if (image.CanFreeze) image.Freeze();
-
+            // Snipping Tool often updates the clipboard several times in a row, so wait for it to settle,
+            // then take whatever picture is there at that point.
             _snipPending = true;
             DateTime copiedAt = DateTime.Now;
             var wait = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2.5) };
@@ -1428,7 +1413,16 @@ public partial class MainWindow
                 _snipPending = false;
                 // Snipping Tool saved a file after all; the watcher has already shown it.
                 if (_lastScreenshotNoticed > copiedAt.AddSeconds(-2)) return;
-                SaveSnip(image);
+                try
+                {
+                    if (!LooksLikeSnip(out _)) return;
+                    var image = ClipboardPicture();
+                    if (image is not null) HandleSnip(image);
+                }
+                catch (Exception ex)
+                {
+                    App.LogNote($"couldn't read the snip from the clipboard: {ex.Message}");
+                }
             };
             wait.Start();
         }
@@ -1437,6 +1431,104 @@ public partial class MainWindow
             _snipPending = false;
             App.LogNote($"couldn't check the clipboard for a snip: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Is what's on the clipboard just a picture, as a screenshot tool copies it? Pictures copied from a web page
+    /// come with HTML, copied files come as a file list, and pictures copied in an app (Paint, Photoshop, us)
+    /// are owned by that app. Snipping Tool's copies can show up as owned by a Windows service (svchost),
+    /// especially on remote and cloud PCs, so those count too.
+    /// </summary>
+    private static bool LooksLikeSnip(out string owner)
+    {
+        owner = "unknown";
+        if (!Clipboard.ContainsImage() || Clipboard.ContainsFileDropList()) return false;
+        if (Clipboard.ContainsData(DataFormats.Html) || Clipboard.ContainsText()) return false;
+
+        IntPtr ownerWindow = Native.GetClipboardOwner();
+        if (ownerWindow == IntPtr.Zero) return true;
+        Native.GetWindowThreadProcessId(ownerWindow, out uint pid);
+        if (pid == (uint)Environment.ProcessId) return false; // our own "Copy image"
+        string exe = Path.GetFileNameWithoutExtension(WindowTracker.GetExePath(ownerWindow));
+        if (exe.Length == 0) return true;
+        owner = exe;
+        return WindowTracker.ScreenCaptureTools.Contains(exe)
+            || exe.Equals("svchost", StringComparison.OrdinalIgnoreCase)
+            || exe.Equals("explorer", StringComparison.OrdinalIgnoreCase)       // Print Screen without Snipping Tool
+            || exe.Equals("rdpclip", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static BitmapSource? ClipboardPicture()
+    {
+        // Prefer the PNG copy many tools include: Windows' own bitmap copy can come back see-through.
+        BitmapSource? image = null;
+        if (Clipboard.GetData("PNG") is MemoryStream png)
+        {
+            try { image = BitmapFrame.Create(png, BitmapCreateOptions.None, BitmapCacheOption.OnLoad); } catch { }
+        }
+        image ??= Clipboard.GetImage();
+        if (image is null || image.PixelWidth < 8 || image.PixelHeight < 8) return null;
+        if (image.CanFreeze) image.Freeze();
+        return image;
+    }
+
+    private string? _lastSnipHash;
+    private int _lastSnipWidth, _lastSnipHeight;
+
+    /// <summary>A new snip gets saved and shown; the same one again is ignored; an edit of the last one updates its file.</summary>
+    private void HandleSnip(BitmapSource image)
+    {
+        string hash = PictureHash(image);
+        if (hash == _lastSnipHash) return; // the same picture copied again
+
+        bool isEdit = _snipSavedPath is not null && File.Exists(_snipSavedPath)
+            && image.PixelWidth == _lastSnipWidth && image.PixelHeight == _lastSnipHeight
+            && DateTime.Now - _lastSnipSaved < TimeSpan.FromMinutes(3);
+        _lastSnipHash = hash;
+        _lastSnipWidth = image.PixelWidth;
+        _lastSnipHeight = image.PixelHeight;
+
+        if (isEdit)
+        {
+            // Drawing on the snip in Snipping Tool updates the clipboard: keep the saved file up to date quietly.
+            try
+            {
+                _captures.Ignore(_snipSavedPath!);
+                WritePng(image, _snipSavedPath!, overwrite: true);
+                _lastSnipSaved = DateTime.Now;
+                App.LogNote($"updated {Path.GetFileName(_snipSavedPath)} with your edits");
+            }
+            catch (Exception ex)
+            {
+                App.LogNote($"couldn't update the snip: {ex.Message}");
+            }
+            return;
+        }
+        SaveSnip(image);
+    }
+
+    private static string PictureHash(BitmapSource image)
+    {
+        try
+        {
+            var pixels = new FormatConvertedBitmap(image, PixelFormats.Bgra32, null, 0);
+            int stride = pixels.PixelWidth * 4;
+            var bytes = new byte[stride * pixels.PixelHeight];
+            pixels.CopyPixels(bytes, stride, 0);
+            return Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(bytes));
+        }
+        catch
+        {
+            return Guid.NewGuid().ToString();
+        }
+    }
+
+    private static void WritePng(BitmapSource image, string path, bool overwrite)
+    {
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(image));
+        using var stream = new FileStream(path, overwrite ? FileMode.Create : FileMode.CreateNew, FileAccess.Write, FileShare.Read);
+        encoder.Save(stream);
     }
 
     private void SaveSnip(BitmapSource image)
@@ -1456,10 +1548,7 @@ public partial class MainWindow
                 string target = Path.Combine(folder, baseName + ".png");
                 for (int n = 2; File.Exists(target); n++) target = Path.Combine(folder, $"{baseName} ({n}).png");
                 _captures.Ignore(target); // we're reporting it ourselves
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(image));
-                using (var stream = new FileStream(target, FileMode.CreateNew, FileAccess.Write))
-                    encoder.Save(stream);
+                WritePng(image, target, overwrite: false);
                 path = target;
                 break;
             }
