@@ -244,7 +244,9 @@ public sealed class CaptureWatcher : IDisposable
             {
                 var info = new FileInfo(path);
                 if (!info.Exists) return; // it was a temporary file after all
-                if (info.Length > 0 && info.Length == lastSize && !IsLocked(path))
+                // Screenshots: Snipping Tool may keep the file open while its editor is showing, so only check the
+                // picture can be read. Downloads: wait until nothing is writing to it any more.
+                if (info.Length > 0 && info.Length == lastSize && !IsLocked(path, strict: kind == Kind.Download))
                 {
                     FileReady?.Invoke(path, kind);
                     return;
@@ -253,13 +255,21 @@ public sealed class CaptureWatcher : IDisposable
             }
             catch { }
         }
+
+        // A screenshot that's been sitting there, complete, the whole time: report it anyway.
+        try
+        {
+            if (kind == Kind.Screenshot && File.Exists(path) && new FileInfo(path).Length > 0) FileReady?.Invoke(path, kind);
+        }
+        catch { }
     }
 
-    private static bool IsLocked(string path)
+    private static bool IsLocked(string path, bool strict)
     {
         try
         {
-            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
+                strict ? FileShare.Read : FileShare.ReadWrite | FileShare.Delete);
             return false;
         }
         catch (IOException) { return true; }

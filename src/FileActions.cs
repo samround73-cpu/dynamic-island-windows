@@ -50,10 +50,11 @@ public static class FileActions
     {
         try
         {
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
             var image = new BitmapImage();
             image.BeginInit();
             image.CacheOption = BitmapCacheOption.OnLoad;
-            image.UriSource = new Uri(path);
+            image.StreamSource = stream;
             image.EndInit();
             image.Freeze();
             Clipboard.SetImage(image);

@@ -1409,11 +1409,13 @@ public partial class MainWindow
     {
         try
         {
+            // Read through a stream that doesn't mind the file being open elsewhere (Snipping Tool's editor).
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
             var image = new System.Windows.Media.Imaging.BitmapImage();
             image.BeginInit();
             image.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
             image.DecodePixelWidth = 160;
-            image.UriSource = new Uri(path);
+            image.StreamSource = stream;
             image.EndInit();
             image.Freeze();
             return image;
