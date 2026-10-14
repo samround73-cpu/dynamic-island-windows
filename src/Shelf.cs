@@ -76,6 +76,7 @@ public sealed class Shelf
             if (Items.Any(i => string.Equals(i.Path, path, StringComparison.OrdinalIgnoreCase))) continue;
             if (!File.Exists(path) && !Directory.Exists(path)) continue;
             Items.Insert(0, Create(path));
+            _settings.ShelfAdded[path] = DateTime.Now;
             added++;
         }
         if (added > 0) Save();
@@ -100,6 +101,7 @@ public sealed class Shelf
         int index = Items.IndexOf(item);
         if (index < 0) return;
         Items[index] = Create(newPath);
+        _settings.ShelfAdded[newPath] = _settings.ShelfAdded.TryGetValue(item.Path, out var when) ? when : DateTime.Now;
         Save();
     }
 
@@ -107,6 +109,30 @@ public sealed class Shelf
     {
         Items.Clear();
         Save();
+    }
+
+    /// <summary>
+    /// Settings › Clipboard &amp; Shelf: takes things off the Shelf once they've been there for the chosen number of days
+    /// (the files themselves aren't touched). Returns how many went.
+    /// </summary>
+    public int CleanUp(int days)
+    {
+        if (days <= 0) return 0;
+        var cutoff = DateTime.Now.AddDays(-days);
+        int removed = 0;
+        foreach (var item in Items.ToList())
+        {
+            if (!_settings.ShelfAdded.TryGetValue(item.Path, out var added))
+            {
+                _settings.ShelfAdded[item.Path] = DateTime.Now; // shelved before this was tracked: start counting now
+                continue;
+            }
+            if (added >= cutoff) continue;
+            Items.Remove(item);
+            removed++;
+        }
+        if (removed > 0) Save();
+        return removed;
     }
 
     /// <summary>Drops anything that's been moved or deleted since it was shelved.</summary>
@@ -118,6 +144,9 @@ public sealed class Shelf
     private void Save()
     {
         _settings.ShelfFiles = Items.Select(i => i.Path).ToList();
+        // Forget the dates of things no longer on the Shelf.
+        foreach (var gone in _settings.ShelfAdded.Keys.Where(k => !_settings.ShelfFiles.Contains(k, StringComparer.OrdinalIgnoreCase)).ToList())
+            _settings.ShelfAdded.Remove(gone);
         _settings.Save();
         Changed?.Invoke();
     }

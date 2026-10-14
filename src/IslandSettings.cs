@@ -67,6 +67,31 @@ public sealed class IslandSettings
     /// <summary>Pop out when Caps Lock is turned on or off.</summary>
     public bool CapsLockPopups { get; set; } = true;
 
+    /// <summary>Pop out with the song (and play/skip buttons) when the track changes.</summary>
+    public bool SongPopups { get; set; } = true;
+
+    /// <summary>How long pop-outs stay up: "Short", "Normal" or "Long".</summary>
+    public string PopupLength { get; set; } = "Normal";
+
+    // ---- Clock ----
+    /// <summary>"Windows" (your PC's 12/24-hour setting), "12" or "24".</summary>
+    public string ClockFormat { get; set; } = "Windows";
+    public bool ClockSeconds { get; set; }
+    /// <summary>How the date shows on the pill: "Short" (Tue 13 Oct), "Numbers" (13/10), "Day" (Tuesday) or "Off".</summary>
+    public string PillDate { get; set; } = "Short";
+
+    // ---- Screens ----
+    /// <summary>With more than one screen: "Follow" (the island moves to the screen your mouse rests on) or "Main".</summary>
+    public string ScreenMode { get; set; } = "Follow";
+
+    // ---- Tidying up ----
+    /// <summary>Take things off the Shelf after this many days (0 = never). The files themselves stay put.</summary>
+    public int ShelfCleanDays { get; set; }
+    /// <summary>When each Shelf item was added, by path (for the clean-up above).</summary>
+    public Dictionary<string, DateTime> ShelfAdded { get; set; } = new();
+    /// <summary>Forget clipboard history when you lock the PC (pinned clips are kept). It's never kept after a restart anyway.</summary>
+    public bool ClearClipboardOnLock { get; set; }
+
     /// <summary>The order of the tabs along the top, and which ones are hidden.</summary>
     public List<string> TabOrder { get; set; } = new();
     public List<string> HiddenTabs { get; set; } = new();

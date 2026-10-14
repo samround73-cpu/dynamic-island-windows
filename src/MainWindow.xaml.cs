@@ -26,6 +26,7 @@ public partial class MainWindow : Window
     private double CompactWidth => _pillWidth; // grows to fit what the pill shows (UpdatePillWidth)
     private const double ActivityWidth = 340, ActivityHeight = 64;
     private double _activityWidthNow = ActivityWidth;
+    private double _activityHeightNow = ActivityHeight;
     private const double ExpandedWidth = 660;
     private const double MinPeekWidth = 250;
 
@@ -202,6 +203,17 @@ public partial class MainWindow : Window
             // Windows also sends this when nothing has really changed (e.g. while taking a screenshot); only a real
             // change of scaling needs a fresh start.
             if (Math.Abs(args.OldDpi.PixelsPerInchX - args.NewDpi.PixelsPerInchX) < 0.5) return;
+            // Moving to a screen with different scaling: just line everything up again on the new screen.
+            if (_movingScreens || DateTime.Now - _screenMovedAt < TimeSpan.FromSeconds(3))
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+                {
+                    CentreOnScreen();
+                    PositionBackdrops();
+                    SyncBackdrops();
+                }));
+                return;
+            }
             ScheduleFreshStart($"screen scaling changed ({args.OldDpi.PixelsPerInchX:0} to {args.NewDpi.PixelsPerInchX:0} dpi)");
         };
 
@@ -226,6 +238,7 @@ public partial class MainWindow : Window
         Native.AddClipboardFormatListener(_hwnd); // tells us whenever anything is copied
 
         PositionWindow();
+        ApplyScreenMode();
         UpdateSearchHotkey();
         StartUpdateChecks();
     }
@@ -362,22 +375,23 @@ public partial class MainWindow : Window
 
     /// <summary>Runs a few times a second: keeps the real taskbar hidden, the island on top,
     /// and works out whether it should be showing, tucked away, or hidden for a full-screen app.</summary>
+    private DateTime _lastShelfClean = DateTime.MinValue;
+
     private void Housekeeping()
     {
         App.Taskbar.EnsureHidden();
         UpdatePresence();
+        if (DateTime.Now - _lastShelfClean > TimeSpan.FromHours(1))
+        {
+            _lastShelfClean = DateTime.Now;
+            if (_shelf.CleanUp(_settings.ShelfCleanDays) > 0) RefreshShelf();
+        }
         if (_presence != Presence.FullScreen && !_menuOpen && _hwnd != IntPtr.Zero)
         {
             Native.SetWindowPos(_hwnd, Native.HWND_TOPMOST, 0, 0, 0, 0,
                 Native.SWP_NOMOVE | Native.SWP_NOSIZE | Native.SWP_NOACTIVATE);
             KeepBackdropsBelow();
         }
-    }
-
-    private void PositionWindow()
-    {
-        Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
-        Top = 0;
     }
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -418,6 +432,12 @@ public partial class MainWindow : Window
     private void OnSessionSwitch(object? sender, SessionSwitchEventArgs e)
     {
         App.LogNote($"session change: {e.Reason}");
+        if (e.Reason == SessionSwitchReason.SessionLock && _settings.ClearClipboardOnLock)
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                _clipboard.Clear();
+                RefreshClipboardList();
+            }));
         if (e.Reason is SessionSwitchReason.RemoteConnect or SessionSwitchReason.ConsoleConnect)
             Dispatcher.BeginInvoke(new Action(() => ScheduleFreshStart($"reconnected to the PC ({e.Reason})")));
     }
@@ -445,6 +465,7 @@ public partial class MainWindow : Window
     private void OnDisplayChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(new Action(() =>
     {
         PositionWindow();
+        ApplyScreenMode(); // a screen was plugged in or unplugged
         PositionBackdrops();
         SyncBackdrops();
     }));
@@ -467,6 +488,8 @@ public partial class MainWindow : Window
 
     private void UpdatePresence()
     {
+        if (_movingScreens) return; // hopping to another screen; worked out afresh when it lands
+
         // 1) Full-screen games and videos: judged by the window that has focus.
         IntPtr focused = Native.GetForegroundWindow();
         bool focusIsOurs = focused != IntPtr.Zero && (WindowTracker.IsOwnWindow(focused) || WindowTracker.IsTransientShellWindow(focused));
@@ -493,7 +516,7 @@ public partial class MainWindow : Window
                 : Presence.Shown;
         }
 
-        if (next == _presence) return;
+        if (next == _presence && !_forcePresence) return;
         var previous = _presence;
         _presence = next;
 
@@ -522,18 +545,19 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Where the pill sits on screen (screen pixels): top-centre of the main monitor.</summary>
+    /// <summary>Where the pill sits on screen (screen pixels): top-centre of the island's screen.</summary>
     private Native.RECT IslandArea()
     {
         double scale = DpiScale;
-        int screenWidth = Native.GetSystemMetrics(Native.SM_CXSCREEN);
+        var screen = ScreenBounds;
+        int centre = (screen.Left + screen.Right) / 2;
         int half = (int)Math.Ceiling((CompactWidth / 2 + Shoulder) * scale);
         return new Native.RECT
         {
-            Left = screenWidth / 2 - half,
-            Right = screenWidth / 2 + half,
-            Top = 0,
-            Bottom = (int)Math.Ceiling(CompactHeight * scale),
+            Left = centre - half,
+            Right = centre + half,
+            Top = screen.Top,
+            Bottom = screen.Top + (int)Math.Ceiling(CompactHeight * scale),
         };
     }
 
@@ -590,7 +614,7 @@ public partial class MainWindow : Window
             double scale = DpiScale;
             int band = (int)Math.Ceiling(4 * scale);
             int extra = (int)Math.Ceiling(70 * scale);
-            bool atTop = cursor.Y <= band && cursor.X >= area.Left - extra && cursor.X <= area.Right + extra;
+            bool atTop = cursor.Y <= area.Top + band && cursor.Y >= area.Top - 2 && cursor.X >= area.Left - extra && cursor.X <= area.Right + extra;
             bool still = Math.Abs(cursor.X - _lastEdgeCursor.X) <= 25 * scale && Math.Abs(cursor.Y - _lastEdgeCursor.Y) <= 25 * scale;
             _lastEdgeCursor = cursor;
 
@@ -927,7 +951,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Briefly widens the pill to show something (like the iPhone does for a timer or AirPods).</summary>
-    private void ShowActivity(string? glyph, ImageSource? art, string title, string? subtitle, double? level, double seconds = 2.4, double? width = null)
+    private void ShowActivity(string? glyph, ImageSource? art, string title, string? subtitle, double? level, double seconds = 2.4, double? width = null, double? height = null)
     {
         _activityOpensTab = null;
         _activityFile = null;
@@ -954,25 +978,36 @@ public partial class MainWindow : Window
                 new DoubleAnimation(Math.Clamp(l, 0, 1), TimeSpan.FromMilliseconds(150)));
 
         ActivityActions.Visibility = Visibility.Collapsed;
+        ActivityMedia.Visibility = Visibility.Collapsed;
+        ActivityKicker.Visibility = Visibility.Collapsed;
+        ActivityPicture.Width = ActivityPicture.Height = 36;
+        double newHeight = height ?? ActivityHeight;
         if (!_activityShowing)
         {
             _activityShowing = true;
             FadeOut(CompactContent, 90);
             FadeIn(ActivityContent, 180, delay: 100);
             _activityWidthNow = width ?? ActivityWidth;
-            AnimateSize(_activityWidthNow, ActivityHeight, 480, bouncy: true);
+            _activityHeightNow = newHeight;
+            AnimateSize(_activityWidthNow, _activityHeightNow, 480, bouncy: true);
         }
-        else if ((width ?? ActivityWidth) != _activityWidthNow)
+        else if ((width ?? ActivityWidth) != _activityWidthNow || newHeight != _activityHeightNow)
         {
             _activityWidthNow = width ?? ActivityWidth;
-            AnimateSize(_activityWidthNow, ActivityHeight, 300, bouncy: false);
+            _activityHeightNow = newHeight;
+            AnimateSize(_activityWidthNow, _activityHeightNow, 300, bouncy: false);
         }
 
-        _activityTimer.Interval = TimeSpan.FromSeconds(seconds);
+        _activityTimer.Interval = TimeSpan.FromSeconds(seconds * PopupLengthFactor);
         RestartTimer(_activityTimer);
     }
 
-    private bool ScreenshotActionsShowing => _activityShowing && ActivityActions.Visibility == Visibility.Visible;
+    /// <summary>Settings › Pop-ups: how long pop-outs stay up.</summary>
+    private double PopupLengthFactor => _settings.PopupLength switch { "Short" => 0.65, "Long" => 1.7, _ => 1.0 };
+
+    /// <summary>A pop-out with buttons on it (a screenshot's Copy/Edit/Delete, a song's play controls) waits while you use it.</summary>
+    private bool ScreenshotActionsShowing => _activityShowing
+        && (ActivityActions.Visibility == Visibility.Visible || ActivityMedia.Visibility == Visibility.Visible);
 
     private void EndActivity()
     {

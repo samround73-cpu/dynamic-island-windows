@@ -82,10 +82,16 @@ public partial class MainWindow
     private void UpdateClock()
     {
         var now = DateTime.Now;
-        string time = now.ToString("t"); // follows your Windows 12/24-hour setting
+        string time = ClockText(now);
         string date = now.ToString("ddd d MMM");
         CompactClock.Text = time;
-        CompactDate.Text = date;
+        CompactDate.Text = _settings.PillDate switch
+        {
+            "Numbers" => now.ToString(DayFirst ? "dd/MM" : "MM/dd"),
+            "Day" => now.ToString("dddd"),
+            _ => date,
+        };
+        CompactDate.Visibility = _settings.PillDate == "Off" ? Visibility.Collapsed : Visibility.Visible;
         PeekTime.Text = time;
         PeekDate.Text = date;
         BigClock.Text = time;
@@ -93,6 +99,21 @@ public partial class MainWindow
         if (_expanded && _currentTab == "Today") UpdateToday();
         UpdatePillWidth(); // the time can change width a little (it only resizes for real changes)
     }
+
+    /// <summary>The time as Settings › Clock asks: your PC's own 12/24-hour setting, or 12 or 24-hour, with or without seconds.</summary>
+    private string ClockText(DateTime now) => (_settings.ClockFormat, _settings.ClockSeconds) switch
+    {
+        ("12", false) => now.ToString("h:mm tt"),
+        ("12", true) => now.ToString("h:mm:ss tt"),
+        ("24", false) => now.ToString("HH:mm"),
+        ("24", true) => now.ToString("HH:mm:ss"),
+        (_, true) => now.ToString("T"),
+        _ => now.ToString("t"),
+    };
+
+    /// <summary>Does this PC write dates day-first (13/10) or month-first (10/13)?</summary>
+    private static bool DayFirst =>
+        !System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.TrimStart().StartsWith("M", StringComparison.OrdinalIgnoreCase);
 
     // =====================================================================================
     //  Today tab
@@ -102,7 +123,7 @@ public partial class MainWindow
     {
         var now = DateTime.Now;
         GreetingText.Text = now.Hour < 12 ? "Good morning" : now.Hour < 18 ? "Good afternoon" : "Good evening";
-        TodayTime.Text = now.ToString("t");
+        TodayTime.Text = ClockText(now);
         TodayDay.Text = now.ToString("dddd");
         TodayDate.Text = now.ToString("d MMMM yyyy");
         TodayExtra.Text = $"Week {System.Globalization.ISOWeek.GetWeekOfYear(now)}  ·  Day {now.DayOfYear} of {(DateTime.IsLeapYear(now.Year) ? 366 : 365)}";
@@ -737,11 +758,37 @@ public partial class MainWindow
 
         // New song → quick pop-out.
         string track = _media.Title + "\u0001" + _media.Artist;
-        if (_media.IsPlaying && _media.Title.Length > 0 && track != _lastTrack)
-            ShowActivity("", _media.Art, _media.Title, _media.Artist, null);
+        if (_media.IsPlaying && _media.Title.Length > 0 && track != _lastTrack && _settings.SongPopups)
+            ShowSongActivity();
         if (_media.Title.Length > 0) _lastTrack = track;
+        if (_activityShowing && ActivityMedia.Visibility == Visibility.Visible)
+        {
+            ActivityPlayGlyph.Text = playGlyph;
+            ActivityTitle.Text = _media.Title;
+            ActivitySub.Text = _media.Artist;
+        }
 
         ResizeExpandedIfNeeded();
+    }
+
+    /// <summary>The song pop-out: art, "NOW PLAYING · SPOTIFY", the song, play/skip buttons and how far through it is.</summary>
+    private void ShowSongActivity()
+    {
+        ShowActivity("", _media.Art, _media.Title, _media.Artist,
+            _media.HasTimeline ? SongFraction() : (double?)null, seconds: 4.5, width: 440, height: 78);
+        if (!_activityShowing) return; // the island is open, or a game is full screen
+        ActivityPicture.Width = ActivityPicture.Height = 48;
+        ActivityKicker.Text = _media.SourceApp.Length > 0 ? $"NOW PLAYING · {_media.SourceApp.ToUpperInvariant()}" : "NOW PLAYING";
+        ActivityKicker.Visibility = Visibility.Visible;
+        ActivityPlayGlyph.Text = _media.IsPlaying ? "\uE769" : "\uE768";
+        ActivityMedia.Visibility = Visibility.Visible;
+        _activityOpensTab = "Media";
+    }
+
+    private double SongFraction()
+    {
+        double total = _media.Duration.TotalSeconds;
+        return total > 0 ? Math.Clamp(_media.Position.TotalSeconds / total, 0, 1) : 0;
     }
 
     private void UpdateMediaProgress()
@@ -758,6 +805,11 @@ public partial class MainWindow
         var position = _media.Position;
         var duration = _media.Duration;
         PeekProgressScale.ScaleX = duration.TotalSeconds > 0 ? Math.Clamp(position.TotalSeconds / duration.TotalSeconds, 0, 1) : 0;
+        if (_activityShowing && ActivityMedia.Visibility == Visibility.Visible && ActivityBar.Visibility == Visibility.Visible)
+        {
+            ActivityBarScale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleXProperty, null);
+            ActivityBarScale.ScaleX = PeekProgressScale.ScaleX;
+        }
         foreach (var (slider, elapsed, total) in new[] { (MiniProgress, MiniElapsed, MiniDuration), (BigProgress, BigElapsed, BigDuration) })
         {
             slider.Maximum = Math.Max(1, duration.TotalSeconds);

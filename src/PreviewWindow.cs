@@ -61,7 +61,7 @@ public sealed class PreviewWindow : Window
         };
     }
 
-    /// <param name="anchor">The hovered icon's position on screen, in display units.</param>
+    /// <param name="anchor">The hovered icon's position on screen, in screen pixels.</param>
     public void ShowFor(IReadOnlyList<PreviewItem> items, Rect anchor)
     {
         RemoveThumbnails();
@@ -78,11 +78,26 @@ public sealed class PreviewWindow : Window
         Height = Pad * 2 + TitleHeight + ThumbHeight;
         for (int i = 0; i < count; i++) _slots.Children.Add(BuildSlot(items[i], gapAfter: i < count - 1));
 
-        double screenWidth = SystemParameters.PrimaryScreenWidth;
-        Left = Math.Clamp(anchor.Left + anchor.Width / 2 - Width / 2, 6, Math.Max(6, screenWidth - Width - 6));
-        Top = anchor.Bottom + 8;
+        // Below the icon, kept inside the screen it's on (which may not be the main screen).
+        var below = new Native.POINT { X = (int)(anchor.Left + anchor.Width / 2), Y = (int)anchor.Bottom };
+        IntPtr monitor = Native.MonitorFromPoint(below, Native.MONITOR_DEFAULTTONEAREST);
+        var info = new Native.MONITORINFO { cbSize = System.Runtime.InteropServices.Marshal.SizeOf<Native.MONITORINFO>() };
+        double screenScale = 1.0;
+        try { if (Native.GetDpiForMonitor(monitor, 0, out uint dpi, out _) == 0 && dpi > 0) screenScale = dpi / 96.0; } catch { }
+        int widthPx = (int)Math.Round(Width * screenScale);
+        int margin = (int)Math.Round(6 * screenScale);
+        int x = below.X - widthPx / 2;
+        if (Native.GetMonitorInfo(monitor, ref info))
+            x = Math.Clamp(x, info.rcMonitor.Left + margin, Math.Max(info.rcMonitor.Left + margin, info.rcMonitor.Right - widthPx - margin));
+        int y = below.Y + (int)Math.Round(8 * screenScale);
 
-        if (!IsVisible) Show();
+        if (!IsVisible)
+        {
+            Left = x / screenScale; // roughly there already, so it doesn't flash somewhere else first
+            Top = y / screenScale;
+            Show();
+        }
+        Native.SetWindowPos(_hwnd, IntPtr.Zero, x, y, 0, 0, Native.SWP_NOSIZE | Native.SWP_NOZORDER | Native.SWP_NOACTIVATE);
         UpdateLayout();
 
         double scale = VisualTreeHelper.GetDpi(this).DpiScaleX;

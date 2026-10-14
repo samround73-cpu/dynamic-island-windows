@@ -475,9 +475,15 @@ public partial class MainWindow
             .Select(h => new PreviewItem(h, WindowTracker.GetTitle(h), _hoverTile.Icon))
             .ToList();
 
-        var topLeft = _hoverElement.TranslatePoint(new Point(0, 0), this);
-        var anchor = new Rect(Left + topLeft.X, Top + topLeft.Y, _hoverElement.ActualWidth, _hoverElement.ActualHeight);
-        _preview.ShowFor(items, anchor);
+        _preview.ShowFor(items, PreviewAnchor(_hoverElement));
+    }
+
+    /// <summary>Where a hovered icon is on screen, in screen pixels (works on any screen, at any scaling).</summary>
+    private Rect PreviewAnchor(FrameworkElement element)
+    {
+        var topLeft = element.PointToScreen(new Point(0, 0));
+        double scale = DpiScale;
+        return new Rect(topLeft.X, topLeft.Y, element.ActualWidth * scale, element.ActualHeight * scale);
     }
 
     /// <summary>The ✕ on a preview: close that window, then refresh the previews (or hide them if none are left).</summary>
@@ -504,8 +510,7 @@ public partial class MainWindow
                 .Select(h => new PreviewItem(h, WindowTracker.GetTitle(h), _hoverTile.Icon)).ToList();
             if (_hoverElement is not null && _preview.IsVisible)
             {
-                var topLeft = _hoverElement.TranslatePoint(new Point(0, 0), this);
-                _preview.ShowFor(items, new Rect(Left + topLeft.X, Top + topLeft.Y, _hoverElement.ActualWidth, _hoverElement.ActualHeight));
+                _preview.ShowFor(items, PreviewAnchor(_hoverElement));
             }
         }
         else

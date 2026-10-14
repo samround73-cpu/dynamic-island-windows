@@ -1072,12 +1072,27 @@
                             </Button>
                         </StackPanel>
 
-                        <Grid Width="36" Height="36" VerticalAlignment="Center">
+                        <!-- Play controls on the song pop-out -->
+                        <StackPanel x:Name="ActivityMedia" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,-8,0" Visibility="Collapsed">
+                            <Button Style="{StaticResource IslandButton}" Width="30" Height="30" Click="Previous_Click" ToolTip="Previous">
+                                <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE892;" />
+                            </Button>
+                            <Button Style="{StaticResource PlayButton}" Width="36" Height="36" Margin="6,0" Click="PlayPause_Click" ToolTip="Play / pause">
+                                <TextBlock x:Name="ActivityPlayGlyph" Style="{StaticResource Glyph}" FontSize="13" Text="&#xE769;" />
+                            </Button>
+                            <Button Style="{StaticResource IslandButton}" Width="30" Height="30" Click="Next_Click" ToolTip="Next">
+                                <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE893;" />
+                            </Button>
+                        </StackPanel>
+
+                        <Grid x:Name="ActivityPicture" Width="36" Height="36" VerticalAlignment="Center">
                             <TextBlock x:Name="ActivityGlyph" Style="{StaticResource Glyph}" FontSize="20" />
                             <Border x:Name="ActivityArt" CornerRadius="9" Visibility="Collapsed" />
                         </Grid>
 
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="ActivityKicker" FontSize="9.5" FontWeight="SemiBold" Foreground="{DynamicResource Accent}" Visibility="Collapsed"
+                                       TextTrimming="CharacterEllipsis" Margin="0,0,0,1" />
                             <TextBlock x:Name="ActivityTitle" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                             <TextBlock x:Name="ActivitySub" FontSize="11" Foreground="{DynamicResource InkA0}" TextTrimming="CharacterEllipsis" />
                             <Grid x:Name="ActivityBar" Height="4" Margin="0,6,0,0" Visibility="Collapsed">
@@ -1684,6 +1699,12 @@
                                                 <TextBlock Text="Appearance" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
                                             </StackPanel>
                                         </RadioButton>
+                                        <RadioButton x:Name="SettingsNavClock" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE823;" VerticalAlignment="Center" />
+                                                <TextBlock Text="Clock" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </RadioButton>
                                         <RadioButton x:Name="SettingsNavBehaviour" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE8B0;" VerticalAlignment="Center" />
@@ -1694,6 +1715,12 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE8BD;" VerticalAlignment="Center" />
                                                 <TextBlock Text="Pop-ups" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </RadioButton>
+                                        <RadioButton x:Name="SettingsNavStorage" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE8B7;" VerticalAlignment="Center" />
+                                                <TextBlock Text="Shelf &amp; clipboard" FontSize="12.5" Margin="10,0,0,0" VerticalAlignment="Center" />
                                             </StackPanel>
                                         </RadioButton>
                                         <RadioButton x:Name="SettingsNavTabs" Style="{StaticResource NavRadio}" GroupName="SettingsSection" Checked="SettingsSection_Checked">
@@ -1769,6 +1796,59 @@
                                                 </StackPanel>
                                             </DockPanel>
                                         </StackPanel>
+                                        <StackPanel x:Name="SettingsClock" Visibility="Collapsed">
+                                            <DockPanel Margin="0,2,0,6">
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton x:Name="ClockWindows" Style="{StaticResource ChipRadio}" GroupName="ClockFormat" Content="Windows" Click="SettingChanged" />
+                                                    <RadioButton x:Name="Clock12" Style="{StaticResource ChipRadio}" GroupName="ClockFormat" Content="12-hour" Click="SettingChanged" />
+                                                    <RadioButton x:Name="Clock24" Style="{StaticResource ChipRadio}" GroupName="ClockFormat" Content="24-hour" Click="SettingChanged" />
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Clock" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Windows follows your PC's own 12 or 24-hour setting" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <CheckBox x:Name="ClockSecondsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Show seconds" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="On the pill and the Today tab" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton x:Name="DateShort" Style="{StaticResource ChipRadio}" GroupName="PillDate" Content="Tue 13 Oct" Click="SettingChanged" />
+                                                    <RadioButton x:Name="DateNumbers" Style="{StaticResource ChipRadio}" GroupName="PillDate" Content="13/10" Click="SettingChanged" />
+                                                    <RadioButton x:Name="DateDay" Style="{StaticResource ChipRadio}" GroupName="PillDate" Content="Tuesday" Click="SettingChanged" />
+                                                    <RadioButton x:Name="DateOff" Style="{StaticResource ChipRadio}" GroupName="PillDate" Content="Off" Click="SettingChanged" />
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Date on the pill" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Or turn it off for a smaller pill" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </StackPanel>
+                                        <StackPanel x:Name="SettingsStorage" Visibility="Collapsed">
+                                            <DockPanel Margin="0,2,0,6">
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton x:Name="CleanNever" Style="{StaticResource ChipRadio}" GroupName="ShelfClean" Content="Never" Click="SettingChanged" />
+                                                    <RadioButton x:Name="Clean1" Style="{StaticResource ChipRadio}" GroupName="ShelfClean" Content="1 day" Click="SettingChanged" />
+                                                    <RadioButton x:Name="Clean7" Style="{StaticResource ChipRadio}" GroupName="ShelfClean" Content="7 days" Click="SettingChanged" />
+                                                    <RadioButton x:Name="Clean30" Style="{StaticResource ChipRadio}" GroupName="ShelfClean" Content="30 days" Click="SettingChanged" />
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Clean up the Shelf" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Takes things off the Shelf after a while. The files themselves stay where they are" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <CheckBox x:Name="ClearClipboardSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Clear clipboard history when you lock the PC" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Pinned clips are kept. History is never kept after a restart either" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </StackPanel>
                                         <StackPanel x:Name="SettingsBehaviour" Visibility="Collapsed">
                                             <DockPanel Margin="0,2,0,6">
                                                 <CheckBox x:Name="PeekSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
@@ -1793,6 +1873,16 @@
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Tuck away over maximised apps" FontSize="12.5" FontWeight="SemiBold" />
                                                     <TextBlock Text="Rest the mouse at the top of the screen to bring it back" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton x:Name="ScreensFollow" Style="{StaticResource ChipRadio}" GroupName="ScreenMode" Content="Follow my mouse" Click="SettingChanged" />
+                                                    <RadioButton x:Name="ScreensMain" Style="{StaticResource ChipRadio}" GroupName="ScreenMode" Content="Main screen" Click="SettingChanged" />
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="With more than one screen" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="The island moves to the screen your mouse rests on, or stays on your main screen" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
@@ -1851,6 +1941,24 @@
                                         </StackPanel>
                                         <StackPanel x:Name="SettingsPopups" Visibility="Collapsed">
                                             <DockPanel Margin="0,2,0,6">
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton x:Name="PopupShort" Style="{StaticResource ChipRadio}" GroupName="PopupLength" Content="Short" Click="SettingChanged" />
+                                                    <RadioButton x:Name="PopupNormal" Style="{StaticResource ChipRadio}" GroupName="PopupLength" Content="Normal" Click="SettingChanged" />
+                                                    <RadioButton x:Name="PopupLong" Style="{StaticResource ChipRadio}" GroupName="PopupLength" Content="Long" Click="SettingChanged" />
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Pop-outs stay up for" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Screenshots and songs stay while your mouse is on them" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <CheckBox x:Name="SongPopupsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Song changes" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="The new song with play and skip buttons" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="ScreenshotPopupsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Screenshots" FontSize="12.5" FontWeight="SemiBold" />

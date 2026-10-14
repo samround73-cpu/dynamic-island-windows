@@ -117,6 +117,13 @@ public static class WindowTracker
             or "#32768"; // context menus
     }
 
+    /// <summary>The screen the island is on right now (zero = the main screen). Set by the island when it moves.</summary>
+    public static IntPtr IslandMonitor { get; set; }
+
+    /// <summary>Is this monitor the one the island is on?</summary>
+    private static bool IsIslandMonitor(IntPtr monitor, in Native.MONITORINFO info) =>
+        IslandMonitor == IntPtr.Zero ? (info.dwFlags & Native.MONITORINFOF_PRIMARY) != 0 : monitor == IslandMonitor;
+
     /// <summary>
     /// The app window that's highest on screen (in front of the others) on the main monitor,
     /// ignoring minimised windows, the island itself, the desktop and the taskbar. Zero if there is none.
@@ -130,7 +137,7 @@ public static class WindowTracker
             if (!IsTaskbarWindow(hWnd) || Native.IsIconic(hWnd)) return true;
             var monitor = Native.MonitorFromWindow(hWnd, Native.MONITOR_DEFAULTTONEAREST);
             var info = new Native.MONITORINFO { cbSize = System.Runtime.InteropServices.Marshal.SizeOf<Native.MONITORINFO>() };
-            if (!Native.GetMonitorInfo(monitor, ref info) || (info.dwFlags & Native.MONITORINFOF_PRIMARY) == 0) return true;
+            if (!Native.GetMonitorInfo(monitor, ref info) || !IsIslandMonitor(monitor, info)) return true;
             found = hWnd;
             return false; // stop: this is the one
         }, IntPtr.Zero);
@@ -174,7 +181,7 @@ public static class WindowTracker
         if (!Native.IsZoomed(hWnd)) return false;
         var monitor = Native.MonitorFromWindow(hWnd, Native.MONITOR_DEFAULTTONEAREST);
         var info = new Native.MONITORINFO { cbSize = System.Runtime.InteropServices.Marshal.SizeOf<Native.MONITORINFO>() };
-        return Native.GetMonitorInfo(monitor, ref info) && (info.dwFlags & Native.MONITORINFOF_PRIMARY) != 0;
+        return Native.GetMonitorInfo(monitor, ref info) && IsIslandMonitor(monitor, info);
     }
 
     /// <summary>
@@ -192,7 +199,7 @@ public static class WindowTracker
 
         var monitor = Native.MonitorFromWindow(hWnd, Native.MONITOR_DEFAULTTONEAREST);
         var info = new Native.MONITORINFO { cbSize = System.Runtime.InteropServices.Marshal.SizeOf<Native.MONITORINFO>() };
-        if (!Native.GetMonitorInfo(monitor, ref info) || (info.dwFlags & Native.MONITORINFOF_PRIMARY) == 0) return false;
+        if (!Native.GetMonitorInfo(monitor, ref info) || !IsIslandMonitor(monitor, info)) return false;
 
         if (Native.IsZoomed(hWnd)) return true;
 
@@ -222,7 +229,7 @@ public static class WindowTracker
         var monitor = Native.MonitorFromWindow(hWnd, Native.MONITOR_DEFAULTTONEAREST);
         var info = new Native.MONITORINFO { cbSize = System.Runtime.InteropServices.Marshal.SizeOf<Native.MONITORINFO>() };
         if (!Native.GetMonitorInfo(monitor, ref info)) return false;
-        if ((info.dwFlags & Native.MONITORINFOF_PRIMARY) == 0) return false;
+        if (!IsIslandMonitor(monitor, info)) return false;
 
         var screen = info.rcMonitor;
         bool coversScreen = rect.Left <= screen.Left && rect.Top <= screen.Top && rect.Right >= screen.Right && rect.Bottom >= screen.Bottom;

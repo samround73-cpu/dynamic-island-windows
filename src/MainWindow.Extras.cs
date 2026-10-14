@@ -1105,6 +1105,28 @@ public partial class MainWindow
         DownloadProgressSwitch.IsChecked = _settings.DownloadProgress;
         CapsLockPopupsSwitch.IsChecked = _settings.CapsLockPopups;
         TrayAppIconsSwitch.IsChecked = _settings.TrayAppIcons;
+        SongPopupsSwitch.IsChecked = _settings.SongPopups;
+        PopupShort.IsChecked = _settings.PopupLength == "Short";
+        PopupLong.IsChecked = _settings.PopupLength == "Long";
+        PopupNormal.IsChecked = _settings.PopupLength is not ("Short" or "Long");
+        Clock12.IsChecked = _settings.ClockFormat == "12";
+        Clock24.IsChecked = _settings.ClockFormat == "24";
+        ClockWindows.IsChecked = _settings.ClockFormat is not ("12" or "24");
+        ClockSecondsSwitch.IsChecked = _settings.ClockSeconds;
+        DateNumbers.IsChecked = _settings.PillDate == "Numbers";
+        DateDay.IsChecked = _settings.PillDate == "Day";
+        DateOff.IsChecked = _settings.PillDate == "Off";
+        DateShort.IsChecked = _settings.PillDate is not ("Numbers" or "Day" or "Off");
+        DateNumbers.Content = DateTime.Now.ToString(DayFirst ? "dd/MM" : "MM/dd");
+        DateShort.Content = DateTime.Now.ToString("ddd d MMM");
+        DateDay.Content = DateTime.Now.ToString("dddd");
+        ScreensMain.IsChecked = _settings.ScreenMode == "Main";
+        ScreensFollow.IsChecked = _settings.ScreenMode != "Main";
+        Clean1.IsChecked = _settings.ShelfCleanDays == 1;
+        Clean7.IsChecked = _settings.ShelfCleanDays == 7;
+        Clean30.IsChecked = _settings.ShelfCleanDays == 30;
+        CleanNever.IsChecked = _settings.ShelfCleanDays is not (1 or 7 or 30);
+        ClearClipboardSwitch.IsChecked = _settings.ClearClipboardOnLock;
         ShowUpdateState();
         ShowHotkeyStatus();
         StartWithWindowsSwitch.IsChecked = _startupEnabled;
@@ -1148,7 +1170,21 @@ public partial class MainWindow
         _settings.CapsLockPopups = CapsLockPopupsSwitch.IsChecked == true;
         _settings.TrayAppIcons = TrayAppIconsSwitch.IsChecked == true;
         _settings.Fahrenheit = FahrenheitChip.IsChecked == true;
+        _settings.SongPopups = SongPopupsSwitch.IsChecked == true;
+        _settings.PopupLength = PopupShort.IsChecked == true ? "Short" : PopupLong.IsChecked == true ? "Long" : "Normal";
+        _settings.ClockFormat = Clock12.IsChecked == true ? "12" : Clock24.IsChecked == true ? "24" : "Windows";
+        _settings.ClockSeconds = ClockSecondsSwitch.IsChecked == true;
+        _settings.PillDate = DateNumbers.IsChecked == true ? "Numbers" : DateDay.IsChecked == true ? "Day" : DateOff.IsChecked == true ? "Off" : "Short";
+        bool screensChanged = _settings.ScreenMode != (ScreensMain.IsChecked == true ? "Main" : "Follow");
+        _settings.ScreenMode = ScreensMain.IsChecked == true ? "Main" : "Follow";
+        int cleanDays = Clean1.IsChecked == true ? 1 : Clean7.IsChecked == true ? 7 : Clean30.IsChecked == true ? 30 : 0;
+        bool cleanChanged = cleanDays != _settings.ShelfCleanDays;
+        _settings.ShelfCleanDays = cleanDays;
+        _settings.ClearClipboardOnLock = ClearClipboardSwitch.IsChecked == true;
         _settings.Save();
+        UpdateClock();
+        if (cleanChanged) _lastShelfClean = DateTime.MinValue; // clean up at the next check, a moment from now
+        if (screensChanged) ApplyScreenMode();
 
         if (sender == StartWithWindowsSwitch) SetStartup(StartWithWindowsSwitch.IsChecked == true);
 
@@ -1886,7 +1922,8 @@ public partial class MainWindow
         if (sender == SettingsNavTabs) BuildTabsList();
         foreach (var (nav, panel) in new (RadioButton, FrameworkElement)[]
                  {
-                     (SettingsNavAppearance, SettingsAppearance), (SettingsNavBehaviour, SettingsBehaviour),
+                     (SettingsNavAppearance, SettingsAppearance), (SettingsNavClock, SettingsClock),
+                     (SettingsNavBehaviour, SettingsBehaviour), (SettingsNavStorage, SettingsStorage),
                      (SettingsNavPopups, SettingsPopups), (SettingsNavTabs, SettingsTabs),
                      (SettingsNavWeather, SettingsWeather), (SettingsNavAbout, SettingsAbout),
                  })

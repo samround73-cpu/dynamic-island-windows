@@ -2,6 +2,13 @@
 
 Newest first. Updates install themselves (Settings › About › Updates), so you don't need to download these by hand.
 
+## 0.43
+- **More than one screen:** the island moves to whichever screen your mouse rests on. It tucks up into the top of the old screen and drops into the new one. Prefer it to stay put? Settings › Behaviour › Main screen.
+- **New song pop-out:** the app, the song, play/pause and skip buttons, and how far through it is. It waits while your mouse is on it. Turn it off in Settings › Pop-ups.
+- **Pop-outs stay up for** Short, Normal or Long (Settings › Pop-ups).
+- **Clock settings** (new Settings › Clock): 12 or 24-hour or follow Windows, seconds, and how the date shows on the pill, or hide it.
+- **Shelf & clipboard settings:** clean things off the Shelf after 1, 7 or 30 days (the files stay put), and clear clipboard history when you lock the PC.
+
 ## 0.42
 - **Sound page on the Controls tab** (the arrow on the Sound row): pick where sound plays (speakers, headphones, TV), mute everything with the switch, and give every app its own volume. Apps playing right now are listed first with a gold slider; click an app's speaker to mute just that app.
 
