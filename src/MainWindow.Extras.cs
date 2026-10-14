@@ -940,8 +940,10 @@ public partial class MainWindow
                 // A soft light grey island (same shape as the others) with crisp white cards on it, so there's
                 // clear contrast. With "Frosted blur" on, it's a see-through grey wash over Windows' blur instead.
                 var wash = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
-                wash.GradientStops.Add(new GradientStop(IsGlass ? Color.FromArgb(0xC8, 0xEC, 0xEC, 0xEF) : Color.FromRgb(0xEE, 0xEE, 0xF1), 0));
-                wash.GradientStops.Add(new GradientStop(IsGlass ? Color.FromArgb(0xC0, 0xE6, 0xE6, 0xEA) : Color.FromRgb(0xE8, 0xE8, 0xEC), 1));
+                // Settings › Appearance › See-through: 100% solid down to 50%.
+                double solid = Math.Clamp(_settings.LightOpacity, 50, 100) / 100.0;
+                wash.GradientStops.Add(new GradientStop(Color.FromArgb((byte)Math.Round((IsGlass ? 0xC8 : 0xFF) * solid), 0xEE, 0xEE, 0xF1), 0));
+                wash.GradientStops.Add(new GradientStop(Color.FromArgb((byte)Math.Round((IsGlass ? 0xC0 : 0xFF) * solid), 0xE8, 0xE8, 0xEC), 1));
                 wash.Freeze();
                 IslandShape.Fill = wash;
                 IslandShape.Stroke = new SolidColorBrush(Color.FromArgb(0x1C, 0x00, 0x00, 0x00));
@@ -1035,7 +1037,7 @@ public partial class MainWindow
     private void SyncBackdrops()
     {
         if (!IsLoaded || _glass.Handle == IntPtr.Zero || _glow.Handle == IntPtr.Zero) return;
-        bool visible = IslandHost.IsVisible && IslandHost.ActualWidth > 0 && IslandShape.Data is not null;
+        bool visible = IslandHost.IsVisible && IslandHost.ActualWidth > 0 && IslandShape.Data is not null && !_idleFaded;
         Color accent = (Resources["Accent"] as SolidColorBrush)?.Color ?? Color.FromRgb(0xD6, 0xB4, 0x6A);
         Point offset = visible ? IslandHost.TranslatePoint(new Point(0, 0), this) : default; // includes the slide
 
@@ -1127,6 +1129,14 @@ public partial class MainWindow
         Clean30.IsChecked = _settings.ShelfCleanDays == 30;
         CleanNever.IsChecked = _settings.ShelfCleanDays is not (1 or 7 or 30);
         ClearClipboardSwitch.IsChecked = _settings.ClearClipboardOnLock;
+        LightOpacitySlider.Value = Math.Clamp(_settings.LightOpacity, 50, 100);
+        LightOpacityText.Text = $"{LightOpacitySlider.Value:0}%";
+        IdleFade.IsChecked = _settings.IdleMode == "Fade";
+        IdleStay.IsChecked = _settings.IdleMode != "Fade";
+        Idle10.IsChecked = _settings.IdleSeconds <= 10;
+        Idle60.IsChecked = _settings.IdleSeconds is > 30 and <= 60;
+        Idle300.IsChecked = _settings.IdleSeconds > 60;
+        Idle30.IsChecked = _settings.IdleSeconds is > 10 and <= 30;
         ShowUpdateState();
         ShowHotkeyStatus();
         StartWithWindowsSwitch.IsChecked = _startupEnabled;
@@ -1181,7 +1191,10 @@ public partial class MainWindow
         bool cleanChanged = cleanDays != _settings.ShelfCleanDays;
         _settings.ShelfCleanDays = cleanDays;
         _settings.ClearClipboardOnLock = ClearClipboardSwitch.IsChecked == true;
+        _settings.IdleMode = IdleFade.IsChecked == true ? "Fade" : "Stay";
+        _settings.IdleSeconds = Idle10.IsChecked == true ? 10 : Idle60.IsChecked == true ? 60 : Idle300.IsChecked == true ? 300 : 30;
         _settings.Save();
+        ApplyIdleSetting();
         UpdateClock();
         if (cleanChanged) _lastShelfClean = DateTime.MinValue; // clean up at the next check, a moment from now
         if (screensChanged) ApplyScreenMode();
@@ -1204,6 +1217,19 @@ public partial class MainWindow
             _rows.Clear(); // the Apps list rebuilds with the new icons next time it opens
         }
         if (unitsChanged) RefreshWeather(force: true);
+    }
+
+    /// <summary>Settings › Appearance › See-through: applies as you drag.</summary>
+    private void LightOpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (LightOpacityText is null) return; // still being built
+        LightOpacityText.Text = $"{e.NewValue:0}%";
+        if (_loadingSettings || !IsLoaded) return;
+        int value = (int)Math.Round(e.NewValue);
+        if (value == _settings.LightOpacity) return;
+        _settings.LightOpacity = value;
+        _settings.Save();
+        ApplyIslandStyle();
     }
 
     private void ShowHotkeyStatus()

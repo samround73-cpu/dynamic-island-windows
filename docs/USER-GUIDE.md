@@ -167,6 +167,7 @@ fails, the island just uses normal app icons.
 | `MediaService.cs` | "Now playing" info, play/pause/skip and song position |
 | `VolumeService.cs` | Volume, speakers name and microphone mute |
 | `MainWindow.Screens.cs` | More than one screen: follows the mouse, with the tuck-and-drop move |
+| `BrightnessService.cs` | Screen brightness: Windows (laptops) or the monitor's own controls (DDC/CI) |
 | `AudioMixer.cs` | Lists speakers and headphones, switches between them, and each app's volume |
 | `ConnectivityService.cs` | Wi-Fi and Bluetooth switches and the current network name |
 | `SystemStats.cs` | CPU, memory, network, disk and top-apps numbers for the Stats tab |

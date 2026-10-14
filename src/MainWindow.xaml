@@ -1281,14 +1281,28 @@
                                         </Grid>
                                     </Border>
 
-                                    <Grid Margin="0,10,0,0">
-                                        <Slider x:Name="ControlsVolume" Style="{StaticResource BigSlider}" Minimum="0" Maximum="100"
-                                                SmallChange="2" LargeChange="10" ValueChanged="VolumeSlider_ValueChanged" />
-                                        <TextBlock x:Name="ControlsVolumeGlyph" Style="{StaticResource Glyph}" FontSize="13" Text="&#xE767;"
-                                                   HorizontalAlignment="Left" Margin="12,0,0,0" Foreground="{DynamicResource AccentText}" IsHitTestVisible="False" />
-                                        <TextBlock x:Name="ControlsVolumeText" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center" Margin="0,0,14,0" IsHitTestVisible="False" />
-                                    </Grid>
+                                    <DockPanel Margin="0,10,0,0">
+                                        <!-- Volume or brightness: one slider, switched here (only shown where brightness can be changed) -->
+                                        <Border x:Name="SliderModeToggle" DockPanel.Dock="Right" Background="{DynamicResource FieldBrush}" CornerRadius="16"
+                                                Padding="3" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="Collapsed">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button x:Name="SliderVolumeMode" Style="{StaticResource IslandButton}" Width="30" Height="26" Click="SliderMode_Click" ToolTip="Volume">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE767;" />
+                                                </Button>
+                                                <Button x:Name="SliderBrightnessMode" Style="{StaticResource IslandButton}" Width="30" Height="26" Click="SliderMode_Click" ToolTip="Brightness">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE706;" />
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+                                        <Grid>
+                                            <Slider x:Name="ControlsVolume" Style="{StaticResource BigSlider}" Minimum="0" Maximum="100"
+                                                    SmallChange="2" LargeChange="10" ValueChanged="VolumeSlider_ValueChanged" />
+                                            <TextBlock x:Name="ControlsVolumeGlyph" Style="{StaticResource Glyph}" FontSize="13" Text="&#xE767;"
+                                                       HorizontalAlignment="Left" Margin="12,0,0,0" Foreground="{DynamicResource AccentText}" IsHitTestVisible="False" />
+                                            <TextBlock x:Name="ControlsVolumeText" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right"
+                                                       VerticalAlignment="Center" Margin="0,0,14,0" IsHitTestVisible="False" />
+                                        </Grid>
+                                    </DockPanel>
 
                                     <UniformGrid Columns="2" Margin="-4,6,-4,0">
                                         <Button Style="{StaticResource CardButton}" Padding="10,8" Tag="ms-settings:" Click="Launch_Click" ToolTip="Open Windows Settings">
@@ -1775,6 +1789,18 @@
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Slider x:Name="LightOpacitySlider" Style="{StaticResource SlimSlider}" Width="150" Minimum="50" Maximum="100"
+                                                            TickFrequency="5" IsSnapToTickEnabled="True" Foreground="{DynamicResource Accent}"
+                                                            VerticalAlignment="Center" ValueChanged="LightOpacitySlider_ValueChanged" />
+                                                    <TextBlock x:Name="LightOpacityText" Width="38" FontSize="11.5" FontWeight="SemiBold" TextAlignment="Right" VerticalAlignment="Center" />
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="See-through (Light style)" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="How much of your wallpaper shows through. Text stays dark and readable" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
                                                 <CheckBox x:Name="LineIconsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Line icons" FontSize="12.5" FontWeight="SemiBold" />
@@ -1873,6 +1899,28 @@
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Tuck away over maximised apps" FontSize="12.5" FontWeight="SemiBold" />
                                                     <TextBlock Text="Rest the mouse at the top of the screen to bring it back" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton x:Name="IdleStay" Style="{StaticResource ChipRadio}" GroupName="IdleMode" Content="Stay" Click="SettingChanged" />
+                                                    <RadioButton x:Name="IdleFade" Style="{StaticResource ChipRadio}" GroupName="IdleMode" Content="Fade" Click="SettingChanged" />
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="When you're not using it" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Fades to a faint ghost; comes straight back when the mouse heads up there or something pops out" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton x:Name="Idle10" Style="{StaticResource ChipRadio}" GroupName="IdleAfter" Content="10 s" Click="SettingChanged" />
+                                                    <RadioButton x:Name="Idle30" Style="{StaticResource ChipRadio}" GroupName="IdleAfter" Content="30 s" Click="SettingChanged" />
+                                                    <RadioButton x:Name="Idle60" Style="{StaticResource ChipRadio}" GroupName="IdleAfter" Content="1 min" Click="SettingChanged" />
+                                                    <RadioButton x:Name="Idle300" Style="{StaticResource ChipRadio}" GroupName="IdleAfter" Content="5 min" Click="SettingChanged" />
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Fade after" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Without the mouse near the island" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">

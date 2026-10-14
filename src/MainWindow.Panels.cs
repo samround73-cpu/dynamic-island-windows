@@ -945,14 +945,17 @@ public partial class MainWindow
         double percent = Math.Round(_volume.Level * 100);
         bool muted = _volume.Muted;
         _updatingVolume = true;
-        ControlsVolume.Value = muted ? 0 : percent;
+        if (!_sliderShowsBrightness) ControlsVolume.Value = muted ? 0 : percent;
         MediaVolume.Value = muted ? 0 : percent;
         _updatingVolume = false;
 
         string glyph = muted ? "" : "";
-        ControlsVolumeGlyph.Text = glyph;
+        if (!_sliderShowsBrightness)
+        {
+            ControlsVolumeGlyph.Text = glyph;
+            ControlsVolumeText.Text = muted ? "Muted" : $"{percent:0}%";
+        }
         MediaVolumeGlyph.Text = glyph;
-        ControlsVolumeText.Text = muted ? "Muted" : $"{percent:0}%";
         MediaOutputText.Text = _volume.OutputName;
     }
 
@@ -973,6 +976,12 @@ public partial class MainWindow
     private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (_updatingVolume || !IsLoaded) return;
+        if (sender == ControlsVolume && _sliderShowsBrightness)
+        {
+            _brightness.Set((int)Math.Round(e.NewValue));
+            ControlsVolumeText.Text = $"{e.NewValue:0}%";
+            return;
+        }
         _volume.Level = (float)(e.NewValue / 100.0);
         if (_volume.Muted && e.NewValue > 0) _volume.Muted = false;
         RefreshVolume();

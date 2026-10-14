@@ -36,6 +36,12 @@ public sealed class IslandSettings
     /// <summary>Light style only: real frosted blur behind the island (Windows can only blur a plain rounded panel,
     /// so the island loses its curved shoulders).</summary>
     public bool LightFrosted { get; set; }
+    /// <summary>Light style: how solid the island is, 50-100 (%). Lower lets more of the wallpaper show through.</summary>
+    public int LightOpacity { get; set; } = 100;
+    /// <summary>When the island hasn't been used for a while: "Stay" as it is, or "Fade" to a faint ghost.</summary>
+    public string IdleMode { get; set; } = "Stay";
+    /// <summary>How long without the mouse near it before it fades.</summary>
+    public int IdleSeconds { get; set; } = 30;
     /// <summary>Line-style app icons (Tabler) instead of each app's own icon.</summary>
     public bool UseLineIcons { get; set; } = true;
     public bool PeekOnHover { get; set; } = true;

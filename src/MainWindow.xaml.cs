@@ -239,6 +239,7 @@ public partial class MainWindow : Window
 
         PositionWindow();
         ApplyScreenMode();
+        ApplyIdleSetting();
         UpdateSearchHotkey();
         StartUpdateChecks();
     }
@@ -956,6 +957,7 @@ public partial class MainWindow : Window
         _activityOpensTab = null;
         _activityFile = null;
         if (_expanded || _peeking || _presence == Presence.FullScreen) return;
+        Unfade();
 
         // Over a maximised app, peek out for the pop-out, then tuck away again afterwards.
         if (_presence == Presence.AutoHidden && !_revealed) SlideBack();
@@ -1146,6 +1148,7 @@ public partial class MainWindow : Window
                 HideDeviceList();
                 RefreshControls();
                 RefreshTrayChips();
+                RefreshBrightness();
                 break;
             case "Apps":
                 // Pick up newly installed apps every so often.
