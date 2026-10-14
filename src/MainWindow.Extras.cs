@@ -1131,12 +1131,12 @@ public partial class MainWindow
         ClearClipboardSwitch.IsChecked = _settings.ClearClipboardOnLock;
         LightOpacitySlider.Value = Math.Clamp(_settings.LightOpacity, 50, 100);
         LightOpacityText.Text = $"{LightOpacitySlider.Value:0}%";
-        IdleFade.IsChecked = _settings.IdleMode == "Fade";
-        IdleStay.IsChecked = _settings.IdleMode != "Fade";
-        Idle10.IsChecked = _settings.IdleSeconds <= 10;
-        Idle60.IsChecked = _settings.IdleSeconds is > 30 and <= 60;
-        Idle300.IsChecked = _settings.IdleSeconds > 60;
-        Idle30.IsChecked = _settings.IdleSeconds is > 10 and <= 30;
+        bool fades = _settings.IdleMode == "Fade";
+        IdleOff.IsChecked = !fades;
+        Idle10.IsChecked = fades && _settings.IdleSeconds <= 10;
+        Idle30.IsChecked = fades && _settings.IdleSeconds is > 10 and <= 30;
+        Idle60.IsChecked = fades && _settings.IdleSeconds is > 30 and <= 60;
+        Idle300.IsChecked = fades && _settings.IdleSeconds > 60;
         ShowUpdateState();
         ShowHotkeyStatus();
         StartWithWindowsSwitch.IsChecked = _startupEnabled;
@@ -1191,8 +1191,9 @@ public partial class MainWindow
         bool cleanChanged = cleanDays != _settings.ShelfCleanDays;
         _settings.ShelfCleanDays = cleanDays;
         _settings.ClearClipboardOnLock = ClearClipboardSwitch.IsChecked == true;
-        _settings.IdleMode = IdleFade.IsChecked == true ? "Fade" : "Stay";
-        _settings.IdleSeconds = Idle10.IsChecked == true ? 10 : Idle60.IsChecked == true ? 60 : Idle300.IsChecked == true ? 300 : 30;
+        _settings.IdleMode = IdleOff.IsChecked == true ? "Stay" : "Fade";
+        if (IdleOff.IsChecked != true)
+            _settings.IdleSeconds = Idle10.IsChecked == true ? 10 : Idle60.IsChecked == true ? 60 : Idle300.IsChecked == true ? 300 : 30;
         _settings.Save();
         ApplyIdleSetting();
         UpdateClock();

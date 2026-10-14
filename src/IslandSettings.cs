@@ -42,6 +42,8 @@ public sealed class IslandSettings
     public string IdleMode { get; set; } = "Stay";
     /// <summary>How long without the mouse near it before it fades.</summary>
     public int IdleSeconds { get; set; } = 30;
+    /// <summary>On screens that can't change their real brightness: how bright the dimming layer leaves it (100 = not dimmed).</summary>
+    public int DimLevel { get; set; } = 100;
     /// <summary>Line-style app icons (Tabler) instead of each app's own icon.</summary>
     public bool UseLineIcons { get; set; } = true;
     public bool PeekOnHover { get; set; } = true;

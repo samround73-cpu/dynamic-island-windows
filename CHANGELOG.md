@@ -3,6 +3,7 @@
 Newest first. Updates install themselves (Settings › About › Updates), so you don't need to download these by hand.
 
 ## 0.44
+- **0.44.1:** brightness now works on every screen: where the real brightness can't be changed (Shadow, Remote Desktop, some monitors) the slider dims the picture instead, and remembers it. Fading is now one clear row: Settings › Behaviour › Fade when not in use: Off, 10 s, 30 s, 1 min or 5 min.
 - **Brightness on the Controls tab:** a little toggle next to the big slider switches it between volume and brightness. It only appears on screens whose brightness can be changed (laptops, and most monitors), so not on Shadow.
 - **Fade when idle** (Settings › Behaviour): after 10 s, 30 s, 1 min or 5 min without the mouse nearby, the island fades to a faint ghost, and comes straight back when the mouse heads up there or something pops out.
 - **See-through Light style** (Settings › Appearance): a slider from fully solid down to 50%.

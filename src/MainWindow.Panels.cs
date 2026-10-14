@@ -978,7 +978,7 @@ public partial class MainWindow
         if (_updatingVolume || !IsLoaded) return;
         if (sender == ControlsVolume && _sliderShowsBrightness)
         {
-            _brightness.Set((int)Math.Round(e.NewValue));
+            SetBrightness((int)Math.Round(e.NewValue));
             ControlsVolumeText.Text = $"{e.NewValue:0}%";
             return;
         }

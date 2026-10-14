@@ -85,6 +85,7 @@ public partial class MainWindow
         _screenBounds = info.Value.rcMonitor;
         WindowTracker.IslandMonitor = monitor;
         CentreOnScreen();
+        if (_dim is not null) ApplyDim(); // the dimming follows the island to its screen
         // Moving to a screen with different scaling makes Windows resize the window; centre it again once it has.
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(CentreOnScreen));
     }

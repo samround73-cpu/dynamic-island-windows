@@ -14,6 +14,7 @@ public partial class MainWindow
     private readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromMilliseconds(200) };
     private bool _idleTimerWired;
     private bool _idleFaded;
+    private bool _loggedIdleFade;
     private DateTime _lastIslandUse = DateTime.Now;
     private const double IdleOpacity = 0.22;
 
@@ -47,6 +48,8 @@ public partial class MainWindow
         if (!_idleFaded && DateTime.Now - _lastIslandUse > TimeSpan.FromSeconds(Math.Max(5, _settings.IdleSeconds)))
         {
             _idleFaded = true;
+            if (!_loggedIdleFade) App.LogNote($"idle: faded after {_settings.IdleSeconds} s without the mouse nearby");
+            _loggedIdleFade = true;
             IslandHost.BeginAnimation(OpacityProperty, new DoubleAnimation(IdleOpacity, TimeSpan.FromMilliseconds(900))
             {
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut },

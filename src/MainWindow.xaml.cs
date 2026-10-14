@@ -240,6 +240,7 @@ public partial class MainWindow : Window
         PositionWindow();
         ApplyScreenMode();
         ApplyIdleSetting();
+        ApplyDim();
         UpdateSearchHotkey();
         StartUpdateChecks();
     }
@@ -370,6 +371,7 @@ public partial class MainWindow : Window
         catch { /* already closed along with the main window */ }
         _volume.Dispose();
         try { lock (_mixer) _mixer.Dispose(); } catch { }
+        try { _dim?.Close(); } catch { }
     }
 
     private void Exit_Click(object sender, RoutedEventArgs e) => Close();

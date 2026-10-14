@@ -1903,24 +1903,15 @@
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
                                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <RadioButton x:Name="IdleStay" Style="{StaticResource ChipRadio}" GroupName="IdleMode" Content="Stay" Click="SettingChanged" />
-                                                    <RadioButton x:Name="IdleFade" Style="{StaticResource ChipRadio}" GroupName="IdleMode" Content="Fade" Click="SettingChanged" />
-                                                </StackPanel>
-                                                <StackPanel Margin="0,0,12,0">
-                                                    <TextBlock Text="When you're not using it" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Fades to a faint ghost; comes straight back when the mouse heads up there or something pops out" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
-                                                </StackPanel>
-                                            </DockPanel>
-                                            <DockPanel Margin="0,8,0,6">
-                                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <RadioButton x:Name="IdleOff" Style="{StaticResource ChipRadio}" GroupName="IdleAfter" Content="Off" Click="SettingChanged" />
                                                     <RadioButton x:Name="Idle10" Style="{StaticResource ChipRadio}" GroupName="IdleAfter" Content="10 s" Click="SettingChanged" />
                                                     <RadioButton x:Name="Idle30" Style="{StaticResource ChipRadio}" GroupName="IdleAfter" Content="30 s" Click="SettingChanged" />
                                                     <RadioButton x:Name="Idle60" Style="{StaticResource ChipRadio}" GroupName="IdleAfter" Content="1 min" Click="SettingChanged" />
                                                     <RadioButton x:Name="Idle300" Style="{StaticResource ChipRadio}" GroupName="IdleAfter" Content="5 min" Click="SettingChanged" />
                                                 </StackPanel>
                                                 <StackPanel Margin="0,0,12,0">
-                                                    <TextBlock Text="Fade after" FontSize="12.5" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Without the mouse near the island" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="Fade when not in use" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="After this long without the mouse nearby it fades to a faint ghost, and comes straight back when the mouse heads up there or something pops out" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">
