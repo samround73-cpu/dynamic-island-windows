@@ -1383,6 +1383,7 @@ public partial class MainWindow
     private void OnCaptureReady(string path, CaptureWatcher.Kind kind)
     {
         bool screenshot = kind == CaptureWatcher.Kind.Screenshot;
+        if (screenshot) App.LogNote($"screenshot noticed: {System.IO.Path.GetFileName(path)}");
         if (!screenshot) MarkDownloadsNew();
         if (screenshot ? !_settings.ScreenshotPopups : !_settings.DownloadPopups) return;
 

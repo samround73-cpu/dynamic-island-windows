@@ -1434,8 +1434,44 @@
                                      The soft fades at the top and bottom are overlays (much cheaper than masking the list). -->
                                 <Grid>
                                     <ScrollViewer x:Name="AppsScroller" MaxHeight="400" Focusable="False"
-                                                  VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled"
+                                                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                                                   PreviewMouseWheel="AppsScroller_PreviewMouseWheel" ScrollChanged="AppsScroller_ScrollChanged">
+                                        <!-- A slim, quiet scroll bar you can drag (brighter when you hover it) -->
+                                        <ScrollViewer.Resources>
+                                            <Style TargetType="ScrollBar">
+                                                <Setter Property="Width" Value="6" />
+                                                <Setter Property="MinWidth" Value="6" />
+                                                <Setter Property="Margin" Value="6,6,0,6" />
+                                                <Setter Property="Cursor" Value="Hand" />
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="ScrollBar">
+                                                            <Grid Background="Transparent">
+                                                                <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                                                    <Track.Thumb>
+                                                                        <Thumb PreviewMouseLeftButtonDown="AppsScrollThumb_MouseDown">
+                                                                            <Thumb.Template>
+                                                                                <ControlTemplate TargetType="Thumb">
+                                                                                    <Border x:Name="ThumbBar" CornerRadius="3" Background="{DynamicResource Ink33}" />
+                                                                                    <ControlTemplate.Triggers>
+                                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                                            <Setter TargetName="ThumbBar" Property="Background" Value="{DynamicResource Ink66}" />
+                                                                                        </Trigger>
+                                                                                        <Trigger Property="IsDragging" Value="True">
+                                                                                            <Setter TargetName="ThumbBar" Property="Background" Value="{DynamicResource Ink80}" />
+                                                                                        </Trigger>
+                                                                                    </ControlTemplate.Triggers>
+                                                                                </ControlTemplate>
+                                                                            </Thumb.Template>
+                                                                        </Thumb>
+                                                                    </Track.Thumb>
+                                                                </Track>
+                                                            </Grid>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ScrollViewer.Resources>
                                         <StackPanel>
                                             <ItemsControl x:Name="AppsList" MouseLeave="AppsList_MouseLeave">
                                                 <ItemsControl.ItemContainerStyle>

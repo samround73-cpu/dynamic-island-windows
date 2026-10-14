@@ -62,10 +62,16 @@ public sealed class CaptureWatcher : IDisposable
     };
     private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase) { ".png", ".jpg", ".jpeg", ".webp" };
 
+    private string? _screenshotsFolder;
+    private DateTime _newestScreenshotSeen = DateTime.Now;
+    private int _ticks;
+
     public void Start()
     {
-        Watch(KnownFolder("b7bede81-df94-4682-a7d8-57a52620b86f") // Screenshots
-              ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Screenshots"), Kind.Screenshot);
+        _screenshotsFolder = KnownFolder("b7bede81-df94-4682-a7d8-57a52620b86f") // Screenshots
+              ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Screenshots");
+        Watch(_screenshotsFolder, Kind.Screenshot);
+        App.LogNote($"watching for screenshots in {_screenshotsFolder}");
         DownloadsFolder = KnownFolder("374de290-123f-4565-9164-39c4925e467b") // Downloads
               ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
         Watch(DownloadsFolder, Kind.Download);
@@ -144,9 +150,31 @@ public sealed class CaptureWatcher : IDisposable
     }
 
     /// <summary>Once a second: how big is each download now, how fast is it growing, and is anything still arriving?</summary>
+    /// <summary>
+    /// Every few seconds, also look for new screenshots directly, in case Windows didn't announce one
+    /// (it can miss changes in some folders, e.g. ones kept in sync by OneDrive or on another drive).
+    /// </summary>
+    private void PollScreenshots()
+    {
+        try
+        {
+            if (_screenshotsFolder is null || !Directory.Exists(_screenshotsFolder)) return;
+            var fresh = new DirectoryInfo(_screenshotsFolder).EnumerateFiles()
+                .Where(f => ImageExtensions.Contains(f.Extension) && f.CreationTime > _newestScreenshotSeen)
+                .ToList();
+            foreach (var file in fresh)
+            {
+                if (file.CreationTime > _newestScreenshotSeen) _newestScreenshotSeen = file.CreationTime;
+                Consider(file.FullName, Kind.Screenshot);
+            }
+        }
+        catch { }
+    }
+
     private void PollDownloads()
     {
         if (Interlocked.Exchange(ref _polling, 1) == 1) return; // the previous check is still going
+        if (++_ticks % 3 == 0) PollScreenshots();
         try
         {
             List<KeyValuePair<string, Tracked>> items;
@@ -260,6 +288,7 @@ public sealed class CaptureWatcher : IDisposable
         try
         {
             if (kind == Kind.Screenshot && File.Exists(path) && new FileInfo(path).Length > 0) FileReady?.Invoke(path, kind);
+            else App.LogNote($"gave up waiting for {Path.GetFileName(path)}");
         }
         catch { }
     }

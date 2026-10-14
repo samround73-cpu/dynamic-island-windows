@@ -888,6 +888,13 @@ public partial class MainWindow
         if (shown > 0) _cascadeNext = false;
     }
 
+    /// <summary>Grabbing the scroll bar stops any smooth scroll in progress, so the two don't fight.</summary>
+    private void AppsScrollThumb_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        StopSmoothScroll();
+        _scrollTarget = _scrollCurrent = AppsScroller.VerticalOffset;
+    }
+
     private void AppsScroller_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {
         // The top fade only appears once you've scrolled, so the first heading is never dimmed.
@@ -902,7 +909,7 @@ public partial class MainWindow
     {
         e.Handled = true;
         if (!_scrollRunning) _scrollTarget = _scrollCurrent = AppsScroller.VerticalOffset;
-        _scrollTarget = Math.Clamp(_scrollTarget - e.Delta * 1.15, 0, AppsScroller.ScrollableHeight);
+        _scrollTarget = Math.Clamp(_scrollTarget - e.Delta * 0.9, 0, AppsScroller.ScrollableHeight);
         StartSmoothScroll();
     }
 
