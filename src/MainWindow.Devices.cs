@@ -7,7 +7,7 @@ using System.Windows.Media;
 
 namespace DynamicIsland;
 
-public enum DeviceListKind { None, Wifi, Bluetooth }
+public enum DeviceListKind { None, Wifi, Bluetooth, Sound }
 
 /// <summary>
 /// The Wi-Fi and Bluetooth lists on the Controls tab: the arrow on the Wi-Fi or Bluetooth row slides a list in
@@ -27,11 +27,23 @@ public partial class MainWindow
 
         _deviceList = kind;
         _passwordFor = null;
-        DeviceListTitle.Text = kind == DeviceListKind.Wifi ? "Wi-Fi" : "Bluetooth";
-        DeviceListMoreText.Text = kind == DeviceListKind.Wifi ? "More Wi-Fi settings" : "Add a device or more settings";
-        DeviceListSwitch.IsChecked = kind == DeviceListKind.Wifi ? _connectivity.WifiOn : _connectivity.BluetoothOn;
+        DeviceListTitle.Text = kind switch { DeviceListKind.Wifi => "Wi-Fi", DeviceListKind.Bluetooth => "Bluetooth", _ => "Sound" };
+        DeviceListMoreText.Text = kind switch
+        {
+            DeviceListKind.Wifi => "More Wi-Fi settings",
+            DeviceListKind.Bluetooth => "Add a device or more settings",
+            _ => "More sound settings",
+        };
+        DeviceListSwitch.IsChecked = kind switch
+        {
+            DeviceListKind.Wifi => _connectivity.WifiOn,
+            DeviceListKind.Bluetooth => _connectivity.BluetoothOn,
+            _ => _volume.Available && !_volume.Muted,
+        };
+        DeviceListSwitch.ToolTip = kind == DeviceListKind.Sound ? "Sound on or muted" : null;
         SwitchList.Visibility = Visibility.Hidden; // keeps its size, so the card doesn't jump
         DeviceListPanel.Visibility = Visibility.Visible;
+        if (kind == DeviceListKind.Sound) ShowAppVolumes();
         LoadDeviceList();
     }
 
@@ -42,18 +54,30 @@ public partial class MainWindow
         _passwordFor = null;
         DeviceListPanel.Visibility = Visibility.Collapsed;
         SwitchList.Visibility = Visibility.Visible;
+        HideAppVolumes();
     }
 
     private void DeviceListBack_Click(object sender, RoutedEventArgs e) => HideDeviceList();
 
     private void DeviceListRefresh_Click(object sender, RoutedEventArgs e) => LoadDeviceList();
 
-    private void DeviceListMore_Click(object sender, RoutedEventArgs e) =>
-        OpenAndCollapse(_deviceList == DeviceListKind.Wifi ? "ms-settings:network-wifi" : "ms-settings:bluetooth");
+    private void DeviceListMore_Click(object sender, RoutedEventArgs e) => OpenAndCollapse(_deviceList switch
+    {
+        DeviceListKind.Wifi => "ms-settings:network-wifi",
+        DeviceListKind.Bluetooth => "ms-settings:bluetooth",
+        _ => "ms-settings:sound",
+    });
 
     private async void DeviceListSwitch_Click(object sender, RoutedEventArgs e)
     {
         bool on = DeviceListSwitch.IsChecked == true;
+        if (_deviceList == DeviceListKind.Sound)
+        {
+            _volume.Muted = !on;
+            RefreshVolume();
+            RefreshControls();
+            return;
+        }
         if (_deviceList == DeviceListKind.Wifi) _connectivity.SetWifi(on);
         else _connectivity.SetBluetooth(on);
         await System.Threading.Tasks.Task.Delay(on ? 2500 : 600); // give the radio a moment
@@ -65,6 +89,12 @@ public partial class MainWindow
         if (_deviceListBusy || _deviceList == DeviceListKind.None) return;
         _deviceListBusy = true;
         var kind = _deviceList;
+        if (kind == DeviceListKind.Sound)
+        {
+            LoadSoundOutputs();
+            _deviceListBusy = false;
+            return;
+        }
         DeviceListRows.Children.Clear();
         DeviceListRows.Children.Add(Note(kind == DeviceListKind.Wifi ? "Looking for networks…" : "Finding your devices…"));
         try

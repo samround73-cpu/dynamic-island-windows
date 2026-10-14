@@ -166,6 +166,7 @@ fails, the island just uses normal app icons.
 | `Backdrops.cs` | The frosted-glass blur and the glow halo, drawn on separate layers just behind the island |
 | `MediaService.cs` | "Now playing" info, play/pause/skip and song position |
 | `VolumeService.cs` | Volume, speakers name and microphone mute |
+| `AudioMixer.cs` | Lists speakers and headphones, switches between them, and each app's volume |
 | `ConnectivityService.cs` | Wi-Fi and Bluetooth switches and the current network name |
 | `SystemStats.cs` | CPU, memory, network, disk and top-apps numbers for the Stats tab |
 | `SystemActions.cs` | Dark mode, lock/sleep/restart/shut down, opening apps and settings |

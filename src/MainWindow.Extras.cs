@@ -726,6 +726,12 @@ public partial class MainWindow
         _volume.Attach();
         RefreshVolume();
         RefreshControls();
+        if (_deviceList == DeviceListKind.Sound)
+        {
+            LoadSoundOutputs();
+            _mixerLayout = "";
+            RefreshAppVolumes();
+        }
         if (_settings.DevicePopOuts && _volume.OutputName.Length > 0)
             ShowActivity("", null, _volume.OutputName, "Sound now plays here", null);
     }

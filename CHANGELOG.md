@@ -2,6 +2,9 @@
 
 Newest first. Updates install themselves (Settings › About › Updates), so you don't need to download these by hand.
 
+## 0.42
+- **Sound page on the Controls tab** (the arrow on the Sound row): pick where sound plays (speakers, headphones, TV), mute everything with the switch, and give every app its own volume. Apps playing right now are listed first with a gold slider; click an app's speaker to mute just that app.
+
 ## 0.41
 - **Pin folders, files, websites and Settings pages** to the hover tray, next to your apps. Use the **+** at the end of the row, or drag something onto the pill and choose **Pin to tray** or **Put on Shelf**. Hover a pinned folder to peek at its newest files; a pinned Downloads folder gets a dot when something new arrives.
 - **Shelf actions:** tick several files to copy, zip or show them together; right-click for Open with, Edit, Copy image, Rename, Save a copy, Pin to tray, Delete and more. The screenshot pop-out has quick Copy, Edit and Delete buttons.

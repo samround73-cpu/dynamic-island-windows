@@ -112,6 +112,7 @@ be switched off in Settings › Pop-ups.
 - **Background apps:** the icons apps used to put in the taskbar corner (OneDrive, Discord, Steam…) appear as named
   chips on the Controls tab, with their own menus.
 - **Wi-Fi and Bluetooth lists:** pick a network or connect your headphones without opening Settings.
+- **Sound page:** switch between speakers, headphones and TV, and set each app's volume (Controls › the arrow on Sound).
 - **More pop-ups:** Caps Lock, volume changes, new songs, Bluetooth devices, USB drives and charging.
 - **Looks after itself:** updates install automatically, it reopens when you reconnect or unlock (great for
   Shadow and Remote Desktop), and if anything goes wrong it restarts itself quietly.

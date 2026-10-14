@@ -355,6 +355,7 @@ public partial class MainWindow : Window
         }
         catch { /* already closed along with the main window */ }
         _volume.Dispose();
+        try { lock (_mixer) _mixer.Dispose(); } catch { }
     }
 
     private void Exit_Click(object sender, RoutedEventArgs e) => Close();

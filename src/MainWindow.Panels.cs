@@ -220,7 +220,7 @@ public partial class MainWindow
             RefreshVolume();
             RefreshControls();
         };
-        _audioTile.MoreRequested += OpenOutputPicker;
+        _audioTile.MoreRequested += () => ShowDeviceList(DeviceListKind.Sound);
 
         _micTile.Toggled += () =>
         {

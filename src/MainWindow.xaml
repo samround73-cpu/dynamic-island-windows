@@ -1199,8 +1199,21 @@
                                     </Grid>
                                 </Border>
 
+                                <!-- Right, while the Sound list is open: a volume slider for each app making sound -->
+                                <Border x:Name="AppVolumesCard" Grid.Column="2" Style="{StaticResource Card}" Padding="8,8,8,6" Visibility="Collapsed">
+                                    <DockPanel>
+                                        <DockPanel DockPanel.Dock="Top" Margin="4,2,4,6">
+                                            <TextBlock DockPanel.Dock="Right" Text="Playing first" FontSize="10.5" Foreground="{DynamicResource SubtleText}" VerticalAlignment="Center" />
+                                            <TextBlock Text="Apps" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                        <ScrollViewer VerticalScrollBarVisibility="Hidden" Focusable="False">
+                                            <StackPanel x:Name="AppVolumeRows" />
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                </Border>
+
                                 <!-- Right: player, volume, shortcuts -->
-                                <StackPanel Grid.Column="2">
+                                <StackPanel x:Name="ControlsRight" Grid.Column="2">
                                     <Border x:Name="MiniMediaCard" Style="{StaticResource Card}">
                                         <Grid>
                                             <StackPanel x:Name="MiniMediaFull" Visibility="Collapsed">
