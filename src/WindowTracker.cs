@@ -234,7 +234,7 @@ public static class WindowTracker
         return !ScreenCaptureTools.Contains(exe);
     }
 
-    private static readonly HashSet<string> ScreenCaptureTools = new(StringComparer.OrdinalIgnoreCase)
+    internal static readonly HashSet<string> ScreenCaptureTools = new(StringComparer.OrdinalIgnoreCase)
     {
         "ScreenClippingHost", "SnippingTool", "ScreenSketch", "ShareX", "Greenshot", "Lightshot", "Flameshot",
         "SnagitCapture", "Snagit32", "PicPick", "Screenpresso", "ScreenToGif",

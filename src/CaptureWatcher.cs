@@ -63,6 +63,7 @@ public sealed class CaptureWatcher : IDisposable
     private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase) { ".png", ".jpg", ".jpeg", ".webp" };
 
     private string? _screenshotsFolder;
+    public string? ScreenshotsFolder => _screenshotsFolder;
     private DateTime _newestScreenshotSeen = DateTime.Now;
     private int _ticks;
 
@@ -138,6 +139,12 @@ public sealed class CaptureWatcher : IDisposable
             if (_recent.Count > 200) _recent.Clear();
         }
         _ = WaitUntilReadyAsync(path, kind);
+    }
+
+    /// <summary>Don't report this file when it turns up (we saved it ourselves and have already dealt with it).</summary>
+    public void Ignore(string path)
+    {
+        lock (_lock) _recent[path] = DateTime.Now;
     }
 
     private void TrackInProgress(string path)

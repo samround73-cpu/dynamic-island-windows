@@ -7,6 +7,7 @@ Newest first. Updates install themselves (Settings › About › Updates), so yo
 - **Shelf actions:** tick several files to copy, zip or show them together; right-click for Open with, Edit, Copy image, Rename, Save a copy, Pin to tray, Delete and more. The screenshot pop-out has quick Copy, Edit and Delete buttons.
 - **Background app icons** (OneDrive, Discord, Steam…) appear as named chips on the Controls tab, with their own menus. Can be turned off in Settings › Behaviour.
 - **Wi-Fi and Bluetooth lists** on the Controls tab (the arrow on each row): connect to networks, and connect or disconnect headphones and speakers.
+- **0.41.3:** snips taken with Win+Shift+S now land on the Shelf even when Snipping Tool isn't set to save them automatically (the island saves the copied snip to Pictures › Screenshots itself).
 
 ## 0.40
 - **Light and dark switch instantly.** Changing style, or Windows switching between light and dark with **Auto**, no longer restarts the island.

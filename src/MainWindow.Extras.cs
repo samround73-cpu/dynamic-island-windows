@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
@@ -28,7 +29,11 @@ public partial class MainWindow
 
     private void CaptureClipboard()
     {
-        if (_clipboard.Capture()) return;
+        if (_clipboard.Capture())
+        {
+            CheckForSnip();
+            return;
+        }
 
         // Another app still had the clipboard open; try again in a moment (a few times at most).
         if (++_clipboardRetries > 4) return;
@@ -1380,10 +1385,111 @@ public partial class MainWindow
         ShowActivity("\uE74D", null, gone ? "Screenshot deleted" : "Couldn't delete it", gone ? "It's in the Recycle Bin if you need it" : null, null, seconds: 1.8, width: ActivityWidth);
     }
 
+    // ---- Snips that only go to the clipboard ----
+    // Win+Shift+S always copies the snip, but Snipping Tool only saves a file when "Automatically save screenshots"
+    // is on. So when a screenshot tool puts a picture on the clipboard and no file turns up, we save it ourselves.
+
+    private DateTime _lastScreenshotNoticed = DateTime.MinValue;
+    private DateTime _lastSnipSaved = DateTime.MinValue;
+    private string? _snipSavedPath;
+    private bool _snipPending;
+
+    private void CheckForSnip()
+    {
+        if (_snipPending || (!_settings.ScreenshotPopups && !_settings.CapturesToShelf)) return;
+        try
+        {
+            if (!Clipboard.ContainsImage() || Clipboard.ContainsFileDropList()) return;
+
+            string owner = "";
+            IntPtr ownerWindow = Native.GetClipboardOwner();
+            if (ownerWindow != IntPtr.Zero) owner = Path.GetFileNameWithoutExtension(WindowTracker.GetExePath(ownerWindow));
+            bool fromCaptureTool = owner.Length == 0 || WindowTracker.ScreenCaptureTools.Contains(owner)
+                || owner.Equals("explorer", StringComparison.OrdinalIgnoreCase); // Print Screen without Snipping Tool
+            App.LogNote($"picture copied by '{(owner.Length == 0 ? "unknown" : owner)}'{(fromCaptureTool ? " - treating it as a snip" : "")}");
+            if (!fromCaptureTool) return;
+
+            // Prefer the PNG copy many tools include: Windows' own bitmap copy can come back see-through.
+            BitmapSource? image = null;
+            if (Clipboard.GetData("PNG") is MemoryStream png)
+            {
+                try { image = BitmapFrame.Create(png, BitmapCreateOptions.None, BitmapCacheOption.OnLoad); } catch { }
+            }
+            image ??= Clipboard.GetImage();
+            if (image is null || image.PixelWidth < 8 || image.PixelHeight < 8) return;
+            if (image.CanFreeze) image.Freeze();
+
+            _snipPending = true;
+            DateTime copiedAt = DateTime.Now;
+            var wait = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2.5) };
+            wait.Tick += (_, _) =>
+            {
+                wait.Stop();
+                _snipPending = false;
+                // Snipping Tool saved a file after all; the watcher has already shown it.
+                if (_lastScreenshotNoticed > copiedAt.AddSeconds(-2)) return;
+                SaveSnip(image);
+            };
+            wait.Start();
+        }
+        catch (Exception ex)
+        {
+            _snipPending = false;
+            App.LogNote($"couldn't check the clipboard for a snip: {ex.Message}");
+        }
+    }
+
+    private void SaveSnip(BitmapSource image)
+    {
+        string? path = null;
+        foreach (var folder in new[]
+        {
+            _captures.ScreenshotsFolder,
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DynamicIsland", "Captures"),
+        })
+        {
+            if (string.IsNullOrEmpty(folder)) continue;
+            try
+            {
+                Directory.CreateDirectory(folder);
+                string baseName = $"Screenshot {DateTime.Now:yyyy-MM-dd HHmmss}";
+                string target = Path.Combine(folder, baseName + ".png");
+                for (int n = 2; File.Exists(target); n++) target = Path.Combine(folder, $"{baseName} ({n}).png");
+                _captures.Ignore(target); // we're reporting it ourselves
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(image));
+                using (var stream = new FileStream(target, FileMode.CreateNew, FileAccess.Write))
+                    encoder.Save(stream);
+                path = target;
+                break;
+            }
+            catch (Exception ex)
+            {
+                App.LogNote($"couldn't save the snip in {folder}: {ex.Message}");
+            }
+        }
+        if (path is null) return;
+
+        App.LogNote($"saved the copied snip as {path}");
+        _lastSnipSaved = DateTime.Now;
+        _snipSavedPath = path;
+        OnCaptureReady(path, CaptureWatcher.Kind.Screenshot);
+    }
+
     private void OnCaptureReady(string path, CaptureWatcher.Kind kind)
     {
         bool screenshot = kind == CaptureWatcher.Kind.Screenshot;
-        if (screenshot) App.LogNote($"screenshot noticed: {System.IO.Path.GetFileName(path)}");
+        if (screenshot)
+        {
+            // Snipping Tool saved its own copy just after we saved one from the clipboard: don't show it twice.
+            if (path != _snipSavedPath && DateTime.Now - _lastSnipSaved < TimeSpan.FromSeconds(8))
+            {
+                App.LogNote($"screenshot {Path.GetFileName(path)} skipped (already saved from the clipboard)");
+                return;
+            }
+            _lastScreenshotNoticed = DateTime.Now;
+            App.LogNote($"screenshot noticed: {Path.GetFileName(path)}");
+        }
         if (!screenshot) MarkDownloadsNew();
         if (screenshot ? !_settings.ScreenshotPopups : !_settings.DownloadPopups) return;
 
