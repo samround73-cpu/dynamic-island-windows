@@ -16,6 +16,19 @@ public sealed class AppTile : INotifyPropertyChanged
     /// <summary>Not an app: the thin line between pinned apps and other open apps in the hover tray.</summary>
     public bool IsDivider { get; init; }
 
+    /// <summary>Not an app: the "+" at the end of the hover tray's row, for adding a pin.</summary>
+    public bool IsAddButton { get; init; }
+
+    /// <summary>A pinned folder, file, website or Settings page (not an app): what it opens.</summary>
+    public string? PinTarget { get; set; }
+
+    private bool _isShortcutPin;
+    public bool IsShortcutPin { get => _isShortcutPin; set => Set(ref _isShortcutPin, value); }
+
+    private bool _hasBadge;
+    /// <summary>A small dot on the icon (a pinned Downloads folder with something new in it).</summary>
+    public bool HasBadge { get => _hasBadge; set => Set(ref _hasBadge, value); }
+
     /// <summary>How the installed app is started (from the Start menu list); null if it isn't in the Start menu.</summary>
     public string? LaunchPath { get; set; }
 

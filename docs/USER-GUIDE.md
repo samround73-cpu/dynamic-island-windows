@@ -57,6 +57,11 @@ To remove it all, use **Settings › About › Remove from this PC…**, then de
   always sit at the start of the tray's row of apps, followed by a thin line and any other open apps. Pinned apps
   that aren't running are shown as faded outlines; click one to start it. Right-click a pinned app to unpin it or
   use **Move left / Move right** to change the order. (Apps that aren't in the Start menu can't be pinned.)
+- **Pinned folders, files, websites and Settings pages** sit in the same row, in whatever order you like. Add one with
+  the **+** at the end of the row, or drag a folder, file or a link from your browser onto the pill and drop it on
+  **Pin to tray** (the other half, **Put on Shelf**, puts files on the Shelf instead). Right-click a pin to rename it,
+  move it or unpin it. Hover a pinned folder for a peek at its newest files. A pinned Downloads folder gets a small
+  dot when something new arrives.
 - **While something downloads** (in your Downloads folder), a glow runs along the bottom of the pill with the
   download speed beside it. Hover for the file name and how much has arrived so far. Browsers don't tell other apps
   how big a download will be, so there's no percentage or time left.
@@ -75,10 +80,10 @@ To remove it all, use **Settings › About › Remove from this PC…**, then de
 | Tab | What's there |
 |---|---|
 | **Today** | Three cards side by side: the clock (with week and day of the year), the **weather** (now, high/low and the next five hours) and a month calendar — use the arrows (or scroll over it) to change month |
-| **Controls** | A list of switches (Wi-Fi, Bluetooth, Sound, Microphone, Dark mode) — click a row to flip it, click its arrow for more options. Beside it: a compact player, the volume bar, and buttons for Windows Settings, Quick settings, Notifications and tray icons |
+| **Controls** | A list of switches (Wi-Fi, Bluetooth, Sound, Microphone, Dark mode) — click a row to flip it. The arrow on Wi-Fi opens a list of networks (click one to connect, typing the password if it needs one); the arrow on Bluetooth lists your devices with battery levels where they report them, and headphones and speakers can be connected or disconnected right there. Beside it: a compact player, the volume bar, buttons for Windows Settings, Quick settings, Notifications and the taskbar, and **In the background**: the icons apps normally put in the taskbar corner (OneDrive, Discord, Steam…) as named chips. Hover for the app's tooltip, click to open it, right-click for the app's own menu |
 | **Apps** | A small row of your open apps at the top for quick switching, then every installed app as a list, with **Starred**, **Recent** and **Applications** sections and a search box. Apps that are already open show a gold dot and "Open" — clicking them brings that window back rather than starting a new copy. Click the star to favourite an app (the apps pinned to your old taskbar are starred for you the first time). Middle-click or right-click for a new window |
 | **Clipboard** | Recent copies under Pinned / Today / Yesterday, with search, filters (All, Text, Images, Links) and a preview with details. **Enter** pastes into the app you were using, **Ctrl+C** copies, **Ctrl+P** pins, **Del** removes, **Tab** changes filter, double-click pastes. Only pinned text is saved; the rest is forgotten when the island closes. Password-manager copies are skipped |
-| **Shelf** | Files you've dropped onto the island. Drag them back out into any folder, email or app (or use **Drag all**). Double-click to open; right-click for Show in folder / Copy path / Remove. The shelf only remembers where files are — nothing is copied or moved |
+| **Shelf** | Files you've dropped onto the island. Drag them back out into any folder, email or app (or use **Drag all**). Double-click to open. Click to tick several, then **Copy**, **Zip** or **Show in folder** them together. Right-click a file for Open with, Edit (pictures), Copy image, Copy file or path, Compress to zip, Save a copy, Rename, Pin to tray, Show in folder, Remove, or Delete (to the Recycle Bin). The shelf only remembers where files are — nothing is copied or moved unless you ask |
 | **Media** | A big player that glows with a colour picked from the album artwork. Song position, shuffle and repeat (when the app supports them), volume, and a picker for speakers/headphones |
 | **Stats** | Rings for CPU, memory, disk and download speed, plus the five heaviest open apps with their CPU and memory use |
 | **Power** | Up time, Windows Update status, battery/power and how many apps are open at a glance. Lock, Sleep and Sign out buttons, and slide-to-confirm sliders for Restart and Shut down (they install waiting updates, like the Start menu does). Plus quick launch buttons |
@@ -99,7 +104,7 @@ Other things you can do:
 
 **Settings** — the gear at the top-left of the open island. Pick a section on the left:
 - **Appearance:** accent colour, island style (Black; Light — a soft light island with white cards and dark text; Glow — an accent halo; Outline; or Auto — Black or Light, following Windows' light/dark mode), plus **Frosted blur** for the Light style (real see-through frost; Windows can only blur a plain rounded panel, so the island loses its curved shoulders), line icons, battery on the island, music bars.
-- **Behaviour:** the hover tray and its delay, tucking away over maximised apps, the Ctrl+Space shortcut, and Start with Windows (it tells you if Windows has switched it off, with a button to fix it).
+- **Behaviour:** the hover tray and its delay, tucking away over maximised apps, background app icons, the Ctrl+Space shortcut, and Start with Windows (it tells you if Windows has switched it off, with a button to fix it).
 - **Pop-ups:** screenshots, finished downloads, whether those go onto the Shelf, the download-progress glow,
   Caps Lock, and device pop-ups.
 - **Tabs:** show or hide each tab and change their order.
@@ -107,7 +112,8 @@ Other things you can do:
 - **About:** the version, the error-log folder, the project page, and Quit.
 
 **Pop-ups** also appear when you take a screenshot (with a preview) or a download finishes, and both are put on the
-Shelf ready to drag into an email or chat (click the pop-out to open the Shelf). They also appear for Bluetooth
+Shelf ready to drag into an email or chat (click the pop-out to open the Shelf). The screenshot pop-out also has
+quick **Copy**, **Edit** and **Delete** buttons. They also appear for Bluetooth
 devices connecting/disconnecting, USB drives being plugged in or removed, sound switching to different speakers
 or headphones, and Caps Lock being turned on or off. Each kind can be turned off in Settings › Pop-ups.
 

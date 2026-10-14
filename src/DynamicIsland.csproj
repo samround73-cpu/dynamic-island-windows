@@ -6,13 +6,15 @@
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <UseWPF>true</UseWPF>
+    <!-- ManagedShell (background apps' icons) uses a little of Windows Forms -->
+    <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>DynamicIsland</AssemblyName>
     <RootNamespace>DynamicIsland</RootNamespace>
     <Product>Dynamic Island</Product>
-    <Version>0.40.0</Version>
+    <Version>0.41.0</Version>
     <ApplicationIcon>Assets\island.ico</ApplicationIcon>
     <Company>samround73-cpu</Company>
     <Copyright>Copyright (c) 2026 samround73-cpu. MIT licence.</Copyright>
@@ -28,6 +30,8 @@
   <ItemGroup>
     <!-- Reads and changes the system volume -->
     <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+    <!-- Receives the icons apps put in the taskbar corner (Apache 2.0, by the Cairo Shell team; also used by RetroBar) -->
+    <PackageReference Include="ManagedShell" Version="0.0.372" />
   </ItemGroup>
 
 </Project>

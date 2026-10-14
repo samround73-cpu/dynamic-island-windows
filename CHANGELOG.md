@@ -2,6 +2,12 @@
 
 Newest first. Updates install themselves (Settings › About › Updates), so you don't need to download these by hand.
 
+## 0.41
+- **Pin folders, files, websites and Settings pages** to the hover tray, next to your apps. Use the **+** at the end of the row, or drag something onto the pill and choose **Pin to tray** or **Put on Shelf**. Hover a pinned folder to peek at its newest files; a pinned Downloads folder gets a dot when something new arrives.
+- **Shelf actions:** tick several files to copy, zip or show them together; right-click for Open with, Edit, Copy image, Rename, Save a copy, Pin to tray, Delete and more. The screenshot pop-out has quick Copy, Edit and Delete buttons.
+- **Background app icons** (OneDrive, Discord, Steam…) appear as named chips on the Controls tab, with their own menus. Can be turned off in Settings › Behaviour.
+- **Wi-Fi and Bluetooth lists** on the Controls tab (the arrow on each row): connect to networks, and connect or disconnect headphones and speakers.
+
 ## 0.40
 - **Light and dark switch instantly.** Changing style, or Windows switching between light and dark with **Auto**, no longer restarts the island.
 - **Light keeps the island's shape**, with crisper white cards on a soft light-grey island for better contrast.

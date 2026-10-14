@@ -151,6 +151,9 @@ public partial class MainWindow
             existing.Line = incoming.Line;
             existing.LaunchPath = incoming.LaunchPath;
             existing.IsClosedPin = incoming.IsClosedPin;
+            existing.PinTarget = incoming.PinTarget;
+            existing.IsShortcutPin = incoming.IsShortcutPin;
+            existing.HasBadge = incoming.HasBadge;
             if (current != i) target.Move(current, i);
         }
     }
@@ -212,37 +215,44 @@ public partial class MainWindow
         ShowActivity("\uE7BA", null, $"Can't close {name}", "It runs as administrator; close it from its own window", null);
     }
 
-    // ---- Pinned apps: a dock row in the hover tray ----
+    // ---- Pins: a dock row in the hover tray (see also MainWindow.Pins.cs) ----
 
-    /// <summary>Pinned apps (open ones in colour, closed ones faded), a divider, then any other open apps.</summary>
+    /// <summary>Pinned apps (open ones in colour, closed ones faded), pinned folders/files/websites, a divider, the other open apps, then "+".</summary>
     private readonly ObservableCollection<AppTile> _dock = new();
     private static readonly AppTile DockDivider = new() { Key = "|divider", IsDivider = true };
+    private static readonly AppTile DockAddButton = new() { Key = "|add", Name = "Add a pin", IsAddButton = true };
 
     /// <summary>
-    /// The hover tray's row of apps: pinned apps first (faded if they aren't running), a thin line, then the other
-    /// open apps. The app in front has a ring in the accent colour.
+    /// The hover tray's row: everything pinned, in your order (apps faded if they aren't running; folders, files
+    /// and websites as shortcuts), a thin line, the other open apps, and a "+" to add a pin.
+    /// The app in front has a ring in the accent colour.
     /// </summary>
     private void UpdateDock()
     {
         var pinned = new List<AppTile>();
         var shown = new HashSet<AppTile>();
-        foreach (var launch in _settings.TrayPins)
+        foreach (var target in _settings.TrayPins)
         {
-            var open = _openApps.FirstOrDefault(t => string.Equals(t.LaunchPath, launch, StringComparison.OrdinalIgnoreCase));
+            if (!IsAppPin(target))
+            {
+                pinned.Add(ShortcutTile(target));
+                continue;
+            }
+            var open = _openApps.FirstOrDefault(t => string.Equals(t.LaunchPath, target, StringComparison.OrdinalIgnoreCase));
             if (open is not null)
             {
                 if (shown.Add(open)) pinned.Add(open);
                 continue;
             }
-            var app = _installedApps.FirstOrDefault(a => string.Equals(a.LaunchPath, launch, StringComparison.OrdinalIgnoreCase));
+            var app = _installedApps.FirstOrDefault(a => string.Equals(a.LaunchPath, target, StringComparison.OrdinalIgnoreCase));
             if (app is null) continue; // still loading the apps list, or it was uninstalled
             pinned.Add(new AppTile
             {
-                Key = "pin:" + launch,
+                Key = "pin:" + target,
                 Name = app.Name,
                 Icon = app.Icon,
                 ExePath = app.ExePath ?? "",
-                LaunchPath = launch,
+                LaunchPath = target,
                 Line = LineIconFor(app.Name, app.ExePath, app.Icon),
                 IsClosedPin = true,
             });
@@ -252,15 +262,29 @@ public partial class MainWindow
         var all = new List<AppTile>(pinned);
         if (pinned.Count > 0 && others.Count > 0) all.Add(DockDivider);
         all.AddRange(others);
+        all.Add(DockAddButton);
         SyncTiles(_dock, all);
 
-        PeekDock.Visibility = _dock.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        PeekDock.Visibility = Visibility.Visible;
     }
 
-    /// <summary>Click in the dock row: a closed pinned app starts; an open one behaves like any open app.</summary>
+    /// <summary>
+    /// Click in the dock row: a closed pinned app starts, a pinned folder/file/website opens, "+" offers things
+    /// to pin, and an open app behaves like any open app.
+    /// </summary>
     private void DockTile_Click(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is not AppTile tile || tile.IsDivider) return;
+        if (tile.IsAddButton)
+        {
+            ShowAddPinMenu((FrameworkElement)sender);
+            return;
+        }
+        if (tile.IsShortcutPin && tile.PinTarget is { } target)
+        {
+            OpenShortcutPin(target);
+            return;
+        }
         if (!tile.IsClosedPin)
         {
             AppTile_Click(sender, e);
@@ -272,42 +296,56 @@ public partial class MainWindow
         SystemActions.Open(tile.LaunchPath);
     }
 
-    /// <summary>Right-click an app in the hover tray or the Apps tab's open-app chips. The menu is made on the spot.</summary>
+    /// <summary>Right-click an app or pin in the hover tray, or an open-app chip on the Apps tab. The menu is made on the spot.</summary>
     private void Tile_RightClick(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement element || element.DataContext is not AppTile tile || tile.IsDivider) return;
         e.Handled = true;
-
-        MenuItem Item(string header, RoutedEventHandler click)
+        if (tile.IsAddButton)
         {
-            var item = new MenuItem { Header = header };
-            item.Click += click;
-            return item;
+            ShowAddPinMenu(element);
+            return;
         }
 
         var menu = new ContextMenu { DataContext = tile };
         menu.Opened += Menu_Opened;
         menu.Closed += Menu_Closed;
 
-        if (tile.IsClosedPin) menu.Items.Add(Item("Open", (_, _) => DockTile_Click(element, new RoutedEventArgs())));
-        else menu.Items.Add(Item("New window", TileNewWindow_Click));
-
-        if (tile.LaunchPath is { } launch && !SettingsPages.IsSettingsTarget(launch))
+        string? pinKey = tile.IsShortcutPin ? tile.PinTarget : tile.LaunchPath;
+        if (tile.IsShortcutPin && pinKey is not null)
         {
-            bool pinned = _settings.IsTrayPinned(launch);
-            menu.Items.Add(Item(pinned ? "Unpin from tray" : "Pin to tray", (_, _) => ToggleTrayPin(launch)));
-            if (pinned)
-            {
-                int index = _settings.TrayPins.FindIndex(s => string.Equals(s, launch, StringComparison.OrdinalIgnoreCase));
-                if (index > 0) menu.Items.Add(Item("Move left", (_, _) => MoveTrayPin(launch, -1)));
-                if (index < _settings.TrayPins.Count - 1) menu.Items.Add(Item("Move right", (_, _) => MoveTrayPin(launch, +1)));
-            }
+            string target = pinKey;
+            menu.Items.Add(MenuEntry("Open", (_, _) => OpenShortcutPin(target)));
+            if (File.Exists(target) || Directory.Exists(target))
+                menu.Items.Add(MenuEntry("Show in folder", (_, _) => { ExitPeek(); FileActions.ShowInFolder(target); }));
+            menu.Items.Add(MenuEntry("Rename…", (_, _) => RenamePin(target)));
+        }
+        else if (tile.IsClosedPin)
+        {
+            menu.Items.Add(MenuEntry("Open", (_, _) => DockTile_Click(element, new RoutedEventArgs())));
+        }
+        else
+        {
+            menu.Items.Add(MenuEntry("New window", TileNewWindow_Click));
         }
 
-        if (!tile.IsClosedPin)
+        if (pinKey is not null && (tile.IsShortcutPin || !SettingsPages.IsSettingsTarget(pinKey)))
+        {
+            string key = pinKey;
+            bool pinned = _settings.IsTrayPinned(key);
+            if (pinned)
+            {
+                int index = _settings.TrayPins.FindIndex(s => string.Equals(s, key, StringComparison.OrdinalIgnoreCase));
+                if (index > 0) menu.Items.Add(MenuEntry("Move left", (_, _) => MoveTrayPin(key, -1)));
+                if (index < _settings.TrayPins.Count - 1) menu.Items.Add(MenuEntry("Move right", (_, _) => MoveTrayPin(key, +1)));
+            }
+            menu.Items.Add(MenuEntry(pinned ? "Unpin from tray" : "Pin to tray", (_, _) => ToggleTrayPin(key)));
+        }
+
+        if (!tile.IsClosedPin && !tile.IsShortcutPin)
         {
             menu.Items.Add(new Separator());
-            menu.Items.Add(Item("Close", TileClose_Click));
+            menu.Items.Add(MenuEntry("Close", TileClose_Click));
         }
 
         element.ContextMenu = menu; // attached to the icon, so it picks up the island's menu styling
@@ -315,16 +353,23 @@ public partial class MainWindow
         menu.IsOpen = true;
     }
 
-    private void ToggleTrayPin(string launchPath)
+    private static MenuItem MenuEntry(string header, RoutedEventHandler click)
     {
-        _settings.ToggleTrayPin(launchPath);
+        var item = new MenuItem { Header = header };
+        item.Click += click;
+        return item;
+    }
+
+    private void ToggleTrayPin(string target)
+    {
+        _settings.ToggleTrayPin(target);
         _settings.Save();
         AfterTrayPinsChanged();
     }
 
-    private void MoveTrayPin(string launchPath, int delta)
+    private void MoveTrayPin(string target, int delta)
     {
-        _settings.MoveTrayPin(launchPath, delta);
+        _settings.MoveTrayPin(target, delta);
         _settings.Save();
         AfterTrayPinsChanged();
     }
@@ -393,7 +438,12 @@ public partial class MainWindow
     private void Tile_MouseEnter(object sender, MouseEventArgs e)
     {
         if (sender is not FrameworkElement element || element.DataContext is not AppTile tile || _menuOpen) return;
-        if (tile.Windows.Count == 0) // a pinned app that isn't open: nothing to preview
+        if (tile.IsShortcutPin && tile.PinTarget is { } folder && Directory.Exists(folder))
+        {
+            StartFolderPeek(element, folder); // a pinned folder: peek at its newest files
+            return;
+        }
+        if (tile.Windows.Count == 0) // a pinned app that isn't open, or "+": nothing to preview
         {
             _previewShowTimer.Stop();
             if (_preview.IsVisible) RestartTimer(_previewHideTimer);
@@ -410,6 +460,7 @@ public partial class MainWindow
 
     private void Tile_MouseLeave(object sender, MouseEventArgs e)
     {
+        FolderPeekAnchorLeft();
         _previewShowTimer.Stop();
         RestartTimer(_previewHideTimer);
     }

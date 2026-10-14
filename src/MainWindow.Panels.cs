@@ -205,14 +205,14 @@ public partial class MainWindow
             if (_connectivity.HasWifi) _connectivity.SetWifi(!_connectivity.WifiOn);
             else OpenAndCollapse("ms-settings:network");
         };
-        _wifiTile.MoreRequested += () => OpenAndCollapse("ms-settings:network-wifi");
+        _wifiTile.MoreRequested += () => ShowDeviceList(DeviceListKind.Wifi);
 
         _bluetoothTile.Toggled += () =>
         {
             if (_connectivity.HasBluetooth) _connectivity.SetBluetooth(!_connectivity.BluetoothOn);
             else OpenAndCollapse("ms-settings:bluetooth");
         };
-        _bluetoothTile.MoreRequested += () => OpenAndCollapse("ms-settings:bluetooth");
+        _bluetoothTile.MoreRequested += () => ShowDeviceList(DeviceListKind.Bluetooth);
 
         _audioTile.Toggled += () =>
         {

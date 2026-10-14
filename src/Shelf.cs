@@ -2,13 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.ComponentModel;
 using System.Windows.Media;
 
 namespace DynamicIsland;
 
 /// <summary>A file or folder parked on the shelf.</summary>
-public sealed class ShelfItem
+public sealed class ShelfItem : INotifyPropertyChanged
 {
+    private bool _isSelected;
+    /// <summary>Ticked on the Shelf, for doing something to several files at once.</summary>
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (_isSelected == value) return;
+            _isSelected = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
     public string Path { get; init; } = "";
     public string Name => System.IO.Path.GetFileName(Path.TrimEnd('\\')) is { Length: > 0 } name ? name : Path;
     public ImageSource? Thumbnail { get; init; }
@@ -69,6 +85,21 @@ public sealed class Shelf
     public void Remove(ShelfItem item)
     {
         Items.Remove(item);
+        Save();
+    }
+
+    public void Remove(IEnumerable<ShelfItem> items)
+    {
+        foreach (var item in items.ToList()) Items.Remove(item);
+        Save();
+    }
+
+    /// <summary>After a rename: the same spot on the shelf, now pointing at the new name.</summary>
+    public void Replace(ShelfItem item, string newPath)
+    {
+        int index = Items.IndexOf(item);
+        if (index < 0) return;
+        Items[index] = Create(newPath);
         Save();
     }
 

@@ -25,6 +25,7 @@ public partial class MainWindow : Window
     /// <summary>The pill is a little wider when it's showing the battery.</summary>
     private double CompactWidth => _pillWidth; // grows to fit what the pill shows (UpdatePillWidth)
     private const double ActivityWidth = 340, ActivityHeight = 64;
+    private double _activityWidthNow = ActivityWidth;
     private const double ExpandedWidth = 660;
     private const double MinPeekWidth = 250;
 
@@ -280,6 +281,7 @@ public partial class MainWindow : Window
         App.Taskbar.StartWatching();
         StartCaptureWatcher();
         StartCapsLockWatch();
+        ApplyTrayIconSetting();
 
         _preview.Owner = this;
 
@@ -340,6 +342,7 @@ public partial class MainWindow : Window
         SystemEvents.SessionSwitch -= OnSessionSwitch;
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
         _captures.Dispose();
+        StopTrayIcons(); // apps send their icons back to the normal taskbar
 
         if (_foregroundHook != IntPtr.Zero) Native.UnhookWinEvent(_foregroundHook);
         if (_hwnd != IntPtr.Zero) Native.RemoveClipboardFormatListener(_hwnd);
@@ -805,6 +808,7 @@ public partial class MainWindow : Window
 
     private void ExitPeek()
     {
+        CloseFolderPeek();
         _peekOpenTimer.Stop();
         _peekCloseTimer.Stop();
         if (!_peeking) return;
@@ -921,9 +925,10 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Briefly widens the pill to show something (like the iPhone does for a timer or AirPods).</summary>
-    private void ShowActivity(string? glyph, ImageSource? art, string title, string? subtitle, double? level, double seconds = 2.4)
+    private void ShowActivity(string? glyph, ImageSource? art, string title, string? subtitle, double? level, double seconds = 2.4, double? width = null)
     {
         _activityOpensTab = null;
+        _activityFile = null;
         if (_expanded || _peeking || _presence == Presence.FullScreen) return;
 
         // Over a maximised app, peek out for the pop-out, then tuck away again afterwards.
@@ -946,12 +951,19 @@ public partial class MainWindow : Window
             ActivityBarScale.BeginAnimation(ScaleTransform.ScaleXProperty,
                 new DoubleAnimation(Math.Clamp(l, 0, 1), TimeSpan.FromMilliseconds(150)));
 
+        ActivityActions.Visibility = Visibility.Collapsed;
         if (!_activityShowing)
         {
             _activityShowing = true;
             FadeOut(CompactContent, 90);
             FadeIn(ActivityContent, 180, delay: 100);
-            AnimateSize(ActivityWidth, ActivityHeight, 480, bouncy: true);
+            _activityWidthNow = width ?? ActivityWidth;
+            AnimateSize(_activityWidthNow, ActivityHeight, 480, bouncy: true);
+        }
+        else if ((width ?? ActivityWidth) != _activityWidthNow)
+        {
+            _activityWidthNow = width ?? ActivityWidth;
+            AnimateSize(_activityWidthNow, ActivityHeight, 300, bouncy: false);
         }
 
         _activityTimer.Interval = TimeSpan.FromSeconds(seconds);
@@ -1085,7 +1097,9 @@ public partial class MainWindow : Window
                 RefreshPowerInfo();
                 break;
             case "Controls":
+                HideDeviceList();
                 RefreshControls();
+                RefreshTrayChips();
                 break;
             case "Apps":
                 // Pick up newly installed apps every so often.

@@ -106,6 +106,12 @@ be switched off in Settings › Pop-ups.
 - **Clipboard:** your recent copies, with search, filters (text, images, links) and pinning.
   Copies from password managers are skipped.
 - **Shelf:** drop files onto the island to keep them handy, then drag them out into any folder, email or chat.
+  Tick several to copy or zip them together, or right-click a file to rename, zip, edit, pin or delete it.
+- **Pin anything:** folders, files, websites and Settings pages sit beside your pinned apps in the hover tray. Drag
+  them onto the pill, or use the **+**. Hover a pinned folder to peek at its newest files.
+- **Background apps:** the icons apps used to put in the taskbar corner (OneDrive, Discord, Steam…) appear as named
+  chips on the Controls tab, with their own menus.
+- **Wi-Fi and Bluetooth lists:** pick a network or connect your headphones without opening Settings.
 - **More pop-ups:** Caps Lock, volume changes, new songs, Bluetooth devices, USB drives and charging.
 - **Looks after itself:** updates install automatically, it reopens when you reconnect or unlock (great for
   Shadow and Remote Desktop), and if anything goes wrong it restarts itself quietly.

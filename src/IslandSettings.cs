@@ -24,6 +24,8 @@ public sealed class IslandSettings
     public bool ImportedTaskbarPins { get; set; }
     /// <summary>Launch paths of apps pinned to the hover tray, in the order they're shown.</summary>
     public List<string> TrayPins { get; set; } = new();
+    /// <summary>Names you've given pins (folders, files, websites), by what they open.</summary>
+    public Dictionary<string, string> PinNames { get; set; } = new();
 
     // ---- Appearance and behaviour ----
     public string AccentColor { get; set; } = "#D6B46A";
@@ -58,6 +60,9 @@ public sealed class IslandSettings
 
     /// <summary>A moving glow on the pill (and a row in the hover tray) while something is downloading.</summary>
     public bool DownloadProgress { get; set; } = true;
+
+    /// <summary>Show the icons apps put in the taskbar corner (OneDrive, Discord…) on the Controls tab.</summary>
+    public bool TrayAppIcons { get; set; } = true;
 
     /// <summary>Pop out when Caps Lock is turned on or off.</summary>
     public bool CapsLockPopups { get; set; } = true;

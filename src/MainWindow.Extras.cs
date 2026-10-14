@@ -264,31 +264,25 @@ public partial class MainWindow
         ShelfEmpty.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
         ShelfDragAllButton.Visibility = _shelf.Items.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
         ShelfTitle.Text = empty ? "SHELF" : $"SHELF  ·  {_shelf.Items.Count} {(_shelf.Items.Count == 1 ? "ITEM" : "ITEMS")}";
-        if (_currentTab == "Shelf") ResizeExpandedIfNeeded();
+        UpdateShelfSelection();
     }
 
     private void Island_DragOver(object sender, DragEventArgs e)
     {
         e.Handled = true;
-        if (_draggingOut || !e.Data.GetDataPresent(DataFormats.FileDrop))
+        bool files = e.Data.GetDataPresent(DataFormats.FileDrop);
+        string? link = files ? null : DraggedLink(e.Data);
+        if (_draggingOut || (!files && link is null))
         {
             e.Effects = DragDropEffects.None;
             return;
         }
-        e.Effects = DragDropEffects.Copy; // the files themselves are never moved; the shelf just remembers them
+        e.Effects = files ? DragDropEffects.Copy : DragDropEffects.Link; // files are never moved; they're only remembered
         _dropLeaveTimer.Stop();
         if (_expanded) return;
 
-        if (!_dropZoneShowing)
-        {
-            _dropZoneShowing = true;
-            ExitPeek();
-            ShowActivity("", null, "Drop to add to your shelf", "Your files stay where they are", null);
-        }
-        else
-        {
-            RestartTimer(_activityTimer); // keep the drop zone open while you're hovering
-        }
+        if (!_dropZoneShowing) ShowDropZones(canShelve: files);
+        HighlightDropZone(DropTargetIsPin(e));
     }
 
     private void Island_DragLeave(object sender, DragEventArgs e) => RestartTimer(_dropLeaveTimer);
@@ -296,16 +290,74 @@ public partial class MainWindow
     private void OnDropLeave()
     {
         _dropLeaveTimer.Stop();
+        HideDropZones();
+    }
+
+    /// <summary>Two choices while dragging onto the pill: pin it to the tray, or put it on the Shelf (files only).</summary>
+    private void ShowDropZones(bool canShelve)
+    {
+        _dropZoneShowing = true;
+        ExitPeek();
+        _activityTimer.Stop();
+        DropShelfZone.Visibility = canShelve ? Visibility.Visible : Visibility.Collapsed;
+        FadeOut(CompactContent, 90);
+        FadeOut(ActivityContent, 60);
+        _activityShowing = true;
+        FadeIn(DropZones, 160, delay: 80);
+        AnimateSize(canShelve ? 400 : 250, 92, 420, bouncy: true);
+    }
+
+    private void HideDropZones()
+    {
         if (!_dropZoneShowing) return;
         _dropZoneShowing = false;
-        EndActivity();
+        FadeOut(DropZones, 100);
+        _activityShowing = false;
+        if (_expanded || _peeking) return;
+        FadeIn(CompactContent, 180, delay: 140);
+        AnimateSize(CompactWidth, CompactHeight, 420, bouncy: false);
+    }
+
+    /// <summary>Over the left ("Pin to tray") zone? (Links can only be pinned.)</summary>
+    private bool DropTargetIsPin(DragEventArgs e)
+    {
+        if (DropShelfZone.Visibility != Visibility.Visible) return true;
+        return e.GetPosition(DropZones).X < DropPinZone.ActualWidth + 5;
+    }
+
+    private void HighlightDropZone(bool pin)
+    {
+        var accent = (Brush)FindResource("Accent");
+        var faint = (Brush)FindResource("AccentFaint");
+        var plain = (Brush)FindResource("Ink38");
+        DropPinZone.BorderBrush = pin ? accent : plain;
+        DropPinZone.Background = pin ? faint : Brushes.Transparent;
+        DropShelfZone.BorderBrush = pin ? plain : accent;
+        DropShelfZone.Background = pin ? Brushes.Transparent : faint;
+        DropPinText.Foreground = DropPinGlyph.Foreground = pin ? accent : Theme.Ink();
+        DropShelfText.Foreground = DropShelfGlyph.Foreground = pin ? Theme.Ink() : accent;
     }
 
     private void Island_Drop(object sender, DragEventArgs e)
     {
         e.Handled = true;
-        _dropZoneShowing = false;
-        if (_draggingOut || e.Data.GetData(DataFormats.FileDrop) is not string[] paths || paths.Length == 0) return;
+        bool pin = _dropZoneShowing && DropTargetIsPin(e);
+        HideDropZones();
+        if (_draggingOut) return;
+
+        string[]? paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+        string? link = paths is null ? DraggedLink(e.Data) : null;
+        if ((paths is null || paths.Length == 0) && link is null) return;
+
+        if (pin)
+        {
+            var targets = link is not null ? new[] { link } : paths!;
+            foreach (var target in targets) AddPin(target);
+            string what = targets.Length == 1 ? DefaultPinName(targets[0]) : $"{targets.Length} items";
+            ShowActivity("\uE718", null, $"{what} pinned", "Rest the mouse on the island to see it", null);
+            return;
+        }
+        if (paths is null || paths.Length == 0) return;
 
         int added = _shelf.Add(paths);
         if (_expanded)
@@ -322,17 +374,177 @@ public partial class MainWindow
             1 => $"{first?.Name ?? "File"} added to your shelf",
             _ => $"{added} files added to your shelf",
         };
-        ShowActivity("", added == 1 ? first?.Thumbnail : null, title, "Open the island › Shelf to use them", null);
+        ShowActivity("\uE8B7", added == 1 ? first?.Thumbnail : null, title, "Open the island › Shelf to use them", null);
+        if (_activityShowing && added > 0) _activityOpensTab = "Shelf";
     }
+
+    private bool _shelfDoubleClicked;
 
     private void ShelfTile_MouseDown(object sender, MouseButtonEventArgs e)
     {
         _dragStart = e.GetPosition(this);
+        _shelfDoubleClicked = e.ClickCount == 2;
         if (e.ClickCount == 2 && (sender as FrameworkElement)?.DataContext is ShelfItem item)
         {
             Collapse();
             SystemActions.Open(item.Path);
         }
+    }
+
+    /// <summary>A single click ticks a file (or unticks it); double-click opens it.</summary>
+    private void ShelfTile_Click(object sender, MouseButtonEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not ShelfItem item) return;
+        e.Handled = true;
+        if (_shelfDoubleClicked) { _shelfDoubleClicked = false; return; }
+        var delta = e.GetPosition(this) - _dragStart;
+        if (Math.Abs(delta.X) > 6 || Math.Abs(delta.Y) > 6) return; // that was a drag
+        item.IsSelected = !item.IsSelected;
+        UpdateShelfSelection();
+    }
+
+    private List<ShelfItem> SelectedShelfItems => _shelf.Items.Where(i => i.IsSelected).ToList();
+
+    private void UpdateShelfSelection()
+    {
+        int count = _shelf.Items.Count(i => i.IsSelected);
+        ShelfSelectionBar.Visibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        ShelfSelectionText.Text = count == 1 ? "1 selected" : $"{count} selected";
+        if (_currentTab == "Shelf") ResizeExpandedIfNeeded();
+    }
+
+    private void ShelfSelectionNone_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var item in _shelf.Items) item.IsSelected = false;
+        UpdateShelfSelection();
+    }
+
+    private void ShelfSelectionCopy_Click(object sender, RoutedEventArgs e)
+    {
+        var paths = SelectedShelfItems.Select(i => i.Path).ToList();
+        try { FileActions.CopyFiles(paths); } catch { }
+        ShowShelfNote(paths.Count == 1 ? "Copied, ready to paste" : $"{paths.Count} files copied, ready to paste");
+    }
+
+    private void ShelfSelectionZip_Click(object sender, RoutedEventArgs e) => ZipShelfItems(SelectedShelfItems);
+
+    private void ShelfSelectionShow_Click(object sender, RoutedEventArgs e)
+    {
+        var first = SelectedShelfItems.FirstOrDefault();
+        if (first is null) return;
+        Collapse();
+        FileActions.ShowInFolder(first.Path);
+    }
+
+    private void ShelfSelectionRemove_Click(object sender, RoutedEventArgs e)
+    {
+        _shelf.Remove(SelectedShelfItems);
+        UpdateShelfSelection();
+    }
+
+    /// <summary>A short note in the Shelf's title line (e.g. "Copied"), which goes back after a few seconds.</summary>
+    private async void ShowShelfNote(string note)
+    {
+        ShelfTitle.Text = note.ToUpperInvariant();
+        await System.Threading.Tasks.Task.Delay(2500);
+        RefreshShelf();
+    }
+
+    private async void ZipShelfItems(List<ShelfItem> items)
+    {
+        if (items.Count == 0) return;
+        ShowShelfNote("Zipping…");
+        try
+        {
+            string zip = await FileActions.ZipAsync(items.Select(i => i.Path).ToList());
+            _shelf.Add(new[] { zip });
+            foreach (var item in _shelf.Items) item.IsSelected = false;
+            UpdateShelfSelection();
+            ShowShelfNote($"Made {System.IO.Path.GetFileName(zip)}");
+        }
+        catch (Exception ex)
+        {
+            App.LogNote($"zip failed: {ex.Message}");
+            ShowShelfNote("Couldn't zip those");
+        }
+    }
+
+    /// <summary>Right-click a file on the Shelf: everything you might want to do with it.</summary>
+    private void ShelfTile_RightClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement element || element.DataContext is not ShelfItem item) return;
+        e.Handled = true;
+        string path = item.Path;
+        bool isFile = File.Exists(path);
+        bool image = isFile && FileActions.IsImage(path);
+
+        var menu = new ContextMenu { DataContext = item };
+        menu.Opened += Menu_Opened;
+        menu.Closed += Menu_Closed;
+        menu.Items.Add(MenuEntry("Open", (_, _) => { Collapse(); SystemActions.Open(path); }));
+        if (isFile) menu.Items.Add(MenuEntry("Open with…", (_, _) => { Collapse(); FileActions.OpenWith(path); }));
+        if (image) menu.Items.Add(MenuEntry("Edit", (_, _) => { Collapse(); FileActions.Edit(path); }));
+        if (image) menu.Items.Add(MenuEntry("Copy image", (_, _) => ShowShelfNote(FileActions.CopyImage(path) ? "Image copied" : "Couldn't copy that image")));
+        menu.Items.Add(MenuEntry(item.IsFolder ? "Copy folder" : "Copy file", (_, _) => { try { FileActions.CopyFiles(new[] { path }); ShowShelfNote("Copied, ready to paste"); } catch { } }));
+        menu.Items.Add(MenuEntry("Copy path", (_, _) => { try { Clipboard.SetText(path); ShowShelfNote("Path copied"); } catch { } }));
+        menu.Items.Add(MenuEntry("Compress to zip", (_, _) => ZipShelfItems(new List<ShelfItem> { item })));
+        if (isFile) menu.Items.Add(MenuEntry("Save a copy as…", (_, _) => SaveShelfCopy(path)));
+        menu.Items.Add(MenuEntry("Rename…", (_, _) => RenameShelfItem(item)));
+        menu.Items.Add(MenuEntry(_settings.IsTrayPinned(path) ? "Unpin from tray" : "Pin to tray", (_, _) => ToggleTrayPin(path)));
+        menu.Items.Add(new Separator());
+        menu.Items.Add(MenuEntry("Show in folder", (_, _) => { Collapse(); FileActions.ShowInFolder(path); }));
+        menu.Items.Add(MenuEntry("Remove from Shelf", (_, _) => { _shelf.Remove(item); UpdateShelfSelection(); }));
+        var delete = MenuEntry("Delete (to Recycle Bin)", (_, _) => DeleteShelfItem(item));
+        delete.Foreground = new SolidColorBrush(Color.FromRgb(0xE0, 0x4B, 0x4B));
+        menu.Items.Add(delete);
+
+        element.ContextMenu = menu;
+        menu.PlacementTarget = element;
+        menu.IsOpen = true;
+    }
+
+    private void SaveShelfCopy(string path)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = "Save a copy",
+            FileName = System.IO.Path.GetFileName(path),
+            Filter = $"{System.IO.Path.GetExtension(path).TrimStart('.').ToUpperInvariant()} file|*{System.IO.Path.GetExtension(path)}|All files|*.*",
+        };
+        if (dialog.ShowDialog(this) != true) return;
+        try
+        {
+            File.Copy(path, dialog.FileName, overwrite: true);
+            ShowShelfNote("Copy saved");
+        }
+        catch (Exception ex)
+        {
+            App.LogNote($"save copy failed: {ex.Message}");
+            ShowShelfNote("Couldn't save the copy");
+        }
+    }
+
+    private void RenameShelfItem(ShelfItem item)
+    {
+        string? name = PromptWindow.Ask("Rename", "The new name for this file or folder (it's renamed where it is).", item.Name);
+        if (name is null || name == item.Name) return;
+        if (FileActions.Rename(item.Path, name) is { } renamed)
+        {
+            _shelf.Replace(item, renamed);
+            ShowShelfNote("Renamed");
+        }
+        else ShowShelfNote("Couldn't rename it (is that name taken, or the file open?)");
+    }
+
+    private void DeleteShelfItem(ShelfItem item)
+    {
+        if (FileActions.Recycle(item.Path))
+        {
+            _shelf.Remove(item);
+            UpdateShelfSelection();
+            ShowShelfNote("Moved to the Recycle Bin");
+        }
+        else ShowShelfNote("Couldn't delete it (is it open?)");
     }
 
     private bool MovedEnoughToDrag(MouseEventArgs e)
@@ -881,6 +1093,7 @@ public partial class MainWindow
         CapturesToShelfSwitch.IsChecked = _settings.CapturesToShelf;
         DownloadProgressSwitch.IsChecked = _settings.DownloadProgress;
         CapsLockPopupsSwitch.IsChecked = _settings.CapsLockPopups;
+        TrayAppIconsSwitch.IsChecked = _settings.TrayAppIcons;
         ShowUpdateState();
         ShowHotkeyStatus();
         StartWithWindowsSwitch.IsChecked = _startupEnabled;
@@ -922,6 +1135,7 @@ public partial class MainWindow
         _settings.CapturesToShelf = CapturesToShelfSwitch.IsChecked == true;
         _settings.DownloadProgress = DownloadProgressSwitch.IsChecked == true;
         _settings.CapsLockPopups = CapsLockPopupsSwitch.IsChecked == true;
+        _settings.TrayAppIcons = TrayAppIconsSwitch.IsChecked == true;
         _settings.Fahrenheit = FahrenheitChip.IsChecked == true;
         _settings.Save();
 
@@ -936,6 +1150,7 @@ public partial class MainWindow
         ApplyIslandStyle();
         if (batteryChanged) UpdatePillBatteryVisibility();
         ApplyDownloadState();
+        ApplyTrayIconSetting();
         if (iconsChanged)
         {
             RefreshOpenApps();
@@ -1139,9 +1354,36 @@ public partial class MainWindow
         }
     }
 
+    /// <summary>The file the current pop-out is about (a new screenshot), for its quick buttons.</summary>
+    private string? _activityFile;
+
+    private void ActivityCopy_Click(object sender, RoutedEventArgs e)
+    {
+        if (_activityFile is not { } path) return;
+        bool ok = FileActions.CopyImage(path);
+        ShowActivity("\uE8C8", null, ok ? "Copied" : "Couldn't copy it", ok ? "Paste it into a chat, email or document" : null, null, seconds: 1.6);
+    }
+
+    private void ActivityEdit_Click(object sender, RoutedEventArgs e)
+    {
+        if (_activityFile is not { } path) return;
+        EndActivity();
+        FileActions.Edit(path);
+    }
+
+    private void ActivityDelete_Click(object sender, RoutedEventArgs e)
+    {
+        if (_activityFile is not { } path) return;
+        bool gone = FileActions.Recycle(path);
+        var onShelf = _shelf.Items.FirstOrDefault(i => string.Equals(i.Path, path, StringComparison.OrdinalIgnoreCase));
+        if (gone && onShelf is not null) _shelf.Remove(onShelf);
+        ShowActivity("\uE74D", null, gone ? "Screenshot deleted" : "Couldn't delete it", gone ? "It's in the Recycle Bin if you need it" : null, null, seconds: 1.8, width: ActivityWidth);
+    }
+
     private void OnCaptureReady(string path, CaptureWatcher.Kind kind)
     {
         bool screenshot = kind == CaptureWatcher.Kind.Screenshot;
+        if (!screenshot) MarkDownloadsNew();
         if (screenshot ? !_settings.ScreenshotPopups : !_settings.DownloadPopups) return;
 
         bool onShelf = _settings.CapturesToShelf && _shelf.Add(new[] { path }) > 0;
@@ -1149,7 +1391,14 @@ public partial class MainWindow
         string name = Path.GetFileName(path);
 
         if (screenshot)
-            ShowActivity("\uE722", art, "Screenshot", onShelf ? "On your Shelf · click to open" : "Saved to Screenshots", null);
+        {
+            ShowActivity("\uE722", art, "Screenshot", onShelf ? "On your Shelf · click to open" : "Saved to Screenshots", null, seconds: 4, width: 440);
+            if (_activityShowing)
+            {
+                _activityFile = path;
+                ActivityActions.Visibility = Visibility.Visible;
+            }
+        }
         else
             ShowActivity("\uE896", art, "Download finished", onShelf ? $"{name} · on your Shelf" : name, null);
         if (onShelf && _activityShowing) _activityOpensTab = "Shelf";

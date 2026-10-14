@@ -22,7 +22,21 @@ public sealed class TaskbarManager
 
     public bool IsHidden => _hidden;
 
-    private static IntPtr PrimaryTaskbar() => Native.FindWindow("Shell_TrayWnd", null);
+    /// <summary>
+    /// Windows' own taskbar. When the island shows background apps' icons it has an invisible window with the same
+    /// name (that's how apps' icons reach it), so windows belonging to the island itself are skipped.
+    /// </summary>
+    private static IntPtr PrimaryTaskbar()
+    {
+        uint ownProcess = (uint)Environment.ProcessId;
+        IntPtr bar = IntPtr.Zero;
+        while ((bar = Native.FindWindowEx(IntPtr.Zero, bar, "Shell_TrayWnd", null)) != IntPtr.Zero)
+        {
+            Native.GetWindowThreadProcessId(bar, out uint process);
+            if (process != ownProcess) return bar;
+        }
+        return IntPtr.Zero;
+    }
 
     /// <summary>The main taskbar plus the extra ones Windows draws on other monitors.</summary>
     private static List<IntPtr> AllTaskbars()
@@ -134,7 +148,9 @@ public sealed class TaskbarManager
     {
         if (!_hidden || hWnd == IntPtr.Zero || idObject != Native.OBJID_WINDOW) return;
         string cls = WindowTracker.GetClassName(hWnd);
-        if (cls is "Shell_TrayWnd" or "Shell_SecondaryTrayWnd") Native.ShowWindow(hWnd, Native.SW_HIDE);
+        if (cls is not ("Shell_TrayWnd" or "Shell_SecondaryTrayWnd")) return;
+        Native.GetWindowThreadProcessId(hWnd, out uint process);
+        if (process != (uint)Environment.ProcessId) Native.ShowWindow(hWnd, Native.SW_HIDE);
     }
 
     private static void SetState(IntPtr taskbar, int state)

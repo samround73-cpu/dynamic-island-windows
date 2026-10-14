@@ -50,6 +50,7 @@ public partial class App : Application
             if (_recentErrors.Count < 4) return; // keep going
 
             _shuttingDown = true;
+            try { TrayIconHost.Current?.Dispose(); } catch { }
             Taskbar.Restore();
             MessageBox.Show(
                 "Dynamic Island keeps running into a problem, so it will close. Your normal taskbar has been restored.\n\n"
@@ -61,6 +62,7 @@ public partial class App : Application
         AppDomain.CurrentDomain.UnhandledException += (_, args) =>
         {
             if (args.ExceptionObject is Exception ex) LogError(ex);
+            try { TrayIconHost.Current?.Dispose(); } catch { }
             Taskbar.Restore();
         };
         AppDomain.CurrentDomain.ProcessExit += (_, _) => Taskbar.Restore();
@@ -96,7 +98,8 @@ public partial class App : Application
             {
                 LogNote("the island didn't appear within 15 seconds of starting, so the taskbar was restored and it closed");
                 _shuttingDown = true;
-                Taskbar.Restore();
+                try { TrayIconHost.Current?.Dispose(); } catch { }
+            Taskbar.Restore();
                 Shutdown();
             }
         });

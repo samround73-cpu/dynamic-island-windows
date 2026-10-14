@@ -555,6 +555,14 @@
                                 Visibility="{Binding HasMany, Converter={StaticResource BoolToVis}}">
                             <TextBlock Text="{Binding Count}" FontSize="8" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
+                        <!-- Something new (a pinned Downloads folder) -->
+                        <Ellipse Width="10" Height="10" Fill="{DynamicResource Accent}" Stroke="{DynamicResource BadgeRing}" StrokeThickness="2"
+                                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0"
+                                 Visibility="{Binding HasBadge, Converter={StaticResource BoolToVis}}" />
+                        <!-- "+" (add a pin) -->
+                        <Border x:Name="AddOutline" CornerRadius="10" BorderBrush="{DynamicResource Ink38}" BorderThickness="1.5" Visibility="Collapsed">
+                            <TextBlock Style="{StaticResource Glyph}" FontSize="13" Text="&#xE710;" Foreground="{DynamicResource Ink99}" />
+                        </Border>
                     </Grid>
                 </Button>
             </Grid>
@@ -582,6 +590,12 @@
                 <DataTrigger Binding="{Binding IsDivider}" Value="True">
                     <Setter TargetName="Divider" Property="Visibility" Value="Visible" />
                     <Setter TargetName="DockButton" Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsAddButton}" Value="True">
+                    <Setter TargetName="AddOutline" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="IconHolder" Property="Visibility" Value="Collapsed" />
+                    <Setter TargetName="TileBg" Property="Background" Value="Transparent" />
+                    <Setter TargetName="DockButton" Property="ToolTip" Value="Pin a folder, file, website…" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
@@ -751,16 +765,15 @@
         <!-- A file on the shelf: thumbnail, name, details; drag it out to use it -->
         <DataTemplate x:Key="ShelfTileTemplate" DataType="{x:Type local:ShelfItem}">
             <Border x:Name="Tile" Width="112" Height="112" Margin="3" CornerRadius="14" Background="{DynamicResource CardBrush}" Cursor="Hand"
-                    ToolTip="{Binding Path}" MouseLeftButtonDown="ShelfTile_MouseDown" MouseMove="ShelfTile_MouseMove">
-                <Border.ContextMenu>
-                    <ContextMenu Opened="Menu_Opened" Closed="Menu_Closed">
-                        <MenuItem Header="Open" Click="ShelfOpen_Click" />
-                        <MenuItem Header="Show in folder" Click="ShelfShowInFolder_Click" />
-                        <MenuItem Header="Copy path" Click="ShelfCopyPath_Click" />
-                        <Separator />
-                        <MenuItem Header="Remove from shelf" Click="ShelfRemove_Click" />
-                    </ContextMenu>
-                </Border.ContextMenu>
+                    BorderBrush="Transparent" BorderThickness="2"
+                    ToolTip="{Binding Path}" MouseLeftButtonDown="ShelfTile_MouseDown" MouseLeftButtonUp="ShelfTile_Click"
+                    MouseMove="ShelfTile_MouseMove" MouseRightButtonUp="ShelfTile_RightClick">
+                <Grid>
+                <!-- Selected: a tick in the corner (click to select, double-click to open) -->
+                <Border x:Name="Tick" Width="18" Height="18" CornerRadius="9" Background="{DynamicResource Accent}" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Margin="6,6,0,0" Visibility="Collapsed">
+                    <TextBlock Style="{StaticResource Glyph}" FontSize="10" Text="&#xE73E;" Foreground="{DynamicResource AccentText}" />
+                </Border>
                 <StackPanel VerticalAlignment="Center" Margin="8,0">
                     <Image Source="{Binding Thumbnail}" Width="48" Height="48" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
                     <TextBlock Text="{Binding Name}" FontSize="11.5" FontWeight="SemiBold" Margin="0,8,0,0" HorizontalAlignment="Center"
@@ -768,11 +781,16 @@
                     <TextBlock Text="{Binding Details}" FontSize="10" Foreground="{DynamicResource SubtleText}" HorizontalAlignment="Center"
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
+                </Grid>
             </Border>
             <DataTemplate.Triggers>
                 <Trigger SourceName="Tile" Property="IsMouseOver" Value="True">
                     <Setter TargetName="Tile" Property="Background" Value="{DynamicResource TileHoverBrush}" />
                 </Trigger>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter TargetName="Tile" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                    <Setter TargetName="Tick" Property="Visibility" Value="Visible" />
+                </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
 
@@ -1038,7 +1056,21 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
+
+                        <!-- Quick buttons on the screenshot pop-out: copy, edit, delete -->
+                        <StackPanel x:Name="ActivityActions" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,-8,0" Visibility="Collapsed">
+                            <Button Style="{StaticResource RoundCardButton}" Width="32" Height="32" Margin="3,0" Click="ActivityCopy_Click" ToolTip="Copy the picture">
+                                <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE8C8;" />
+                            </Button>
+                            <Button Style="{StaticResource RoundCardButton}" Width="32" Height="32" Margin="3,0" Click="ActivityEdit_Click" ToolTip="Edit">
+                                <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE70F;" />
+                            </Button>
+                            <Button Style="{StaticResource RoundCardButton}" Width="32" Height="32" Margin="3,0" Click="ActivityDelete_Click" ToolTip="Delete (to Recycle Bin)">
+                                <TextBlock Style="{StaticResource Glyph}" FontSize="12" Text="&#xE74D;" />
+                            </Button>
+                        </StackPanel>
 
                         <Grid Width="36" Height="36" VerticalAlignment="Center">
                             <TextBlock x:Name="ActivityGlyph" Style="{StaticResource Glyph}" FontSize="20" />
@@ -1055,6 +1087,26 @@
                                 </Border>
                             </Grid>
                         </StackPanel>
+                    </Grid>
+
+                    <!-- ============ DROP: dragging files or a link onto the island ============ -->
+                    <Grid x:Name="DropZones" Margin="16,8,16,12" Visibility="Collapsed" Opacity="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="DropPinZone" CornerRadius="14" BorderThickness="1.5" BorderBrush="{DynamicResource Ink38}" Margin="0,0,0,0">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock x:Name="DropPinGlyph" Style="{StaticResource Glyph}" FontSize="17" Text="&#xE718;" />
+                                <TextBlock x:Name="DropPinText" Text="Pin to tray" FontSize="12" FontWeight="SemiBold" Margin="0,5,0,0" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="DropShelfZone" Grid.Column="1" Width="170" Margin="10,0,0,0" CornerRadius="14" BorderThickness="1.5" BorderBrush="{DynamicResource Ink38}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock x:Name="DropShelfGlyph" Style="{StaticResource Glyph}" FontSize="17" Text="&#xE8B7;" />
+                                <TextBlock x:Name="DropShelfText" Text="Put on Shelf" FontSize="12" FontWeight="SemiBold" Margin="0,5,0,0" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
                     </Grid>
 
                     <!-- ============ EXPANDED: tabs ============ -->
@@ -1119,7 +1171,31 @@
 
                                 <!-- Left: switches -->
                                 <Border Style="{StaticResource Card}" Padding="5,5">
-                                    <StackPanel x:Name="SwitchList" />
+                                    <Grid>
+                                        <StackPanel x:Name="SwitchList" />
+                                        <!-- Wi-Fi networks or Bluetooth devices, slid in over the switches (the arrow on a row) -->
+                                        <DockPanel x:Name="DeviceListPanel" Visibility="Collapsed" Margin="2,0,2,0">
+                                            <DockPanel DockPanel.Dock="Top" Margin="0,0,2,4">
+                                                <Button Style="{StaticResource IslandButton}" Width="30" Height="30" Click="DeviceListBack_Click" ToolTip="Back">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="11" Text="&#xE72B;" />
+                                                </Button>
+                                                <CheckBox x:Name="DeviceListSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="DeviceListSwitch_Click" />
+                                                <Button DockPanel.Dock="Right" Style="{StaticResource IslandButton}" Width="30" Height="30" Margin="0,0,6,0" Click="DeviceListRefresh_Click" ToolTip="Look again">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="11" Text="&#xE72C;" />
+                                                </Button>
+                                                <TextBlock x:Name="DeviceListTitle" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="4,0,0,0" />
+                                            </DockPanel>
+                                            <Button DockPanel.Dock="Bottom" Style="{StaticResource IslandButton}" HorizontalAlignment="Left" Height="28" Click="DeviceListMore_Click">
+                                                <StackPanel Orientation="Horizontal" Margin="8,0">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="10" Text="&#xE713;" Foreground="{DynamicResource SubtleText}" />
+                                                    <TextBlock x:Name="DeviceListMoreText" FontSize="11" Margin="6,0,0,0" Foreground="{DynamicResource SubtleText}" VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Button>
+                                            <ScrollViewer VerticalScrollBarVisibility="Hidden" Focusable="False">
+                                                <StackPanel x:Name="DeviceListRows" />
+                                            </ScrollViewer>
+                                        </DockPanel>
+                                    </Grid>
                                 </Border>
 
                                 <!-- Right: player, volume, shortcuts -->
@@ -1211,6 +1287,40 @@
                                             </StackPanel>
                                         </Button>
                                     </UniformGrid>
+
+                                    <!-- Apps running in the background (the icons apps put in the old taskbar corner), as named chips.
+                                         Hover for the app's tooltip, click to open it, right-click for the app's own menu. -->
+                                    <Border x:Name="TrayAppsCard" Background="{DynamicResource CardBrush}" CornerRadius="14" Padding="10,8,10,4" Margin="0,8,0,0"
+                                            Visibility="Collapsed">
+                                        <StackPanel>
+                                            <TextBlock Text="IN THE BACKGROUND" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink80}" Margin="2,0,0,6" />
+                                            <ItemsControl x:Name="TrayAppsList">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type local:TrayChip}">
+                                                        <Border x:Name="Chip" Height="28" CornerRadius="14" Padding="7,0,10,0" Margin="0,0,6,6" Cursor="Hand"
+                                                                Background="{DynamicResource FieldBrush}" ToolTip="{Binding Source.Title}"
+                                                                MouseEnter="TrayChip_MouseEnter" MouseLeave="TrayChip_MouseLeave" MouseMove="TrayChip_MouseMove"
+                                                                MouseDown="TrayChip_MouseDown" MouseUp="TrayChip_MouseUp">
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <Image Source="{Binding Source.Icon}" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                                                                <TextBlock Text="{Binding Name}" FontSize="11" Margin="6,0,0,0" VerticalAlignment="Center" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <DataTemplate.Triggers>
+                                                            <Trigger SourceName="Chip" Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource TileHoverBrush}" />
+                                                            </Trigger>
+                                                        </DataTemplate.Triggers>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
                             </Grid>
 
@@ -1463,6 +1573,41 @@
                                 <ScrollViewer MaxHeight="360" Focusable="False" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                                     <ItemsControl x:Name="ShelfList" ItemTemplate="{StaticResource ShelfTileTemplate}" ItemsPanel="{StaticResource WrapPanelTemplate}" />
                                 </ScrollViewer>
+                                <!-- With files selected: do something to all of them -->
+                                <Border x:Name="ShelfSelectionBar" Background="{DynamicResource CardBrush}" CornerRadius="14" Padding="10,7" Margin="3,8,3,0" Visibility="Collapsed">
+                                    <DockPanel>
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource CardButton}" Padding="10,5" Click="ShelfSelectionRemove_Click" ToolTip="Take them off the Shelf (the files stay where they are)">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Glyph}" FontSize="10" Text="&#xE711;" Foreground="#FFFF6B6B" />
+                                                <TextBlock Text="Remove" FontSize="11.5" Margin="6,0,0,0" Foreground="#FFFF6B6B" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Button>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock x:Name="ShelfSelectionText" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="2,0,10,0" />
+                                            <Button Style="{StaticResource CardButton}" Padding="10,5" Margin="0,0,6,0" Click="ShelfSelectionCopy_Click" ToolTip="Copy the files, ready to paste">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="10" Text="&#xE8C8;" />
+                                                    <TextBlock Text="Copy" FontSize="11.5" Margin="6,0,0,0" VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Style="{StaticResource CardButton}" Padding="10,5" Margin="0,0,6,0" Click="ShelfSelectionZip_Click" ToolTip="Put them in one .zip file">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="10" Text="&#xE7B8;" />
+                                                    <TextBlock Text="Zip" FontSize="11.5" Margin="6,0,0,0" VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Style="{StaticResource CardButton}" Padding="10,5" Margin="0,0,6,0" Click="ShelfSelectionShow_Click" ToolTip="Open the folder they're in">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Style="{StaticResource Glyph}" FontSize="10" Text="&#xE838;" />
+                                                    <TextBlock Text="Show in folder" FontSize="11.5" Margin="6,0,0,0" VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Style="{StaticResource CardButton}" Padding="8,5" Click="ShelfSelectionNone_Click" ToolTip="Untick all">
+                                                <TextBlock Text="Done" FontSize="11.5" VerticalAlignment="Center" />
+                                            </Button>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
                                 <Border x:Name="ShelfEmpty" BorderBrush="{DynamicResource Ink33}" BorderThickness="1.5" CornerRadius="18" Height="170" Margin="0,2,0,0">
                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <TextBlock Style="{StaticResource Glyph}" FontSize="28" Text="&#xE8B7;" Foreground="{DynamicResource Ink66}" />
@@ -1598,6 +1743,13 @@
                                                 <StackPanel Margin="0,0,12,0">
                                                     <TextBlock Text="Tuck away over maximised apps" FontSize="12.5" FontWeight="SemiBold" />
                                                     <TextBlock Text="Rest the mouse at the top of the screen to bring it back" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,8,0,6">
+                                                <CheckBox x:Name="TrayAppIconsSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Background app icons" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Show the icons apps put in the old taskbar corner (OneDrive, Discord…) on the Controls tab" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                             </DockPanel>
                                             <DockPanel Margin="0,8,0,6">

@@ -5,6 +5,7 @@ echo  This brings the normal Windows taskbar back if Dynamic Island was force-cl
 echo  (e.g. from Task Manager) and didn't get the chance to restore it itself.
 echo.
 echo  It turns taskbar auto-hide OFF and restarts Explorer (your screen will flicker).
+echo  Restarting Explorer also gives apps' little tray icons back to the taskbar.
 echo  If you normally use auto-hide, switch it back on afterwards in
 echo  Settings ^> Personalisation ^> Taskbar ^> Taskbar behaviours.
 echo.
