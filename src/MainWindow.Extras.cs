@@ -1588,7 +1588,7 @@ public partial class MainWindow
 
         if (screenshot)
         {
-            ShowActivity("\uE722", art, "Screenshot", onShelf ? "On your Shelf · click to open" : "Saved to Screenshots", null, seconds: 4, width: 440);
+            ShowActivity("\uE722", art, "Screenshot", onShelf ? "On your Shelf · click to open" : "Saved to Screenshots", null, seconds: 7, width: 440);
             if (_activityShowing)
             {
                 _activityFile = path;

@@ -787,6 +787,7 @@ public partial class MainWindow : Window
     {
         if (_expanded || _peeking || _menuOpen || _presence == Presence.FullScreen || !_revealed) return;
         if (!IslandHost.IsMouseOver) return;
+        if (ScreenshotActionsShowing) return; // you're heading for the screenshot's buttons, not the tray
 
         RefreshOpenApps();
         if (_openApps.Count == 0 && _dock.Count == 0 && !DownloadShowing) return; // nothing to show
@@ -970,10 +971,19 @@ public partial class MainWindow : Window
         RestartTimer(_activityTimer);
     }
 
+    private bool ScreenshotActionsShowing => _activityShowing && ActivityActions.Visibility == Visibility.Visible;
+
     private void EndActivity()
     {
         _activityTimer.Stop();
         if (!_activityShowing) return;
+        if (ScreenshotActionsShowing && IslandHost.IsMouseOver)
+        {
+            // Stay while the mouse is on the screenshot pop-out; go a moment after it leaves.
+            _activityTimer.Interval = TimeSpan.FromSeconds(1.5);
+            RestartTimer(_activityTimer);
+            return;
+        }
         _activityShowing = false;
         if (_expanded || _peeking) return;
 

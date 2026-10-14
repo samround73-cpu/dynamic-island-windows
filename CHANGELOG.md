@@ -7,6 +7,7 @@ Newest first. Updates install themselves (Settings › About › Updates), so yo
 - **Shelf actions:** tick several files to copy, zip or show them together; right-click for Open with, Edit, Copy image, Rename, Save a copy, Pin to tray, Delete and more. The screenshot pop-out has quick Copy, Edit and Delete buttons.
 - **Background app icons** (OneDrive, Discord, Steam…) appear as named chips on the Controls tab, with their own menus. Can be turned off in Settings › Behaviour.
 - **Wi-Fi and Bluetooth lists** on the Controls tab (the arrow on each row): connect to networks, and connect or disconnect headphones and speakers.
+- **0.41.5:** the screenshot pop-out stays for 7 seconds, and stays put while your mouse is on it (hovering it no longer swaps it for the tray), so there's time to press Copy, Edit or Delete.
 - **0.41.4:** snips are now picked up on cloud and remote PCs (like Shadow), where Windows hands the copied picture over through a background service. Copying the same snip again doesn't add it twice, and drawing on a snip in Snipping Tool updates the saved file.
 - **0.41.3:** snips taken with Win+Shift+S now land on the Shelf even when Snipping Tool isn't set to save them automatically (the island saves the copied snip to Pictures › Screenshots itself).
 
