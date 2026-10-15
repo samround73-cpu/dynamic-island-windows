@@ -575,8 +575,10 @@
                     <Setter TargetName="IconHolder" Property="Opacity" Value="0.6" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsClosedPin}" Value="True">
+                    <!-- Pinned but not open: a crisp white (black on Light) outline icon with no tile; open apps show in colour -->
                     <Setter TargetName="TileBg" Property="Background" Value="Transparent" />
-                    <Setter TargetName="TileBg" Property="BorderBrush" Value="{DynamicResource Ink26}" />
+                    <Setter TargetName="TileBg" Property="BorderBrush" Value="{DynamicResource Ink4D}" />
+                    <Setter TargetName="LineGlyph" Property="Foreground" Value="{DynamicResource InkDD}" />
                     <Setter TargetName="IconHolder" Property="Opacity" Value="{DynamicResource ClosedPinOpacity}" />
                 </DataTrigger>
                 <Trigger SourceName="DockButton" Property="IsMouseOver" Value="True">

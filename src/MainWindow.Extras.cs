@@ -874,7 +874,7 @@ public partial class MainWindow
         Resources["TileOffBrush"] = Frozen(light ? Color.FromArgb(0x14, 0x00, 0x00, 0x00) : Color.FromRgb(0x26, 0x26, 0x26));
         Resources["BadgeBrush"] = Frozen(light ? Color.FromRgb(0xD8, 0xD8, 0xDD) : Color.FromRgb(0x3A, 0x3A, 0x3C));
         Resources["BadgeRing"] = Frozen(light ? Color.FromRgb(0xEE, 0xEE, 0xF1) : Color.FromRgb(0x15, 0x15, 0x15));
-        Resources["ClosedPinOpacity"] = light ? 0.55 : 0.38; // faded pinned apps need a little more strength on light
+        Resources["ClosedPinOpacity"] = 0.9; // closed pins are drawn in plain white/black instead of being faded
     }
 
     /// <summary>Recolours everything gold-coloured to the chosen accent.</summary>
