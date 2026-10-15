@@ -116,15 +116,21 @@ public partial class App : Application
     /// </summary>
     private static async System.Threading.Tasks.Task WaitForDesktopAsync()
     {
-        var started = DateTime.Now;
-        while (DateTime.Now - started < TimeSpan.FromSeconds(60))
+        static bool Ready() => Native.FindWindow("Shell_TrayWnd", null) != IntPtr.Zero
+                            && Native.FindWindow("Progman", null) != IntPtr.Zero;
+
+        // Already there (unlocking or reconnecting, or a quick sign-in): go almost straight away.
+        if (Ready())
         {
-            bool ready = Native.FindWindow("Shell_TrayWnd", null) != IntPtr.Zero
-                      && Native.FindWindow("Progman", null) != IntPtr.Zero;
-            if (ready) break;
-            await System.Threading.Tasks.Task.Delay(500);
+            await System.Threading.Tasks.Task.Delay(300);
+            return;
         }
-        await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(4));
+        var started = DateTime.Now;
+        while (DateTime.Now - started < TimeSpan.FromSeconds(60) && !Ready())
+            await System.Threading.Tasks.Task.Delay(200);
+        // The taskbar has only just appeared: give Explorer a moment to finish setting it up before we hide it.
+        await System.Threading.Tasks.Task.Delay(1200);
+        LogNote($"desktop ready after {(DateTime.Now - started).TotalSeconds:0.0} s");
     }
 
     /// <summary>Writes the full error (including where in the code it happened) to errors.log.</summary>

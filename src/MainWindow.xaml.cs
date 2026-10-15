@@ -294,9 +294,14 @@ public partial class MainWindow : Window
     {
         App.Taskbar.Hide();
         App.Taskbar.StartWatching();
-        StartCaptureWatcher();
-        StartCapsLockWatch();
-        ApplyTrayIconSetting();
+        // Not needed for the first moment: started once the island is on screen, so it appears sooner.
+        Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+        {
+            StartCaptureWatcher();
+            StartCapsLockWatch();
+            ApplyTrayIconSetting();
+            App.LogNote($"ready {(DateTime.Now - System.Diagnostics.Process.GetCurrentProcess().StartTime).TotalSeconds:0.0} s after starting");
+        }));
 
         _preview.Owner = this;
 
@@ -329,8 +334,11 @@ public partial class MainWindow : Window
 
         _ = _media.InitAsync();
         _ = _connectivity.InitAsync();
-        LoadInstalledApps();
-        RefreshWeather();
+        Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+        {
+            LoadInstalledApps();
+            RefreshWeather();
+        }));
 
         _devices.BluetoothChanged += (name, connected) => Dispatcher.BeginInvoke(() => OnBluetoothChanged(name, connected));
         _volume.OutputDeviceChanged += () => Dispatcher.BeginInvoke(new Action(OnOutputDeviceChanged));

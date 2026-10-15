@@ -36,11 +36,11 @@ jobs:
           "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "Building version $version"
 
-      - name: Build the single-file exe (includes .NET, nothing to install)
+      - name: Build the single-file exe (includes .NET, nothing to install; pre-compiled so it starts faster)
         shell: pwsh
         run: >
           dotnet publish src/DynamicIsland.csproj -c Release -r win-x64 --self-contained true
-          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:IncludeNativeLibrariesForSelfExtract=true
           -p:EnableCompressionInSingleFile=true -p:DebugType=embedded
           -p:Version=${{ env.VERSION }} -o out -nologo
 

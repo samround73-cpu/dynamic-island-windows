@@ -31,7 +31,7 @@ if not exist "src\Assets\tabler-icons.ttf" (
     echo.
 )
 dotnet publish "src\DynamicIsland.csproj" -c Release -r win-x64 --self-contained true ^
-    -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true ^
+    -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:IncludeNativeLibrariesForSelfExtract=true ^
     -p:EnableCompressionInSingleFile=true -p:DebugType=embedded -o "App" -nologo
 if errorlevel 1 (
     echo.

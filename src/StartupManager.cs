@@ -79,7 +79,8 @@ public static class StartupManager
         {
             var current = Current;
             if (current == Method.RunEntry && !BlockedByWindows && CreateTask()) DeleteRunEntry();
-            else if (current == Method.ScheduledTask && !TaskPointsHere()) CreateTask(); // the app has moved: update it
+            // The app has moved, or the task is from an older version (which waited 5 seconds after sign-in): update it.
+            else if (current == Method.ScheduledTask && (!TaskPointsHere() || TaskHasOldDelay())) CreateTask();
         }
         catch { }
     }
@@ -96,6 +97,9 @@ public static class StartupManager
         return ExePath is string exe && xml.Contains(SecurityElement.Escape(exe), StringComparison.OrdinalIgnoreCase);
     }
 
+    private static bool TaskHasOldDelay() =>
+        RunSchtasks($"/query /tn \"{TaskName}\" /xml", out string xml) == 0 && xml.Contains("<Delay>PT5S</Delay>", StringComparison.OrdinalIgnoreCase);
+
     private static bool CreateTask()
     {
         string? exe = ExePath;
@@ -111,7 +115,7 @@ public static class StartupManager
             "<Task version=\"1.2\" xmlns=\"http://schemas.microsoft.com/windows/2004/02/mit/task\">\n" +
             "  <RegistrationInfo><Description>Starts Dynamic Island when you sign in, reconnect or unlock (if it isn't already running).</Description></RegistrationInfo>\n" +
             "  <Triggers>\n" +
-            $"    <LogonTrigger><Enabled>true</Enabled><UserId>{user}</UserId><Delay>PT5S</Delay></LogonTrigger>\n" +
+            $"    <LogonTrigger><Enabled>true</Enabled><UserId>{user}</UserId></LogonTrigger>\n" +
             $"    {Trigger("RemoteConnect")}\n    {Trigger("ConsoleConnect")}\n    {Trigger("SessionUnlock")}\n" +
             "  </Triggers>\n" +
             $"  <Principals><Principal id=\"Author\"><UserId>{user}</UserId><LogonType>InteractiveToken</LogonType><RunLevel>LeastPrivilege</RunLevel></Principal></Principals>\n" +

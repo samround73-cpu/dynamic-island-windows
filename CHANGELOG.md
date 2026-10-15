@@ -2,6 +2,9 @@
 
 Newest first. Updates install themselves (Settings › About › Updates), so you don't need to download these by hand.
 
+## 0.45
+- **Starts faster after a reboot or sign-in:** no more fixed 5-second wait before starting, a much shorter wait for the desktop (none at all when unlocking or reconnecting), the app comes pre-compiled so it opens quicker, and background extras (app icons, screenshot watching, the apps list, weather) load just after the island appears instead of before.
+
 ## 0.44
 - **0.44.1:** brightness now works on every screen: where the real brightness can't be changed (Shadow, Remote Desktop, some monitors) the slider dims the picture instead, and remembers it. Fading is now one clear row: Settings › Behaviour › Fade when not in use: Off, 10 s, 30 s, 1 min or 5 min.
 - **Brightness on the Controls tab:** a little toggle next to the big slider switches it between volume and brightness. It only appears on screens whose brightness can be changed (laptops, and most monitors), so not on Shadow.
