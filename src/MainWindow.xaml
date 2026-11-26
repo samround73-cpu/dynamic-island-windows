@@ -536,6 +536,24 @@
 
         <!-- The hover tray's dock row (when apps are pinned): pinned apps first, then a divider and other open apps.
              Pinned apps that aren't running are faded outlines; clicking one starts it. -->
+        <!-- A background app's icon as a named chip (Controls tab, and the dock's hidden icons) -->
+        <DataTemplate x:Key="TrayChipTemplate" DataType="{x:Type local:TrayChip}">
+            <Border x:Name="Chip" Height="28" CornerRadius="14" Padding="7,0,10,0" Margin="0,0,6,6" Cursor="Hand"
+                    Background="{DynamicResource FieldBrush}" ToolTip="{Binding Source.Title}"
+                    MouseEnter="TrayChip_MouseEnter" MouseLeave="TrayChip_MouseLeave" MouseMove="TrayChip_MouseMove"
+                    MouseDown="TrayChip_MouseDown" MouseUp="TrayChip_MouseUp">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Source="{Binding Source.Icon}" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
+                    <TextBlock Text="{Binding Name}" FontSize="11" Margin="6,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+            <DataTemplate.Triggers>
+                <Trigger SourceName="Chip" Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Chip" Property="Background" Value="{DynamicResource TileHoverBrush}" />
+                </Trigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
         <DataTemplate x:Key="DockIconTemplate" DataType="{x:Type local:AppTile}">
             <Grid Margin="0,0,6,6">
                 <Border x:Name="Divider" Width="1" Height="22" Margin="1,0,7,0" Background="{DynamicResource Ink2E}" VerticalAlignment="Center" Visibility="Collapsed" />
@@ -1339,30 +1357,12 @@
                                             Visibility="Collapsed">
                                         <StackPanel>
                                             <TextBlock Text="IN THE BACKGROUND" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource Ink80}" Margin="2,0,0,6" />
-                                            <ItemsControl x:Name="TrayAppsList">
+                                            <ItemsControl x:Name="TrayAppsList" ItemTemplate="{StaticResource TrayChipTemplate}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
                                                         <WrapPanel />
                                                     </ItemsPanelTemplate>
                                                 </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate DataType="{x:Type local:TrayChip}">
-                                                        <Border x:Name="Chip" Height="28" CornerRadius="14" Padding="7,0,10,0" Margin="0,0,6,6" Cursor="Hand"
-                                                                Background="{DynamicResource FieldBrush}" ToolTip="{Binding Source.Title}"
-                                                                MouseEnter="TrayChip_MouseEnter" MouseLeave="TrayChip_MouseLeave" MouseMove="TrayChip_MouseMove"
-                                                                MouseDown="TrayChip_MouseDown" MouseUp="TrayChip_MouseUp">
-                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                                <Image Source="{Binding Source.Icon}" Width="16" Height="16" RenderOptions.BitmapScalingMode="HighQuality" />
-                                                                <TextBlock Text="{Binding Name}" FontSize="11" Margin="6,0,0,0" VerticalAlignment="Center" />
-                                                            </StackPanel>
-                                                        </Border>
-                                                        <DataTemplate.Triggers>
-                                                            <Trigger SourceName="Chip" Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource TileHoverBrush}" />
-                                                            </Trigger>
-                                                        </DataTemplate.Triggers>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                         </StackPanel>
                                     </Border>
@@ -1878,6 +1878,13 @@
                                             </DockPanel>
                                         </StackPanel>
                                         <StackPanel x:Name="SettingsBehaviour" Visibility="Collapsed">
+                                            <DockPanel Margin="0,2,0,6">
+                                                <CheckBox x:Name="DockModeSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
+                                                <StackPanel Margin="0,0,12,0">
+                                                    <TextBlock Text="Dock at the bottom" FontSize="12.5" FontWeight="SemiBold" />
+                                                    <TextBlock Text="Start, your apps, the tray and quick settings in three pills along the bottom. They stay tucked away until you touch the bottom edge, and your apps move there from the island" FontSize="10.5" Foreground="{DynamicResource SubtleText}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </DockPanel>
                                             <DockPanel Margin="0,2,0,6">
                                                 <CheckBox x:Name="PeekSwitch" DockPanel.Dock="Right" Style="{StaticResource Switch}" VerticalAlignment="Center" Click="SettingChanged" />
                                                 <StackPanel Margin="0,0,12,0">

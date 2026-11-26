@@ -2,6 +2,9 @@
 
 Newest first. Updates install themselves (Settings › About › Updates), so you don't need to download these by hand.
 
+## 0.46
+- **Dock mode** (Settings › Behaviour › Dock at the bottom): the old taskbar's jobs come back as three pills along the bottom, styled like the island. Left: Start, search and Task View. Middle: your pinned and open apps (they move off the island's hover tray), with window previews and right-click menus. Right: hidden background-app icons, quick settings (Wi-Fi and Bluetooth with their lists, sound, microphone, volume and brightness, battery) and notifications. The pills stay tucked below the screen, showing three faint lines, until you touch the bottom edge; they never come up over a full-screen game or video.
+
 ## 0.45
 - **Clearer pinned apps in the hover tray:** pinned apps that aren't open are now crisp white outline icons (black on the Light style) instead of faint faded ones; open apps still show in their own colour on a tile.
 - **Starts faster after a reboot or sign-in:** no more fixed 5-second wait before starting, a much shorter wait for the desktop (none at all when unlocking or reconnecting), the app comes pre-compiled so it opens quicker, and background extras (app icons, screenshot watching, the apps list, weather) load just after the island appears instead of before.

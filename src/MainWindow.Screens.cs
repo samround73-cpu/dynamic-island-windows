@@ -86,6 +86,7 @@ public partial class MainWindow
         WindowTracker.IslandMonitor = monitor;
         CentreOnScreen();
         if (_dim is not null) ApplyDim(); // the dimming follows the island to its screen
+        PlaceDockBar();                    // and so does the dock
         // Moving to a screen with different scaling makes Windows resize the window; centre it again once it has.
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(CentreOnScreen));
     }

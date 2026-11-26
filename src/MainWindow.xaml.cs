@@ -300,6 +300,7 @@ public partial class MainWindow : Window
             StartCaptureWatcher();
             StartCapsLockWatch();
             ApplyTrayIconSetting();
+            if (_settings.DockMode) ApplyDockMode();
             App.LogNote($"ready {(DateTime.Now - System.Diagnostics.Process.GetCurrentProcess().StartTime).TotalSeconds:0.0} s after starting");
         }));
 
@@ -380,6 +381,7 @@ public partial class MainWindow : Window
         _volume.Dispose();
         try { lock (_mixer) _mixer.Dispose(); } catch { }
         try { _dim?.Close(); } catch { }
+        try { _dockBar?.Close(); } catch { }
     }
 
     private void Exit_Click(object sender, RoutedEventArgs e) => Close();

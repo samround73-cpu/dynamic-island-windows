@@ -25,6 +25,7 @@ public partial class MainWindow
         if (kind == DeviceListKind.Wifi && !_connectivity.HasWifi) { OpenAndCollapse("ms-settings:network"); return; }
         if (kind == DeviceListKind.Bluetooth && !_connectivity.HasBluetooth) { OpenAndCollapse("ms-settings:bluetooth"); return; }
 
+        _deviceListInDock = false; // the island's own list (the dock's stops filling in)
         _deviceList = kind;
         _passwordFor = null;
         DeviceListTitle.Text = kind switch { DeviceListKind.Wifi => "Wi-Fi", DeviceListKind.Bluetooth => "Bluetooth", _ => "Sound" };
@@ -95,8 +96,8 @@ public partial class MainWindow
             _deviceListBusy = false;
             return;
         }
-        DeviceListRows.Children.Clear();
-        DeviceListRows.Children.Add(Note(kind == DeviceListKind.Wifi ? "Looking for networks…" : "Finding your devices…"));
+        ListRows.Children.Clear();
+        ListRows.Children.Add(Note(kind == DeviceListKind.Wifi ? "Looking for networks…" : "Finding your devices…"));
         try
         {
             if (kind == DeviceListKind.Wifi)
@@ -104,24 +105,24 @@ public partial class MainWindow
                 bool radioOn = _connectivity.WifiOn;
                 var networks = radioOn ? await WifiLister.ScanAsync() : null;
                 if (_deviceList != kind) return;
-                DeviceListRows.Children.Clear();
-                if (!radioOn) { DeviceListRows.Children.Add(Note("Wi-Fi is off.")); return; }
+                ListRows.Children.Clear();
+                if (!radioOn) { ListRows.Children.Add(Note("Wi-Fi is off.")); return; }
                 if (networks is null || networks.Count == 0)
                 {
-                    DeviceListRows.Children.Add(Note(WifiLister.Problem ?? "No networks found."));
+                    ListRows.Children.Add(Note(WifiLister.Problem ?? "No networks found."));
                     return;
                 }
-                foreach (var network in networks) DeviceListRows.Children.Add(WifiRow(network));
+                foreach (var network in networks) ListRows.Children.Add(WifiRow(network));
             }
             else
             {
                 bool radioOn = _connectivity.BluetoothOn;
                 var devices = radioOn ? await BluetoothLister.ListAsync() : new List<BluetoothItem>();
                 if (_deviceList != kind) return;
-                DeviceListRows.Children.Clear();
-                if (!radioOn) { DeviceListRows.Children.Add(Note("Bluetooth is off.")); return; }
-                if (devices.Count == 0) { DeviceListRows.Children.Add(Note("No paired devices yet. Use \"Add a device\" below.")); return; }
-                foreach (var device in devices) DeviceListRows.Children.Add(BluetoothRow(device));
+                ListRows.Children.Clear();
+                if (!radioOn) { ListRows.Children.Add(Note("Bluetooth is off.")); return; }
+                if (devices.Count == 0) { ListRows.Children.Add(Note("No paired devices yet. Use \"Add a device\" below.")); return; }
+                foreach (var device in devices) ListRows.Children.Add(BluetoothRow(device));
             }
         }
         finally
@@ -249,9 +250,9 @@ public partial class MainWindow
 
     private async void ConnectWifi(WifiNetwork network, string? password, bool automatic = true)
     {
-        DeviceListTitle.Text = $"Connecting to {network.Ssid}…";
+        ListTitle.Text = $"Connecting to {network.Ssid}…";
         var (ok, needsPassword) = await WifiLister.ConnectAsync(network, password, automatic);
-        DeviceListTitle.Text = "Wi-Fi";
+        ListTitle.Text = "Wi-Fi";
         if (ok)
         {
             _passwordFor = null;
@@ -262,10 +263,10 @@ public partial class MainWindow
         {
             _passwordFor = network.Ssid; // open (or keep open) the password box for this one
             LoadDeviceList();
-            if (password is not null) DeviceListTitle.Text = "Wrong password? Try again";
+            if (password is not null) ListTitle.Text = "Wrong password? Try again";
             return;
         }
-        DeviceListTitle.Text = "Couldn't connect";
+        ListTitle.Text = "Couldn't connect";
     }
 
     private UIElement BluetoothRow(BluetoothItem device)
@@ -302,9 +303,9 @@ public partial class MainWindow
         {
             row.Children.Add(Docked(SmallButton(device.Connected ? "Disconnect" : "Connect", async () =>
             {
-                DeviceListTitle.Text = device.Connected ? "Disconnecting…" : $"Connecting {device.Name}…";
+                ListTitle.Text = device.Connected ? "Disconnecting…" : $"Connecting {device.Name}…";
                 bool ok = await BluetoothLister.SetAudioConnectedAsync(device.Name, !device.Connected);
-                DeviceListTitle.Text = ok ? "Bluetooth" : "Couldn't do that here; try Windows' settings";
+                ListTitle.Text = ok ? "Bluetooth" : "Couldn't do that here; try Windows' settings";
                 DelayedReload(ok ? 2500 : 0);
             }), Dock.Right));
         }

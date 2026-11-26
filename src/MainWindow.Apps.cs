@@ -265,7 +265,8 @@ public partial class MainWindow
         all.Add(DockAddButton);
         SyncTiles(_dock, all);
 
-        PeekDock.Visibility = Visibility.Visible;
+        // In dock mode the apps live in the dock at the bottom instead of the island's hover tray.
+        PeekDock.Visibility = _settings.DockMode ? Visibility.Collapsed : Visibility.Visible;
     }
 
     /// <summary>
@@ -467,7 +468,7 @@ public partial class MainWindow
 
     private void ShowPreview()
     {
-        bool inTrayOrApps = _peeking || (_expanded && _currentTab == "Apps");
+        bool inTrayOrApps = _peeking || _dockShown || (_expanded && _currentTab == "Apps");
         if (!inTrayOrApps || _menuOpen || _hoverTile is null || _hoverElement is null || !_hoverElement.IsMouseOver) return;
 
         var items = _hoverTile.Windows

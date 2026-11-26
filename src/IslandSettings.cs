@@ -100,6 +100,9 @@ public sealed class IslandSettings
     /// <summary>Forget clipboard history when you lock the PC (pinned clips are kept). It's never kept after a restart anyway.</summary>
     public bool ClearClipboardOnLock { get; set; }
 
+    /// <summary>Dock mode: Start, apps, tray and quick settings in three pills along the bottom (auto-hiding).</summary>
+    public bool DockMode { get; set; }
+
     /// <summary>The order of the tabs along the top, and which ones are hidden.</summary>
     public List<string> TabOrder { get; set; } = new();
     public List<string> HiddenTabs { get; set; } = new();

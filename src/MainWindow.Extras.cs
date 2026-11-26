@@ -920,6 +920,7 @@ public partial class MainWindow
     /// <summary>Black, Light (frosted), Glow (soft accent halo), Outline (thin accent edge), or Automatic (Black or Light, following Windows).</summary>
     private void ApplyIslandStyle()
     {
+        Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(SyncDockLook)); // the dock follows the island's look
         IslandShape.Effect = null;
         IslandShape.Stroke = null;
         IslandShape.StrokeThickness = 0;
@@ -1129,6 +1130,7 @@ public partial class MainWindow
         Clean30.IsChecked = _settings.ShelfCleanDays == 30;
         CleanNever.IsChecked = _settings.ShelfCleanDays is not (1 or 7 or 30);
         ClearClipboardSwitch.IsChecked = _settings.ClearClipboardOnLock;
+        DockModeSwitch.IsChecked = _settings.DockMode;
         LightOpacitySlider.Value = Math.Clamp(_settings.LightOpacity, 50, 100);
         LightOpacityText.Text = $"{LightOpacitySlider.Value:0}%";
         bool fades = _settings.IdleMode == "Fade";
@@ -1191,6 +1193,8 @@ public partial class MainWindow
         bool cleanChanged = cleanDays != _settings.ShelfCleanDays;
         _settings.ShelfCleanDays = cleanDays;
         _settings.ClearClipboardOnLock = ClearClipboardSwitch.IsChecked == true;
+        bool dockChanged = _settings.DockMode != (DockModeSwitch.IsChecked == true);
+        _settings.DockMode = DockModeSwitch.IsChecked == true;
         _settings.IdleMode = IdleOff.IsChecked == true ? "Stay" : "Fade";
         if (IdleOff.IsChecked != true)
             _settings.IdleSeconds = Idle10.IsChecked == true ? 10 : Idle60.IsChecked == true ? 60 : Idle300.IsChecked == true ? 300 : 30;
@@ -1199,6 +1203,7 @@ public partial class MainWindow
         UpdateClock();
         if (cleanChanged) _lastShelfClean = DateTime.MinValue; // clean up at the next check, a moment from now
         if (screensChanged) ApplyScreenMode();
+        if (dockChanged) ApplyDockMode();
 
         if (sender == StartWithWindowsSwitch) SetStartup(StartWithWindowsSwitch.IsChecked == true);
 

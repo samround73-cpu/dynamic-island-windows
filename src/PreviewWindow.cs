@@ -100,6 +100,14 @@ public sealed class PreviewWindow : Window
         Native.SetWindowPos(_hwnd, IntPtr.Zero, x, y, 0, 0, Native.SWP_NOSIZE | Native.SWP_NOZORDER | Native.SWP_NOACTIVATE);
         UpdateLayout();
 
+        // No room below (an icon in the dock at the bottom of the screen): show it above the icon instead.
+        int heightPx = (int)Math.Round(Height * screenScale);
+        if (info.rcMonitor.Bottom > info.rcMonitor.Top && y + heightPx > info.rcMonitor.Bottom)
+        {
+            y = (int)anchor.Top - heightPx - (int)Math.Round(8 * screenScale);
+            Native.SetWindowPos(_hwnd, IntPtr.Zero, x, y, 0, 0, Native.SWP_NOSIZE | Native.SWP_NOZORDER | Native.SWP_NOACTIVATE);
+        }
+
         double scale = VisualTreeHelper.GetDpi(this).DpiScaleX;
         for (int i = 0; i < count; i++)
             AddThumbnail(items[i].Handle, Pad + i * (SlotWidth + Gap), Pad + TitleHeight, scale);

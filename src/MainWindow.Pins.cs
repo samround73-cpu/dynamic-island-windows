@@ -274,7 +274,7 @@ public partial class MainWindow
 
     private void OpenFolderPeek()
     {
-        if (!_peeking || _folderPeekAnchor is null || _folderPeekTarget is null || !_folderPeekAnchor.IsMouseOver) return;
+        if (!(_peeking || _dockShown) || _folderPeekAnchor is null || _folderPeekTarget is null || !_folderPeekAnchor.IsMouseOver) return;
         string folder = _folderPeekTarget;
 
         List<FileSystemInfo> newest;

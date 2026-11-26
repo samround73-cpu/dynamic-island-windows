@@ -290,6 +290,7 @@ public partial class MainWindow
         bool dark = SystemActions.IsDarkMode;
         _darkModeTile.IsOn = dark;
         _darkModeTile.Subtitle = dark ? "On" : "Off";
+        RefreshDockStatus();
     }
 
     private void OpenOutputPicker()
